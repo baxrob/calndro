@@ -4,3 +4,6 @@
  2417  pip install django-environ
  2425  pip install uritemplate
  2426  pip install django-cors-headers
+ pyyaml
+ ipdb
+ coverage
