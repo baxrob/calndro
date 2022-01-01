@@ -37,11 +37,17 @@ class EventSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         remain = []
+        #print(validated_data)
+        #import ipdb; ipdb.set_trace()
+        if 'span' not in validated_data:
+            raise serializers.ValidationError(
+                {'span': ['This field is required']})
         for span in validated_data['span']:
             try:
                 found = instance.span.get(**span)
                 remain.append(found.id)
-            except Event.DoesNotExist:
+            #except Event.DoesNotExist:
+            except TimeSpan.DoesNotExist:
                 #import ipdb; ipdb.set_trace()
                 span['event_id'] = instance.id
                 obj = TimeSpan.objects.create(**span)

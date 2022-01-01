@@ -35,20 +35,35 @@ import io
 
 from schedul.models import *
 from schedul.serializers import *
-from rest_framework.renderers import JSONRenderer
-from rest_framework.parsers import JSONParser
+from rest_framework.renderers import (
+    JSONRenderer, MultiPartRenderer
+)
+from rest_framework.parsers import (
+    JSONParser, MultiPartParser
+)
 
 ipdb.set_trace()
 
 e = Event.objects.get(pk=7)
+print(e)
 es = EventSerializer(e)
+print(es)
+print(es.data)
 esc = JSONRenderer().render(es.data)
+print(esc)
+
 escs = io.BytesIO(esc)
+print(escs)
 escsd = JSONParser().parse(escs)
+print(escsd)
 escsds = EventSerializer(data=escsd)
-print(e, es, esc, escs, escsd, escsds)
+print(escsds)
+#print(e, es, es.data, esc, escs, escsd, escsds)
 escsds.is_valid()
 escsds.save()
+ipdb.set_trace()
+#escsm = MultiPartParser().parse(escs)
+#print(escsm)
 
 t4 = TimeSpan.objects.get(pk=4)
 t4s = TimeSpanSerializer(t4)
@@ -64,6 +79,8 @@ ipdb.set_trace()
 
 
 
+
+
 #
 print('request factory / response')
 ipdb.set_trace()
@@ -75,6 +92,11 @@ print(request.body)
 response = EventList.as_view()(request)
 response.render()
 print(response.content)
+
+view = EventList.as_view()
+view.setup(request)
+print(view.get_context_data())
+
 
 request = factory.post('/', {'parties': [{'email': 'zo@localhost'}], 'span': [ { "begin": "2021-12-24T22:58:26.611Z", "duration": "02:30:00" } ]}, format='json')
 print(request.body)
