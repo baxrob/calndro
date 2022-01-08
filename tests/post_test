@@ -1,0 +1,44 @@
+POST / HTTP/1.1
+User-Agent: HTTPie/2.6.0
+Accept-Encoding: gzip, deflate
+Accept: application/json, */*;q=0.5
+Connection: keep-alive
+Content-Type: application/json
+Content-Length: 40
+Host: localhost:9000
+
+{"parties":["ub@localhost"], "span": []}
+
+__
+ 1894  which docker
+ 2093  vi install_docker.sh
+ 2096  mv install_docker.sh install_docker_foo.sh 
+ 2097  scp install_docker_foo.sh x24:dev/
+ 2098  scp install_docker_foo.sh x24:~/dev/
+ 2099  scp install_docker_foo.sh x24:~/dev
+ 2100  scp install_docker_foo.sh x24:dev
+ 2136  sudo apt-get remove docker docker-engine docker.io containerd runc
+ 2137  acs docker-engine
+ 2138  sudo apt-get remove docker docker.io containerd runc
+ 2142  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg'
+ 2146  cat install_docker_foo.sh 
+ 2148  curl -fsSL https://download.docker.com/linux/ubuntu/gpg > docker_gpg
+ 2149  vi docker_gpg 
+ 2150  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+ 2151  echo   "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
+ 2152    $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+ 2154  less /etc/apt/sources.list.d/docker.list 
+ 2158  agi docker-ce docker-ce-cli containerd.io
+ 2159  apt-cache madison docker-ce
+ 2160  sudo docker run hello-world
+ 2172  docker --version
+ 2193  docker info
+ 2194  sudo docker info | less
+ 2200  sudo groupadd docker
+ 2204  sudo usermod -aG docker ob
+ 2238  newgrp docker
+ 2248  docker run hello-world
+ 2249  ls -la ~/ | grep docker
+ 3035  which docker
+ 3208  history | grep docker | vi -
+ 3209  history | grep docker >> post_test 

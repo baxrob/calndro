@@ -1,0 +1,175 @@
+ 3078  grep 'def test' schedul/tests.py | awk '{ print $2 }' | awk -F\( '{ print $1 }' | awk -F_ '{ print $2, $3, $4 }'
+get list 
+post single 
+post many 
+post fail 
+get single 
+get fail 
+patch add 
+patch empty 
+patch fail 
+delete  
+delete fail 
+list auth 
+post auth fail
+get auth fail
+patch auth fail
+delete auth fail
+ 3079  grep 'def test' schedul/tests.py | awk '{ print $2 }' | awk -F\( '{ print $1 }' | awk -F_ '{ print $2, $3, $4 }' | sort
+delete  
+delete auth fail
+delete fail 
+get auth fail
+get fail 
+get list 
+get single 
+list auth 
+patch add 
+patch auth fail
+patch empty 
+patch fail 
+post auth fail
+post fail 
+post many 
+post single 
+ 3080  grep 'def test' schedul/tests.py | awk '{ print $2 }' | awk -F\( '{ print $1 }' | awk -F_ '{ print $2, $3, $4 }' | sort -k 2
+delete  
+patch add 
+list auth 
+delete auth fail
+get auth fail
+patch auth fail
+post auth fail
+patch empty 
+delete fail 
+get fail 
+patch fail 
+post fail 
+get list 
+post many 
+get single 
+post single 
+__
+get list 
+post single 
+post many 
+post fail 
+get single 
+get fail 
+patch add 
+patch empty 
+patch fail 
+delete  
+delete fail 
+list auth 
+post auth fail
+get auth fail
+patch auth fail
+delete auth fail
+.
+delete  
+delete auth fail
+delete fail 
+get auth fail
+get fail 
+get list 
+get single 
+list auth 
+patch add 
+patch auth fail
+patch empty 
+patch fail 
+post auth fail
+post fail 
+post many 
+post single 
+.
+delete  
+patch add 
+list auth 
+delete auth fail
+get auth fail
+patch auth fail
+post auth fail
+patch empty 
+delete fail 
+get fail 
+patch fail 
+post fail 
+get list 
+post many 
+get single 
+post single 
+__
+
+httpie
+drf cli/ent
+curl nc socat
+apifuzr
+
+act gh docker
+schema / doc
+ssl
+tokenauth
+sanitiz
+.
+eml reg
+hist log/ing
+m/t q/broker
+signals
+logging
+simplehist
+_()
+sync
+
+
+    @tag('list', 'get')
+    def test_get_list(self):
+--
+    @tag('list', 'post')
+    def test_post_single(self):
+--
+    @tag('list', 'post')
+    def test_post_many(self):
+--
+    @tag('list', 'post', 'fail')
+    def test_post_fail(self):
+--
+    @tag('detail', 'get')
+    def test_get_single(self):
+--
+    @tag('detail', 'get', 'fail')
+    def test_get_fail(self):
+--
+    @tag('detail', 'patch')
+    def test_patch_add(self):
+--
+    @tag('detail', 'patch')
+    def test_patch_empty(self):
+--
+    @tag('detail', 'patch', 'fail')
+    def test_patch_fail(self):
+--
+    @tag('detail', 'delete')
+    def test_delete(self):
+--
+    @tag('detail', 'delete', 'fail')
+    def test_delete_fail(self):
+--
+@tag('auth')
+class AuthTests(APITestCase):
+--
+    @tag('list', 'get', 'post')
+    def test_list_auth(self):
+--
+    @tag('list', 'post', 'fail')
+    def test_post_auth_fail(self):
+--
+    @tag('detail', 'get', 'fail')
+    def test_get_auth_fail(self):
+--
+    @tag('detail', 'patch', 'fail')
+    def test_patch_auth_fail(self):
+--
+    @tag('detail', 'delete', 'fail')
+    def test_delete_auth_fail(self):

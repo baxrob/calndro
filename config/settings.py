@@ -38,6 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'rest_framework',
+    'drf_yasg',
+    #'dj_rest_auth',
+    #'dj_rest_auth.registration',
     #'schedul',
     'schedul.apps.SchedulConfig',
 ]
@@ -131,7 +134,22 @@ STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+REST_FRAMEWORK = {
+    #'TEST_REQUEST_DEFAULT_FORMAT': 'json',
+}
 '''
+    'TEST_REQUEST_RENDERER_CLASSES': [
+        'rest_framework.renderers.MultiPartRenderer',
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.TemplateHTMLRenderer',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+    ],
 
 CACHES = {
     'default': env.cache_url()
@@ -164,6 +182,8 @@ ADMINS = getaddresses([env('DJANGO_ADMINS')])
 from email.utils import parseaddr
 
 ADMINS = tuple(parseaddr(email) for email in env.list('DJANGO_ADMINS'))
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 EMAIL_HOST
 EMAIL_PORT

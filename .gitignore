@@ -2,6 +2,8 @@
 .env
 __pycache__
 
+.python-version
+
 venv
 *.swp
 *.vim

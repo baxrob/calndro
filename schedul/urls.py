@@ -4,6 +4,10 @@ from schedul.views import EventList, EventDetail
 urlpatterns = [
     path('', EventList.as_view(), name='event-list'),
     path('<int:pk>/', EventDetail.as_view(), name='event-detail'),
+
+    #path('dispatch/', DispatchList.as_view()),
+    #path('dispatch/<int:pk>/', DispatchDetail.as_view()),
+    #path('dispatch/<int:pk>/notify/', DispatchNotification.as_view()),
 ]
 '''
     path('/', EventList.as_view()),

@@ -1,0 +1,10 @@
+POST / HTTP/1.1
+User-Agent: HTTPie/2.6.0
+Accept-Encoding: gzip, deflate
+Accept: application/json, */*;q=0.5
+Connection: keep-alive
+Content-Type: application/json
+Content-Length: 40
+Host: localhost:9000
+
+{"parties":["ub@localhost"], "span": []}
