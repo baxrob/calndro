@@ -10,35 +10,63 @@ Host: localhost:9000
 {"parties":["ub@localhost"], "span": []}
 
 __
- 1894  which docker
- 2093  vi install_docker.sh
- 2096  mv install_docker.sh install_docker_foo.sh 
- 2097  scp install_docker_foo.sh x24:dev/
- 2098  scp install_docker_foo.sh x24:~/dev/
- 2099  scp install_docker_foo.sh x24:~/dev
- 2100  scp install_docker_foo.sh x24:dev
- 2136  sudo apt-get remove docker docker-engine docker.io containerd runc
- 2137  acs docker-engine
- 2138  sudo apt-get remove docker docker.io containerd runc
- 2142  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg'
- 2146  cat install_docker_foo.sh 
- 2148  curl -fsSL https://download.docker.com/linux/ubuntu/gpg > docker_gpg
- 2149  vi docker_gpg 
- 2150  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
- 2151  echo   "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
- 2152    $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
- 2154  less /etc/apt/sources.list.d/docker.list 
- 2158  agi docker-ce docker-ce-cli containerd.io
- 2159  apt-cache madison docker-ce
- 2160  sudo docker run hello-world
- 2172  docker --version
- 2193  docker info
- 2194  sudo docker info | less
- 2200  sudo groupadd docker
- 2204  sudo usermod -aG docker ob
- 2238  newgrp docker
- 2248  docker run hello-world
- 2249  ls -la ~/ | grep docker
- 3035  which docker
- 3208  history | grep docker | vi -
- 3209  history | grep docker >> post_test 
+ 3020  agi httpie
+ 3038  http --offline POST server.chess/api/games API-Key:ZZZ w=magnus b=hikaru t=180 i=2
+ 3039  http --version
+ 3044  sudo apt purge httpie
+ 3047  python -m install httpie
+ 3048  python -m pip install httpie
+ 3049  which http
+ 3056  http
+ 3057  which httpie
+ 3059  ls ~/.pyenv/versions/3.9.7/lib/python3.9/http/
+ 3061  cd ~/.pyenv/versions/3.9.7/lib/python3.9/site-packages/httpie
+ 3065  locate httpie
+ 3066  locate httpie | less
+ 3070  python -m pip uninstall httpie
+ 3072  snap install httpie
+ 3073  which httpie
+ 3074  which http
+ 3075  http --offline POST server.chess/api/games API-Key:ZZZ w=magnus b=hikaru t=180 i=2
+ 3076  which http
+ 3090  which http
+ 3091  http --offline POST server.chess/api/games API-Key:ZZZ w=magnus b=hikaru t=180 i=2
+ 3096  http --offline POST server.chesss/api/games API-Key:ZZZ w=magnus b=hikaru t=180 i=2
+ 3097  http --offline POST localshosht/api/games API-Key:ZZZ w=magnus b=hikaru t=180 i=2
+ 3169  http localhost:9000
+ 3170  http localhost:9000/3/
+ 3171  http localhost:9000/2/
+ 3172  http localhost:9000/5/
+ 3173  http --offline localhost:9000
+ 3174  http localhost:9000/3/
+ 3176  http --offline localhost:9000/2/
+ 3177  http localhost:9000/3/
+ 3178  http :9000/3/
+ 3179  http :9000/
+ 3180  http :
+ 3181  http :9000/
+ 3182  http POST :9000/
+ 3183  http --raw '{"parties":["ub@localhost"], "span": []}' POST :9000/ 
+ 3184  http --offline --raw '{"parties":["ub@localhost"], "span": []}' POST :9000/ 
+ 3185  http -f --offline --raw '{"parties":["ub@localhost"], "span": []}' POST :9000/ 
+ 3186  http --multipart --offline --raw '{"parties":["ub@localhost"], "span": []}' POST :9000/ 
+ 3187  http --form --multipart --offline --raw '{"parties":["ub@localhost"], "span": []}' POST :9000/ 
+ 3188  http --offline --raw '{"parties":["ub@localhost"], "span": []}' POST :9000/ 
+ 3192  http --offline --raw '{"parties":["ub@localhost"], "span": []}' POST :9000/ 
+ 3193  http --offline --raw '{"parties":["ub@localhost"], "span": []}' POST :9000/ > post_test
+ 3195  http --raw '{"parties":["ub@localhost"], "span": []}' POST :9000/ 
+ 3196  http -v --raw '{"parties":["ub@localhost"], "span": []}' POST :9000/ 
+ 3197  http -v --print=HB --raw '{"parties":["ub@localhost"], "span": []}' POST :9000/ 
+ 3198  http --print=HB --raw '{"parties":["ub@localhost"], "span": []}' POST :9000/ 
+ 3199  http -v --raw '{"parties":["ub@localhost"], "span": []}' POST :9000/ 
+ 3200  http -v --raw '{"parties":["ub@localhost"],"span":[]}' POST :9000/ 
+ 3201  http -a ob@localhost:p -v --raw '{"parties":["ub@localhost"],"span":[]}' POST :9000/ 
+ 3202  http -a ob:p -v --raw '{"parties":["ub@localhost"],"span":[]}' POST :9000/ 
+ 3203  http -a ob@localhost:p -v --raw '{"parties":["ub@localhost"],"span":[]}' :9000/ 
+ 3204  http -a ob:p -v --raw '{"parties":["ub@localhost"],"span":[]}' :9000/ 
+ 3205  http -a ob:p -v --raw '{"parties":[{"email": "ub@localhost"}],"span":[]}' :9000/ 
+ 3214  http --offline --raw '{"parties":["ub@localhost"], "span": []}' POST :9000/ > post_test_2
+ 3232  history | grep http|less
+ 3233  history | grep http >> post_test_2
+ 3235  http --offline --raw '{"parties":["ub@localhost"], "span": []}' POST :9000/ > post_test_2
+ 3236  history | grep http >> post_test
