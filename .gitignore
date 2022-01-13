@@ -3,7 +3,11 @@
 __pycache__
 
 .python-version
+.coverage
 
 venv
 *.swp
 *.vim
+
+_t
+db.sqlite3*
