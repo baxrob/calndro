@@ -2,8 +2,9 @@ import json
 from pathlib import Path
 from ipdb import set_trace as st
 
-from django.test import tag
+from django.test import tag, override_settings
 from django.contrib.auth import get_user_model
+from django.db import connection, reset_queries
 
 from schedul.models import Event, TimeSpan
 from schedul.serializers import EventSerializer, TimeSpanSerializer
@@ -21,8 +22,8 @@ from rest_framework.test import (
 
 # requestfactory, numqueries
 
-if True:
-#if False:
+#if True:
+if False:
     def st(*args, **kwargs):
         pass
 
@@ -91,6 +92,10 @@ class EventTests(APITestCase):
     def test_get_list(self):
         st()
         from django.db import connection
+        from django.conf import settings
+        import ipdb
+
+        settings.DEBUG = True
 
         response = self.client.get('/')
         print(connection.queries, len(connection.queries))
@@ -99,6 +104,7 @@ class EventTests(APITestCase):
         aview = EventList.as_view()
         request.user = self.suser
         #force_authenticate(request, user=self.suser)
+        ipdb; ipdb.set_trace()
         arsp = aview(request)
         #y = view.setup(request)
 
