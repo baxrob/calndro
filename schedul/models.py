@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.contrib.auth import get_user_model
 
 
 def nym_gen(n=5):
@@ -23,12 +24,57 @@ class Event(models.Model):
 
 class TimeSpan(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE, 
-        related_name='span')
+        related_name='slots')
     begin = models.DateTimeField()
     duration = models.DurationField()
 
     class Meta:
         ordering = ['begin']
+
+
+class DispatchOccurrenceChoices(models.TextChoices):
+    UPDATE = 'UPDATE', 'Update'
+    NOTIFY = 'NOTIFY', 'Notify'
+    VIEW = 'VIEW', 'View'
+
+class DispatchLogEntry(models.Model):
+    # X: 
+    event = models.ForeignKey(Event, on_delete=models.CASCADE,
+        related_name='dispatch_log')
+    when = models.DateTimeField(auto_now_add=True)
+    occurrence = models.CharField(max_length=32,
+        choices=DispatchOccurrenceChoices.choices)
+    #effector = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    effector = models.CharField(max_length=128)
+    #effector = models.EmailField()
+
+    #occurence = models.CharField(max_length=32)
+    #when = models.CharField(max_length=32)
+    slots = models.CharField(max_length=1024)
+    #parties = models.CharField(max_length=4096)
+    data = models.CharField(max_length=128, default='{}')
+
+    '''
+    occurrence = models.CharField(max_length=64)
+    #when = models.DateTimeField(default=now)
+
+    #proposed_slots = models.CharField(max_length=4096)
+    #slots = 
+    proposed_slots = models.ForeignKey(TimeSpan)
+    
+    # iff evt.parties is fixed on create, this is irrelevant, and could be our 'data' field
+    related_parties = models.CharField(max_length=4096)
+    #related_parties = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    #related_parties = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='')
+    
+    # data : update, notify, view : user, user, auth/token user; null, recipients, token
+    effector = models.CharField(max_length=256) # email
+    #token = models.ForeignKey(
+    #token = models.CharField(
+
+    # < data @dispatch_user @notify_recipients @view_token
+
+    '''
 
 '''
 class Dispatch(models.Model):

@@ -1,5 +1,13 @@
 from rest_framework import permissions
 
+class IsActiveUser(permissions.BasePermission):
+    
+    def has_object_permission(self, request, view, obj):
+        user = request.user
+        # X: user.schedul.is_confirmed
+        return user.is_authenticated and user.is_active
+
+
 class IsEventPartyOrAdmin(permissions.BasePermission):
     #message = 
     #code =

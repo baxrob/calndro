@@ -36,7 +36,7 @@ def map_fixtures(fixtures):
         with open(fpath) as fd:
             fdata[f] = json.loads(fd.read())
     return {
-        'spans': ([(x['fields']['begin'], x['fields']['duration']) 
+        'slots': ([(x['fields']['begin'], x['fields']['duration']) 
             for x in fdata['schedul'] 
             if x['model'] == 'schedul.timespan']),
         'emails': [x['fields']['email'] for x in fdata['users']],
@@ -79,9 +79,9 @@ class EventTests(APITestCase):
         self.client.login(username='sup', password='p')
         #st()
 
-    def get_spans(self, n=0, m=1):
+    def get_slots(self, n=0, m=1):
         return ([{'begin': x[0], 'duration': x[1]}
-            for x in self.fdata['spans'][n:n+m]])
+            for x in self.fdata['slots'][n:n+m]])
 
     def get_parties(self, n=0, m=1):
         return [{'email': x} for x in self.fdata['emails'][n:n+m]]
@@ -125,21 +125,21 @@ class EventTests(APITestCase):
     def test_post_single(self):
         response = self.client.post('/', {
             'parties': self.get_parties(0, len(self.fdata['emails'])),
-            'span': self.get_spans(0, len(self.fdata['spans']))
+            'slots': self.get_slots(0, len(self.fdata['slots']))
         }, format='json')
         self.assertEqual(response.status_code, 201)
-        print(response.data['span'], response.data['parties'])
+        print(response.data['slots'], response.data['parties'])
         st()
 
     @tag('list', 'post')
     def test_post_many(self):
         tevents = ([{
                 'parties': self.get_parties(0, len(self.fdata['emails'])),
-                'span': self.get_spans(0, 1)
+                'slots': self.get_slots(0, 1)
             },
             {
                 'parties': self.get_parties(0, 1),
-                'span': self.get_spans(0, len(self.fdata['spans']))
+                'slots': self.get_slots(0, len(self.fdata['slots']))
         }])
         response = self.client.post('/', tevents, format='json')
         print(response)
@@ -158,7 +158,7 @@ class EventTests(APITestCase):
         print(response)
         response = self.client.post('/', {
             'parties': [],
-            'span': self.get_spans(0, len(self.fdata['spans']))
+            'slots': self.get_slots(0, len(self.fdata['slots']))
         })
         print(response)
         st()
@@ -185,21 +185,21 @@ class EventTests(APITestCase):
         return
         for n in self.fdata['events']:
             resp = self.client.patch(f'/{n}/', 
-                self.get_spans(0, len(self.fdata.spans)),
+                self.get_slots(0, len(self.fdata.slots)),
                 format='json')
             print(
-                len(resp.content['spans']), len(self.fdata.spans)
+                len(resp.content['slots']), len(self.fdata.slots)
             )
 
     @tag('detail', 'patch')
     def test_patch_empty(self):
         for n in self.fdata['events']:
-            response = self.client.patch(f'/{n}/', {'span': []},
+            response = self.client.patch(f'/{n}/', {'slots': []},
                 format='json')
             assert(response.status_code == 200)
             #assert(len(response.content) == 0)
             jc = json.loads(response.content)
-            print(n, jc, len(jc['span']))
+            print(n, jc, len(jc['slots']))
 
     @tag('detail', 'patch', 'fail')
     def test_patch_fail(self):
@@ -214,7 +214,7 @@ class EventTests(APITestCase):
 
         with self.assertRaises(AssertionError):
             # X: custom valid err - after mprenderer ..
-            response = self.client.patch('/1/', {'span': {'break': 'foo'}})
+            response = self.client.patch('/1/', {'slots': {'break': 'foo'}})
         print(response.content)
         st()
 

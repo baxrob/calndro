@@ -10,12 +10,12 @@ admin.site.site_header = 'cal_dor^io'
 
 schema_view = yasg_get_schema_view(
    openapi.Info(
-      title="Event scheduling API",
+      title="Multi-party event scheduling API",
       default_version="v1",
       description="foo",
       terms_of_service="https://www.google.com/policies/terms/",
       contact=openapi.Contact(email="hello@example.com"),
-      license=openapi.License(name="BSD License"),
+      license=openapi.License(name="GPL v3 License"),
    ),
    public=True,
    permission_classes=(permissions.AllowAny,),
@@ -32,6 +32,7 @@ urlpatterns = [
         version="1.0.0"
     ), name='openapi-schema'),
 
+    # X: 
     path('swagger/', schema_view.with_ui(
       'swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui(
