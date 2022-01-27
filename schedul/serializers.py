@@ -29,7 +29,7 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Event
-        fields = ['url', 'log_url', 'title', 'parties', 'slots', 'notify']#,
+        fields = ['id', 'url', 'log_url', 'title', 'parties', 'slots', 'notify']#,
             #'list_url']
         #read_only_fields = ['parties']
         #read_only_fields = ['title']
@@ -44,16 +44,19 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
             #print(field)
 
     def validate_slots(self, value):
-        print('SLOTS:', value)
+        #print('SLOTS:', value)
         #print('super:', super)
         return value
     def validate_parties(self, value):
-        print('PARTIES:', value)
+        #print('PARTIES:', value)
         return value
 
-    def validate(self):
-        pass
-        import ipdb; ipdb.set_trace()
+    def validate(*args, **kwargs):
+        #print('ARGS', args[0], 'DATA', args[1], 'KWARGS', kwargs)
+        #pass
+        #import ipdb; ipdb.set_trace()
+        return args[1]
+        return super().validate(*args, **kwargs)
 
     def create(self, validated_data):
         if 'title' in validated_data and len(validated_data['title']):
@@ -63,10 +66,18 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
         for party in validated_data.get('parties'):
             # X: move to ?? ; must set is_active = False if new
             party_obj = User.objects.get_or_create(
-                username=party['email'], email=party['email']
-            )[0]
-            import ipdb; ipdb.set_trace()
-            event.parties.add(party_obj)
+                #username=party['email'], 
+                email=party['email']
+            )
+            user = party_obj[0]
+            if party_obj[1]:
+                user.username = user.email
+                user.is_active = False
+                user.save()
+            print('user', user, 'created', party_obj[1])
+
+            #import ipdb; ipdb.set_trace()
+            event.parties.add(user)
         for slot in validated_data.get('slots'):
             TimeSpan.objects.create(event=event, **slot)
         return event

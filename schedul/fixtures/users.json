@@ -22,6 +22,8 @@
     "fields": {
       "password": "pbkdf2_sha256$260000$GR4pe9Xh6y8C4XOjJHfKQ2$G2YtNq7zES4b2I9P1Ka5rVawqJ83bmYNqXPzJ3XKlGY=",
       "username": "zo",
+      "is_staff": false,
+      "is_active": true,
       "email": "zo@localhost"
     }
   },
@@ -31,6 +33,8 @@
     "fields": {
       "password": "pbkdf2_sha256$260000$GR4pe9Xh6y8C4XOjJHfKQ2$G2YtNq7zES4b2I9P1Ka5rVawqJ83bmYNqXPzJ3XKlGY=",
       "username": "ub",
+      "is_staff": false,
+      "is_active": false,
       "email": "ub@localhost",
       "date_joined": "2021-12-20T21:45:21.639Z"
     }

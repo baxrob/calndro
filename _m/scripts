@@ -1,0 +1,1 @@
+for i in $(ls schedul/*.py | grep -v __init__); do printf "\n==$i==\n\n"; cat $i; printf "\n"; done | less > printsrc.py

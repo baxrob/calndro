@@ -15,7 +15,8 @@ class IsEventPartyOrAdmin(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         #import ipdb; ipdb.set_trace()
         return (
-            request.user.is_superuser
+            #request.user.is_superuser
+            request.user.is_staff
             or request.user.is_authenticated
             and request.user.email in [p.email for p in obj.parties.all()]
         )

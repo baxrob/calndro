@@ -149,18 +149,13 @@ print(response.content)
 ipdb.set_trace()
 
 
+## fixtures
+
+## authn/z
+
 ## schematum
 
 # from manage generateschema
-
-
-
-## fixtures
-
-
-
-
-## authn/z
 
 
 

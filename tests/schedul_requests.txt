@@ -1,0 +1,40 @@
+
+# ./manage.py testserver --addrport 0.0.0.0:9000 users schedul
+
+# detail get
+http -a ob:p :9000/1/
+
+# detail patch
+#http -a ob:p PATCH --raw='{"span": []}' :9000/1/
+#http -a ob:p --raw='{"span": []}' PATCH :9000/1/
+#http -a ob:p --raw='{"span": [{"begin": "2021-12-24T21:58:26.611000Z", "duration": "02:30:00"}]}' PATCH :9000/1/
+
+echo '{"slots": []}' | http -a ob:p PATCH :9000/1/
+echo \
+'{"slots": [{"begin": "2021-12-24T21:58:26.611000Z", "duration": "02:30:00"}]}' \
+| http -a ob:p PATCH :9000/1/
+
+#http -a ob:p --print=HBhb PATCH :9000/1/ slots:='[]'
+#http -a ob:p PATCH :9000/1/ slots:='[{"begin":"2021-12-24T21:58:26.611000Z","duration":"02:30:00"}]'
+
+http -a ob:p PATCH :9000/1/ --raw='{"slots": []}'
+http -a ob:p PATCH :9000/1/ --raw='{"slots": [{"begin": "2021-12-24T21:58:26.611000Z", "duration": "02:30:00"}]}'
+
+
+payload='{"parties": [{"email": "zo@localhost"}], "slots": []}'
+user=zo
+password=p
+auth=$([ -n "$password" ] && echo "-a $user:$password")
+addr=$([ -n "$host" ] && echo "$host:${port:-9000}/$pth" || echo :9000/)
+echo $payload | http --print=HBhb $auth $method $addr
+
+payload='{"parties": [{"email": "zo@localhost"}], "slots": []}'
+user=zo
+password=p
+method=PATCH
+pth=1/
+auth=$([ -n "$password" ] && echo "-a $user:$password")
+addr=$([ -n "$host" ] && echo "$host:${port:-9000}/$pth" || echo :9000/)
+echo $payload | http --print=HBhb $auth $method $addr
+
+

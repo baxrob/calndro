@@ -100,8 +100,8 @@ class EventDetail(APIView):
         #import ipdb; ipdb.set_trace()
         # X: ? this interferes with ui checking delete/option availability
         #   no, self.check_object... does -- via browserviewclassfoo
-        event = get_object_or_404(Event, pk=pk)
-        foo = self.check_object_permissions(request, event)
+        #event = get_object_or_404(Event, pk=pk)
+        #foo = self.check_object_permissions(request, event)
         #print('?check_o_perm return', foo)
         
         event = self.get_object()
@@ -169,6 +169,8 @@ class EventNotify(APIView):
             if not 'parties' in serializer.validated_data:
                 return Response({'parties': 'required'},
                     status=status.HTTP_400_BAD_REQUEST)
+            for evt_party in event.parties:
+                import ipdb; ipdb.set_trace()
             for umail in serializer.validated_data['parties']:
                 # X: test parties in event ..
                 notify(umail['email'], pk)
