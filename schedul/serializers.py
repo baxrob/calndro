@@ -109,6 +109,17 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
         return instance
          
 
+class EventUpdateSerializer(serializers.Serializer):
+    slots = TimeSpanSerializer(many=True)
+
+    def update(self, instance, validated_data):
+        return instance
+
+
+class EventNotifySerializer(serializers.Serializer):
+    parties = UserSerializer(many=True)
+
+
 class DispatchLogEntrySerializer(serializers.ModelSerializer):
     #when = serializers.DateTimeField()
     #occurrence = serializers.CharField()

@@ -1,0 +1,9 @@
+
+name: base
+on:
+  push
+env:
+  ENV_PATH: 'config/.env.ci'
+jobs:
+  build:
+    runs-on: ubuntu-latest
