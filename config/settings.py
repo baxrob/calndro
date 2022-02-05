@@ -90,6 +90,7 @@ DATABASES = {
 #DATABASES = {
 #    'default': env.db_url()
 #}
+print('### BASE_DIR ###', BASE_DIR)
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
