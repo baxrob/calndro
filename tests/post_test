@@ -71,5 +71,13 @@ __
  3235  http --offline --raw '{"parties":["ub@localhost"], "span": []}' POST :9000/ > post_test_2
  3236  history | grep http >> post_test
 
+ 9013  http :9000
+ 9014  http --session=foo2 --print=HBh --pretty=all -a ob:p :9000
+ 9015  ls ~/.httpie
+ 9016  vi ~/.httpie/sessions/localhost_9000/foo2.json
+ 9017  http --session=foo2 --print=HBh --pretty=all:9000
+ 9018  http --session=foo2 --print=HBh --pretty=all :9000
+ 9019  http --session=foo2 --print=HBhb --pretty=all :9000
+ 9020  http  --print=HBh --pretty=all :9000
 
 

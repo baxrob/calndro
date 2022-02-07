@@ -1,3 +1,8 @@
+import os
+import binascii
+
+from zoneinfo import ZoneInfo
+from datetime import datetime, timedelta
 from django.db import models
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -18,12 +23,12 @@ def nym_gen(n=5):
 class Event(models.Model):
     title = models.CharField(max_length=256, default=nym_gen)
     parties = models.ManyToManyField(settings.AUTH_USER_MODEL)
-    #initiator
+    #initiator = models.ForeignKey(get_user_model())
     #initiated = models.DateTimeField()
 
 
 class TimeSpan(models.Model):
-    event = models.ForeignKey(Event, on_delete=models.CASCADE, 
+    event = models.ForeignKey( Event, on_delete=models.CASCADE,
         related_name='slots')
     begin = models.DateTimeField()
     duration = models.DurationField()
@@ -31,6 +36,32 @@ class TimeSpan(models.Model):
     class Meta:
         ordering = ['begin']
 
+
+#class DispatchEmailToken(models.Model):
+class EmailToken(models.Model):
+    event = models.ForeignKey(
+        Event, on_delete=models.CASCADE#, related_name='slots'
+    )
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    key = models.CharField(max_length=40, primary_key=True, editable=False)
+    expires = models.DateTimeField(
+        default=datetime.now(ZoneInfo('UTC')) + timedelta(days=5),
+        editable=False)
+
+    def save(self, *args, **kwargs):
+        if not self.key:
+            self.key = binascii.hexlify(os.urandom(20)).decode()
+        return super().save(*args, **kwargs)
+
+    '''
+    @classmethod
+    def generate_expiry(self):
+        pass
+    @classmethod
+    def generate_key(cls):
+        return binascii.hexlify(os.urandom(20)).decode()
+    '''
+    
 
 class DispatchOccurrenceChoices(models.TextChoices):
     UPDATE = 'UPDATE', 'Update'

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from schedul.models import Event, TimeSpan, DispatchLogEntry
+from schedul.models import Event, TimeSpan, EmailToken, DispatchLogEntry
 
 
 #class PartiesInline(admin.StackedInline):
@@ -12,18 +12,23 @@ class TimeSpanInline(admin.TabularInline):
     model = TimeSpan
 
 
+class EmailTokenInline(admin.TabularInline):
+    model = EmailToken
+
+
 class EventAdmin(admin.ModelAdmin):
 
     actions_on_top = True
     actions_on_bottom = True
 
-    inlines = [PartiesInline, TimeSpanInline]
+    inlines = [PartiesInline, TimeSpanInline, EmailTokenInline]
     #inlines = [TimeSpanInline]
     #exclude = ['parties']
     filter_horizontal = ['parties']
 
     save_on_top = True
     search_fields = ['parties__email']
+    #readonly_fields = ['toke
 
     list_display = ['id', 'title', 'party_emails', 'span_count']
     #list_display_links = ['id', 'title', 'party_emails', 'span_count']

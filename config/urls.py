@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.urls import include, path
 from rest_framework import permissions
 from rest_framework.schemas import get_schema_view
+from rest_framework.authtoken.views import obtain_auth_token
 from drf_yasg.views import get_schema_view as yasg_get_schema_view
 from drf_yasg import openapi
 
@@ -13,7 +14,7 @@ schema_view = yasg_get_schema_view(
       title="Multi-party event scheduling API",
       default_version="v1",
       description="foo",
-      terms_of_service="https://www.google.com/policies/terms/",
+      terms_of_service="",
       contact=openapi.Contact(email="hello@example.com"),
       license=openapi.License(name="GPL v3 License"),
    ),
@@ -24,7 +25,11 @@ schema_view = yasg_get_schema_view(
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('schedul.urls')),
-    path('auth-foo/', include('rest_framework.urls')),
+    path('api-auth/', include('rest_framework.urls')),
+    path('api-token-auth/', obtain_auth_token),
+    #path('dj-rest-auth/', include('dj_rest_auth.urls')),
+    #path('dj-rest-auth/registration/',
+    #      include('dj_rest_auth.registration.urls')),
 
     path('openapi', get_schema_view(
         title="Blog API",
@@ -33,10 +38,10 @@ urlpatterns = [
     ), name='openapi-schema'),
 
     # X: 
-    path('swagger/', schema_view.with_ui(
-      'swagger', cache_timeout=0), name='schema-swagger-ui'),
-    path('redoc/', schema_view.with_ui(
-      'redoc', cache_timeout=0), name='schema-redoc'),
+    #path('swagger/', schema_view.with_ui(
+    #  'swagger', cache_timeout=0), name='schema-swagger-ui'),
+    #path('redoc/', schema_view.with_ui(
+    #  'redoc', cache_timeout=0), name='schema-redoc'),
 ]
 
 

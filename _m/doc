@@ -2,3 +2,15 @@
 
 dev test stage prod
 primary replica email
+
+
+is_active
+
+x /?token
+
+/n/?token
+/n/?token patch
+/n/?notify post
+
+session
+$_GET

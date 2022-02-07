@@ -8,8 +8,8 @@ from django.contrib.auth import get_user_model
 from django.db import connection, reset_queries
 from rest_framework.test import APITestCase
 
-if True:
-#if False:
+#if True:
+if False:
     def st(*args, **kwargs):
         pass
     def print(*args, **kwargs):
@@ -76,6 +76,10 @@ class EventViewTests(APITestCase):
         n = len(self.fdata['events']) + 1
         resp = self.client.get(f'/{n}/')
         self.assertTrue(resp.status_code == 404)
+
+    def test_detail_patch_dupe(self):
+        #
+        self.assertTrue 
 
     def test_detail_patch_add(self):
         for n in self.fdata['events']:
@@ -155,7 +159,7 @@ class EventViewTests(APITestCase):
         # X: x format='json' - note field error before multipart invalid
         resp = self.client.post('/')
         self.assertEqual(resp.status_code, 400)
-        #st()
+        st()
         resp = self.client.post('/', {
             'parties': self.get_parties(0, len(self.fdata['emails']))
         })
@@ -280,6 +284,14 @@ class ViewAuthTests(APITestCase):
     def test_notify_post_auth_fail(self):
         #
         self
+
+    def test_notify_post_auth_token(self):
+        #
+        self.assertTrue(True)
+
+    def test_notify_post_auth_token_fail(self):
+        #
+        self.assertTrue(True)
 
     def test_log_get_auth_fail(self):
         self.loop_user_event_tests('get', 'log/')
