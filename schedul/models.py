@@ -1,8 +1,9 @@
 import os
 import binascii
 
-from zoneinfo import ZoneInfo
+#from zoneinfo import ZoneInfo
 from datetime import datetime, timedelta
+from django.utils import timezone
 from django.db import models
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -44,9 +45,9 @@ class EmailToken(models.Model):
     )
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     key = models.CharField(max_length=40, primary_key=True, editable=False)
-    expires = models.DateTimeField(
-        default=datetime.now(ZoneInfo('UTC')) + timedelta(days=5),
+    expires = models.DateTimeField(default=timezone.now() + timedelta(days=5),
         editable=False)
+        #default=datetime.now(ZoneInfo('UTC')) + timedelta(days=5),
 
     def save(self, *args, **kwargs):
         if not self.key:
