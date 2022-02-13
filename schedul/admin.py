@@ -5,7 +5,15 @@ from schedul.models import Event, TimeSpan, EmailToken, DispatchLogEntry
 #class PartiesInline(admin.StackedInline):
 class PartiesInline(admin.TabularInline):
     model = Event.parties.through
-    extra = 1
+    max_num = 0
+    fields = ['user', 'email']
+    readonly_fields = ['user', 'email']
+    can_delete = False
+    verbose_name = 'Parties'
+
+    def email(self, instance):
+        #import ipdb; ipdb.set_trace()
+        return instance.user.email
 
 
 class TimeSpanInline(admin.TabularInline):
@@ -13,7 +21,11 @@ class TimeSpanInline(admin.TabularInline):
 
 
 class EmailTokenInline(admin.TabularInline):
+#class EmailTokenInline(admin.StackedInline):
     model = EmailToken
+    readonly_fields = ('key', 'user', 'expires')
+    #readonly_fields
+    extra = 0
 
 
 class EventAdmin(admin.ModelAdmin):
@@ -22,15 +34,18 @@ class EventAdmin(admin.ModelAdmin):
     actions_on_bottom = True
 
     inlines = [PartiesInline, TimeSpanInline, EmailTokenInline]
+    #inlines = [TimeSpanInline, EmailTokenInline]
     #inlines = [TimeSpanInline]
-    #exclude = ['parties']
-    filter_horizontal = ['parties']
+    exclude = ['parties']
+    #filter_horizontal = ['parties']
+    #readonly_fields = ('parties',)
+    fields = []
 
     save_on_top = True
     search_fields = ['parties__email']
     #readonly_fields = ['toke
 
-    list_display = ['id', 'title', 'party_emails', 'span_count']
+    list_display = ['id', 'title', 'party_emails', 'slot_count']
     #list_display_links = ['id', 'title', 'party_emails', 'span_count']
     list_display_links = ['id', 'title']
     ordering = ['id']
@@ -40,7 +55,7 @@ class EventAdmin(admin.ModelAdmin):
     #party_emails.short_description = 'foo'
 
     #@admin.display(description='bar', empty_value='nil')
-    def span_count(self, obj):
+    def slot_count(self, obj):
         return obj.slots.count()
 
 
