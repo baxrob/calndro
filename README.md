@@ -1,5 +1,5 @@
-<!--
 ![badge](https://github.com/baxrob/calndro/actions/workflows/ci.yml/badge.svg)
+<!--
 -->
 
 ```
@@ -44,6 +44,7 @@ http POST :9000/$evt_id/notify/ \
 
 
 
+... later:
 
 
 
