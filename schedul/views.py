@@ -3,6 +3,7 @@ import json
 from django.shortcuts import get_object_or_404
 
 from django.contrib.auth import get_user_model, login, logout
+#from django.contrib.auth import get_user_model, logout
 
 from rest_framework.views import APIView
 from rest_framework.generics import GenericAPIView
@@ -17,8 +18,8 @@ from schedul.serializers import (
     EventSerializer, EventNotifySerializer,
     DispatchLogEntrySerializer, DispatchLogSerializer
 )
-
 from schedul.permissions import IsEventPartyOrAdmin
+from schedul import services
 
 from django.core.mail import send_mail
 
@@ -26,17 +27,15 @@ User = get_user_model()
 
 from datetime import datetime
 from django.utils import timezone
-from zoneinfo import ZoneInfo
+#from zoneinfo import ZoneInfo
 def token_login(request, event):
     key = request.GET.get('et')
+    #import ipdb; ipdb.set_trace()
     try:
-        # X: logged in as non-key user case
         et = EmailToken.objects.get(pk=key)
-        #import ipdb; ipdb.set_trace()
-        now = datetime.now(ZoneInfo('UTC'))
         now = timezone.now()
         # X: custom err on expired ?
-        if et.event == event and now < et.expires:
+        if request.user != et.user and et.event == event and now < et.expires:
             login(request, et.user) 
             return et
         else:
@@ -96,17 +95,12 @@ class EventDetail(APIView):
 
     def get_object(self):
         event = get_object_or_404(Event, pk=self.kwargs['pk'])
-        #import ipdb; ipdb.set_trace()
-
-        self.token = token_login(self.request, event)
-        #import ipdb; ipdb.set_trace()
-         
+        self.token = services.token_login(self.request, event)
         self.check_object_permissions(self.request, event)
-
         if self.token:
-            print('logout', self.token.key)
+            #print('logout', self.token.key)
+            print('logout', self.token.key, self.token.user)
             logout(self.request)
-
         return event
 
     def get(self, request, pk, format=None):
@@ -134,10 +128,15 @@ class EventDetail(APIView):
             status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk, format=None):
+        # X: admin only ?
         event = get_object_or_404(Event, pk=pk)
         self.check_object_permissions(request, event)
-        event.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        if request.user.is_staff:
+            event.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(
+        {'detail': ErrorDetail(string='You do not have permission to perform this action.', code='permission_denied')},
+            status=status.HTTP_403_FORBIDDEN)
 
 
 from django.core.mail import send_mail
@@ -145,7 +144,7 @@ def notify(event, sender, recip_email, url_base):
     recipient = User.objects.get(email=recip_email)
     token = EmailToken.objects.create(event=event, user=recipient)
     url = '%s%d/?et=%s' % (url_base, event.id, token.key)
-    print(url)
+    print(url, recip_email, sender)
 
 
 #class EventNotify(GenericAPIView):
@@ -155,27 +154,31 @@ class EventNotify(APIView):
 
     def post(self, request, pk, format=None):
         event = get_object_or_404(Event, pk=pk)
-
-        token = token_login(self.request, event)
+        token = services.token_login(self.request, event)
 
         self.check_object_permissions(self.request, event)
 
-        event.sender = request.user
+        user = request.user
 
         if token:
+            print('logout', token.key, user)
             logout(request)
         
+        event.sender = user
         serializer = EventNotifySerializer(event, data=request.data,
             context={'request': request})
         
         if serializer.is_valid():
 
-            for umail in serializer.validated_data['parties']:
+            for recip_email in serializer.validated_data['parties']:
 
                 # X: just pass request for user/url
                 u = request._request.build_absolute_uri('/')
                 #notify(event, request.user, umail['email'], u)
-                notify(event, request.user, umail, u)
+                #notify(event, request.user.email, recip_email, u)
+                notify(event, user.email, recip_email, u)
+
+                #services.notify(event, user.email, recip_email)
 
             effector = event.sender#request.user
             #effector = token.user

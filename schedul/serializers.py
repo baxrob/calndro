@@ -7,6 +7,7 @@ from schedul.models import Event, TimeSpan, DispatchLogEntry
 
 User = get_user_model()
 
+
 class UserSerializer(serializers.Serializer):
     email = serializers.EmailField()
 
@@ -15,7 +16,13 @@ class UserSerializer(serializers.Serializer):
         return data['email']
 
     def to_internal_value(self, data):
-        return data['email']
+        #print('TIV', data)
+        dd = super().to_internal_value(dict(email=data))
+        #import ipdb; ipdb.set_trace()
+        return dd['email']
+        #return data['email']
+        return data
+        #return dict(email=data)
 
 
 class TimeSpanSerializer(serializers.ModelSerializer):
@@ -44,15 +51,11 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
         read_only_fields = ['parties']
 
     def create(self, validated_data):
-        # X: to EvantManager
         if 'title' in validated_data and len(validated_data['title']):
             event = Event.objects.create(title=validated_data['title'])
         else:
             event = Event.objects.create()
         for party in validated_data.get('parties'):
-            # X: move to ?? ; must set is_active = False if new
-            #    or email_confirmed - since !is_active prevents auth ..?
-            #party_obj = User.objects.get_or_create(email=party['email'])
             party_obj = User.objects.get_or_create(email=party)
             user = party_obj[0]
             if party_obj[1]: # Created
@@ -99,36 +102,29 @@ class EventNotifySerializer(serializers.Serializer):
         view_name='event-detail')
 
     def validate(self, data):
-        #import ipdb; ipdb.set_trace()
         event = self.instance
         invalid_sender = False
+        errors = {}
         try:
-            #sender_obj = User.objects.get(email=data['sender']['email'])
             sender_obj = User.objects.get(email=data['sender'])
             if sender_obj not in event.parties.all():
                 invalid_sender = True
         except User.DoesNotExist:
             invalid_sender = True
         if invalid_sender:
-            raise serializers.ValidationError({'sender': ['Not in event: '
-                + data['sender']]})
-                #+ data['sender']['email']]})
+            errors['sender'] = ['Not in event: ' + data['sender']]
         invalid_emails = []
         for event_party in data['parties']:
             try: 
-                #party_obj = User.objects.get(email=event_party['email'])
                 party_obj = User.objects.get(email=event_party)
                 if party_obj not in event.parties.all():
                     invalid_emails.append(event_party)
-                    #invalid_emails.append(event_party['email'])
             except User.DoesNotExist:
                 # X: Non-esixtent user reports only absence from event 
-                #invalid_emails.append(event_party['email'])
                 invalid_emails.append(event_party)
         if len(invalid_emails):
-            raise serializers.ValidationError({'parties': ['Not in event: ' 
-                    + ' '.join(invalid_emails)
-            ]}) 
+            errors['parties'] = ['Not in event: ' + ' '.join(invalid_emails)]
+            #[f'Not in event: {e}' for e in invalid_emails]}
         event_slots = event.slots.all()
         valid_slots = 0
         for slot in data['slots']:
@@ -138,8 +134,9 @@ class EventNotifySerializer(serializers.Serializer):
             except TimeSpan.DoesNotExist:
                 pass
         if len(event_slots) != valid_slots:
-            raise serializers.ValidationError(
-                {'slots': ['Mismatch with event']}) 
+            errors['slots'] = ['Mismatch with event'] 
+        if len(errors) > 0:
+            raise serializers.ValidationError(errors)
         return data 
 
 

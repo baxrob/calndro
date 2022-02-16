@@ -5,9 +5,11 @@ import binascii
 from datetime import datetime, timedelta
 from django.utils import timezone
 from django.db import models
-from django.conf import settings
+from django.urls import reverse
+#from django.conf import settings
 from django.contrib.auth import get_user_model
 
+User = get_user_model()
 
 def nym_gen(n=5):
     import random
@@ -21,11 +23,31 @@ def nym_gen(n=5):
     return r
 
 
+'''
+class EventManager(models.Manager):
+    def foo(self):
+        import ipdb; ipdb.set_trace()
+        pass
+    
+    def create(self, *args, **kwargs):
+        import ipdb; ipdb.set_trace()
+        event = super().create(*args, **kwargs)
+        return event
+'''
+
+
 class Event(models.Model):
     title = models.CharField(max_length=256, default=nym_gen)
-    parties = models.ManyToManyField(settings.AUTH_USER_MODEL)
+    parties = models.ManyToManyField(User)
     #initiator = models.ForeignKey(get_user_model())
     #initiated = models.DateTimeField()
+
+    #objects = models.Manager()
+    #objects = EventManager()
+
+    def get_absolute_url(self):
+        return reverse('event-detail', kwargs={'pk': self.pk})
+
 
 
 class TimeSpan(models.Model):
@@ -38,39 +60,28 @@ class TimeSpan(models.Model):
         ordering = ['begin']
 
 
-#class DispatchEmailToken(models.Model):
 class EmailToken(models.Model):
     event = models.ForeignKey(
         Event, on_delete=models.CASCADE#, related_name='slots'
     )
-    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     key = models.CharField(max_length=40, primary_key=True, editable=False)
     expires = models.DateTimeField(default=timezone.now() + timedelta(days=5),
         editable=False)
-        #default=datetime.now(ZoneInfo('UTC')) + timedelta(days=5),
 
     def save(self, *args, **kwargs):
         if not self.key:
             self.key = binascii.hexlify(os.urandom(20)).decode()
         return super().save(*args, **kwargs)
 
-    '''
-    @classmethod
-    def generate_expiry(self):
-        pass
-    @classmethod
-    def generate_key(cls):
-        return binascii.hexlify(os.urandom(20)).decode()
-    '''
-    
 
 class DispatchOccurrenceChoices(models.TextChoices):
     UPDATE = 'UPDATE', 'Update'
     NOTIFY = 'NOTIFY', 'Notify'
     VIEW = 'VIEW', 'View'
 
+
 class DispatchLogEntry(models.Model):
-    # X: 
     event = models.ForeignKey(Event, on_delete=models.CASCADE,
         related_name='dispatch_log')
     when = models.DateTimeField(auto_now_add=True)
@@ -80,9 +91,6 @@ class DispatchLogEntry(models.Model):
     effector = models.CharField(max_length=128)
     #effector = models.EmailField()
 
-    #occurence = models.CharField(max_length=32)
-    #when = models.CharField(max_length=32)
     slots = models.CharField(max_length=1024)
-    #parties = models.CharField(max_length=4096)
     data = models.CharField(max_length=128, default='{}')
 

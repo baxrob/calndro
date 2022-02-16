@@ -1,0 +1,18 @@
+
+scenaria:
+
+me@here.net
+you@thar.net
+they@whar.net
+
+m inst, notif : y, t
+y, t : recp : user, etok
+y get, patch, notif : user
+m, t : recp
+t get, patch, notif : etok
+m : .
+
+
+slug:
+no one is surprised by sh* not work
+
