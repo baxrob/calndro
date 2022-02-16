@@ -1,29 +1,29 @@
-![badge](https://github.com/baxrob/calndro/actions/workflows/ci.yml/badge.svg)
 <!--
+![badge](https://github.com/baxrob/calndro/actions/workflows/ci.yml/badge.svg)
 -->
 
 ```
 A toy appointment coordination API
 
 
-you
+you:
 
 http -a $user:$pwd POST :9000/ \
-    parties:='["me@here.net", "you@thar.net", "they@whar.net"] \
+    parties:='["you@here.net", "they@thar.net", "them@whar.net"] \
     slots:='[{"begin": "", "duration": ""},
            '[{"begin": "", "duration": ""},
            '[{"begin": "", "duration": ""}]'
 
 
 http -a $user:$pwd POST :9000/$evt_id/notify/ \
-    parties:='["you@thar.net", "they@whar.net"] \
+    parties:='["they@thar.net", "them@whar.net"] \
     slots:='[{"begin": "", "duration": ""},
            '[{"begin": "", "duration": ""},
            '[{"begin": "", "duration": ""}]'
 
 
 
-they
+they:
 
 http://localhost:9000/$evt_id/?et=1fe36bfa6f2f2567b5f7ea5a06e1e2202ad57ea7
 
@@ -37,7 +37,7 @@ http PATCH:9000/$evt_id/ \
 
 
 http POST :9000/$evt_id/notify/ \
-    parties:='["me@here.net", "you@thar.net"] \
+    parties:='["you@here.net", "them@whar.net"] \
     slots:='[{"begin": "", "duration": ""},
            '[{"begin": "", "duration": ""}]' \
     et=1fe36bfa6f2f2567b5f7ea5a06e1e2202ad57ea7
