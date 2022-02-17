@@ -1,3 +1,6 @@
 for i in $(ls schedul/*.py | grep -v __init__); do printf "\n==$i==\n\n"; cat $i; printf "\n"; done | less > printsrc.py
 
 docker rm -f caldor-fff && docker build -t caldor-alpine . && docker run --name=caldor-fff -dp 8001:8000 caldor-alpine
+
+tree -Ca -I "_a|_m|lib|venv|__pycache__|.git" | ~/dev/datem/tewl/list_tree | less -R
+tree -a -I "_a|_m|lib|venv|__pycache__|.git" | ~/dev/datem/tewl/list_tree | less

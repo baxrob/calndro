@@ -1,54 +1,88 @@
 ![badge](https://github.com/baxrob/calndro/actions/workflows/ci.yml/badge.svg)
+
 <!--
+
 -->
 
 ```
-A toy appointment coordination API
+# A toy appointment coordination API
+
+
+## Scenario
 
 
 you:
 
-http -a $user:$pwd POST :9000/ \
-    parties:='["you@here.net", "they@thar.net", "them@whar.net"] \
-    slots:='[{"begin": "", "duration": ""},
-           '[{"begin": "", "duration": ""},
-           '[{"begin": "", "duration": ""}]'
 
+- instantiate a coordination proposal
+
+evt_id=$(http -a $user:$pwd POST :9000/ \
+    parties:='["you@here.net", "they@thar.net", "them@whar.net"]' \
+    slots:='[{"begin": "", "duration": ""},
+             {"begin": "", "duration": ""},
+             {"begin": "", "duration": ""}]' \
+    | jq .id)
+
+
+- notify included parties
 
 http -a $user:$pwd POST :9000/$evt_id/notify/ \
-    parties:='["they@thar.net", "them@whar.net"] \
+    parties:='["they@thar.net", "them@whar.net"]' \
     slots:='[{"begin": "", "duration": ""},
-           '[{"begin": "", "duration": ""},
-           '[{"begin": "", "duration": ""}]'
-
+             {"begin": "", "duration": ""},
+             {"begin": "", "duration": ""}]'
 
 
 they:
 
+
+- receive message including link with temporary access token
+
 http://localhost:9000/$evt_id/?et=1fe36bfa6f2f2567b5f7ea5a06e1e2202ad57ea7
+
+
+- view proposed event times
 
 http GET :9000/$evt_id/ et=1fe36bfa6f2f2567b5f7ea5a06e1e2202ad57ea7
 
 
-http PATCH:9000/$evt_id/ \
+- update with suitable selection
+
+http PATCH :9000/$evt_id/ \
     slots:='[{"begin": "", "duration": ""},
-           '[{"begin": "", "duration": ""}]' \
+             {"begin": "", "duration": ""}]' \
     et=1fe36bfa6f2f2567b5f7ea5a06e1e2202ad57ea7
 
+
+- notify concommitant parties
 
 http POST :9000/$evt_id/notify/ \
-    parties:='["you@here.net", "them@whar.net"] \
+    parties:='["you@here.net", "them@whar.net"]' \
     slots:='[{"begin": "", "duration": ""},
-           '[{"begin": "", "duration": ""}]' \
+             {"begin": "", "duration": ""}]' \
     et=1fe36bfa6f2f2567b5f7ea5a06e1e2202ad57ea7
 
 
 
-... later:
+later:
+
+- everyone views logs of the hassle
+
+http GET :9000/$evt_id/log/
 
 
 
+## Previously
 
+
+- run in container
+
+[docker.sh:
+
+
+- or like a normal Django project
+
+  -  
 
 
 ```

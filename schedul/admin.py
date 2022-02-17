@@ -21,8 +21,8 @@ class TimeSpanInline(admin.TabularInline):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # X:
-        timezone.activate('America/Los_Angeles')
+        # X: ?? this has global effects ?
+        #timezone.activate('America/Los_Angeles')
 
 
 class EmailTokenInline(admin.TabularInline):

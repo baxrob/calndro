@@ -1,4 +1,8 @@
 
+_t
+db.sqlite3*
+schedul/migrations/*
+
 .env
 __pycache__
 
@@ -8,6 +12,3 @@ __pycache__
 venv
 *.swp
 *.vim
-
-_t
-db.sqlite3*
