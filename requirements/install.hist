@@ -1,10 +1,13 @@
-  943  pip install ipdb
- 2369  pip install djangorestframework
- 2397  pip install dj-rest-auth django-allauth drf-yasg
- 2417  pip install django-environ
- 2425  pip install uritemplate
- 2426  pip install django-cors-headers
+ djangorestframework
+ django-environ
+ uritemplate
  pyyaml
+
  ipdb
  coverage
 httpie
+
+ drf-yasg
+X 2397  pip install dj-rest-auth django-allauth 
+
+ 2426  pip install django-cors-headers

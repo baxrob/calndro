@@ -16,7 +16,7 @@ environ.Env.read_env(env.str(
 ))
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-vp9+ja5i_bdgho0c0ioh#5s^=-9el_e0t)om&@bh_ux9+)@#th'
+TOTALLY_SAFE_UNSECRET_KEY_FOR_GITHUB_POPS = 'django-insecure-vp9+ja5i_bdgho0c0ioh#5s^=-9el_e0t)om&@bh_ux9+)@#th'
 SECRET_KEY = env.str('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     #'dj_rest_auth',
     #'dj_rest_auth.registration',
-    'drf_yasg',
+    #'drf_yasg',
 
     #'schedul',
     'schedul.apps.SchedulConfig',

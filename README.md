@@ -1,6 +1,6 @@
+<!--
 ![badge](https://github.com/baxrob/calndro/actions/workflows/ci.yml/badge.svg)
 
-<!--
 
 -->
 
@@ -24,7 +24,7 @@ evt_id=$(http -a $user:$pwd POST :9000/ \
     | jq .id)
 
 
-- notify included parties
+- notify other parties
 
 http -a $user:$pwd POST :9000/$evt_id/notify/ \
     parties:='["they@thar.net", "them@whar.net"]' \
@@ -54,7 +54,7 @@ http PATCH :9000/$evt_id/ \
     et=1fe36bfa6f2f2567b5f7ea5a06e1e2202ad57ea7
 
 
-- notify concommitant parties
+- notify other parties
 
 http POST :9000/$evt_id/notify/ \
     parties:='["you@here.net", "them@whar.net"]' \
@@ -66,13 +66,13 @@ http POST :9000/$evt_id/notify/ \
 
 later:
 
-- everyone views logs of the hassle
+- everyone views logs of the [hassle]
 
 http GET :9000/$evt_id/log/
 
 
 
-## Previously
+### Previously
 
 
 - run in container
@@ -81,9 +81,15 @@ http GET :9000/$evt_id/log/
 
 
 - or like a normal Django project
-
+[httpie ver : ubu
   -  
 
+
+
+## Meanwhile
+
+
+[...]
 
 ```
 

@@ -4,3 +4,5 @@ docker rm -f caldor-fff && docker build -t caldor-alpine . && docker run --name=
 
 tree -Ca -I "_a|_m|lib|venv|__pycache__|.git" | ~/dev/datem/tewl/list_tree | less -R
 tree -a -I "_a|_m|lib|venv|__pycache__|.git" | ~/dev/datem/tewl/list_tree | less
+
+find schedul -name '*.py' -exec wc {} \;

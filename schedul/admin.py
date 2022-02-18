@@ -3,6 +3,8 @@ from django.utils import timezone
 from schedul.models import Event, TimeSpan, EmailToken, DispatchLogEntry
 
 
+admin.site.site_header = 'cal_dor^io'
+
 #class PartiesInline(admin.StackedInline):
 class PartiesInline(admin.TabularInline):
     model = Event.parties.through

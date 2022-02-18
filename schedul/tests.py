@@ -1,7 +1,10 @@
 import json
 from pathlib import Path
 from unittest import skip
-from ipdb import set_trace as st
+try:
+    from ipdb import set_trace as st
+except:
+    from pdb import set_trace as st
 
 #from django.conf import settings
 from django.test import tag, override_settings

@@ -3,12 +3,10 @@ from django.urls import include, path
 from rest_framework import permissions
 from rest_framework.schemas import get_schema_view
 from rest_framework.authtoken.views import obtain_auth_token
-from drf_yasg.views import get_schema_view as yasg_get_schema_view
-from drf_yasg import openapi
+#from drf_yasg.views import get_schema_view as yasg_get_schema_view
+#from drf_yasg import openapi
 
-
-admin.site.site_header = 'cal_dor^io'
-
+'''
 schema_view = yasg_get_schema_view(
    openapi.Info(
       title="Multi-party event scheduling API",
@@ -21,6 +19,7 @@ schema_view = yasg_get_schema_view(
    public=True,
    permission_classes=(permissions.AllowAny,),
 )
+'''
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -32,9 +31,9 @@ urlpatterns = [
     #      include('dj_rest_auth.registration.urls')),
 
     path('openapi', get_schema_view(
-        title="Blog API",
-        description="A sample API for learning DRF",
-        version="1.0.0"
+        title="_",
+        description="...",
+        version="0.0.1"
     ), name='openapi-schema'),
 
     # X: 
