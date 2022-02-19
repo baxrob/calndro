@@ -1,7 +1,15 @@
 #!/bin/bash
 
+if [ $# > 0 ] && [ "$1" == "file" ]; then
+    printf "> path/file ? " 
+    read -re file_path
+else
+    file_path=schedul_requests.txt 
+fi
+
 printf ">> 'enter' to run command, any input to skip\n"
 
+#
 payload='{"parties": [{"email": "zo@localhost"}], "slots": []}'
 user=ob
 password=p
@@ -15,7 +23,7 @@ while read -u 9 line; do
     echo "$line" | grep -E '^#|^\s*$' > /dev/null || \
         #(
         {
-        #printf "> '$line' ? " #\n"
+        printf "> '$line' ? " #\n"
         #printf "> '$line' ? " | envsubst #\n"
         #printf "> $line ? " #\n"
         #echo "$line" | envsubst '${payload_},${auth}'
@@ -33,5 +41,6 @@ while read -u 9 line; do
         fi
         }
         #)
-done 9< schedul_requests.txt 
+#done 9< schedul_requests.txt 
+done 9< "$file_path"
 

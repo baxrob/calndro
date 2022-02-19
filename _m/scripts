@@ -6,3 +6,5 @@ tree -Ca -I "_a|_m|lib|venv|__pycache__|.git" | ~/dev/datem/tewl/list_tree | les
 tree -a -I "_a|_m|lib|venv|__pycache__|.git" | ~/dev/datem/tewl/list_tree | less
 
 find schedul -name '*.py' -exec wc {} \;
+
+cat _README/head README _README/foot > README.md

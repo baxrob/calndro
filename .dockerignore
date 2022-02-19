@@ -1,4 +1,13 @@
 
+README*
+_README
+LICENSE
+requirements/requirements_*
+v_*/
+_t
+db.sqlite3*
+schedul/migrations/*
+
 .git
 .gitignore
 
