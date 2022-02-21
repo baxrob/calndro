@@ -22,6 +22,7 @@ SECRET_KEY = env.str('DJANGO_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 DEBUG = env.bool('DJANGO_DEBUG', False)
+print('dbg', DEBUG)
 
 ALLOWED_HOSTS = []
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', [])
@@ -138,6 +139,7 @@ STATIC_URL = '/static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
+#DEFAULT_FROM_EMAIL = ''
 
 EMAIL_SUBJECT_PREFIX = '[calndro] '
 

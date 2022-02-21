@@ -1,5 +1,6 @@
 from datetime import datetime
 from django.utils import timezone
+from django.conf import settings
 from django.contrib.auth import login, get_user_model
 from django.core.mail import send_mail
 
@@ -19,7 +20,8 @@ def notify(event, sender_email, recip_email):
     url = '%s?et=%s' % (url_base, token.key)
     msg = 'expires %s' % token.expires
     message = '%s\n%s' %(url, msg)
-    subject = 'Event %d Updated' % event.id
+    subject = "%s'%s' updated" % (settings.EMAIL_SUBJECT_PREFIX,
+        event.title)
     from_email = sender_email
     recipient_list = [recip_email]
     print('ff', from_email)

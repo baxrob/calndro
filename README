@@ -60,41 +60,14 @@ http POST :9000/$evt_id/notify/ \
 
 later:
 
-- everyone views logs of the process
+- everyone can view logs of the process
 
 http GET :9000/$evt_id/log/
 
 
-- and gazes at the API
+- and gaze at the API
 
 http GET :9000/openapi
-
-
-
-[see: jq, httpie]
-
-
-### Previously
-
-
-- run in container
-
-[docker.sh:
-
-
-- or like a normal Django project
-  - copy config/.env.ci to config/.env and edit per yer cetera
-  - see Dockerfile or .github/workflows/ci.yml for eg
-  - and/or use `pip install -r requirements/test.txt` to get httpie if not installed
-  - and/or use `python manage.py testserver users schedul --addrport=0.0.0.0:9999`
-rather than runserver
-
-
-## Meanwhile
-
-- why?
-
-[...]
 
 
 
