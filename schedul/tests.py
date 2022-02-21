@@ -7,6 +7,7 @@ except:
     from pdb import set_trace as st
 
 #from django.conf import settings
+from django.core import mail
 from django.test import tag, override_settings
 from django.contrib.auth import get_user_model
 from django.db import connection, reset_queries
@@ -75,6 +76,14 @@ class EventViewTests(APITestCase):
         return self.fdata['emails'][n:n+m]
 
 
+    def test_openapi_get(self):
+        resp = self.client.get('/openapi')
+        self.assertEqual(resp.status_code, 200)
+
+    def test_openapi_get_fail(self):
+        resp = self.client.get('/openapi/')
+        self.assertEqual(resp.status_code, 404)
+
     def test_detail_get(self):
         for n in self.fdata['events']:
             resp = self.client.get(f'/{n}/')
@@ -136,22 +145,22 @@ class EventViewTests(APITestCase):
         n = self.fdata['events'][0]
         resp = self.client.patch(f'/{n}/', {'parties': []}, format='json')
         self.assertEqual(resp.status_code, 400)
-        print(resp.data)
+        #print(resp.data)
         resp = self.client.patch(f'/{n}/', {'slots': [{
                 'begin': '2021-asdfT14:58:26.611000Z', 
                 'duration': 'zy0:00:01'}]
             },
             format='json')
-        print(resp.data)
+        #print(resp.data)
         self.assertEqual(resp.status_code, 400)
         # rather pointless
         with self.assertRaises(AssertionError):
             resp = self.client.patch(f'/{n}/', {'slots': {'break': 'foo'}})
             self.assertEqual(resp.status_code, 400)
-        print(resp.data)
+        #print(resp.data)
         resp = self.client.patch(f'/{n}/', {'slots': {'break': 'foo'}},
             format='json')
-        print(resp.data)
+        #print(resp.data)
         self.assertEqual(resp.status_code, 400)
 
     def test_list_get(self):
@@ -362,6 +371,12 @@ class ViewAuthTests(APITestCase):
                 #if user.is_active and evt_id in uevts or user.is_staff:
                 #print(resp, user.is_active, evt_id, uevts, is_staff)
                 #print(resp.data)
+                #st()
+
+                # X: 
+                #for m in mail.outbox:
+                #    print(vars(m))
+
                 if user.is_active and evt_id in uevts or is_staff:
                     self.assertEqual(resp.status_code, 202)
                 else:
@@ -572,8 +587,14 @@ class DispatchViewTests(APITestCase):
         resp = self.client.get(f'/{evt_id}/')
         resp = self.client.post(f'/{evt_id}/notify/', {'parties': [u_eml],
             'slots': resp.data['slots'], 'sender': u_eml}, format='json') 
+        print(mail.outbox[0].subject)
+        mm = mail.outbox[0]
+        print(vars(mm))
         #st()
         self.assertEqual(resp.status_code, 202)
+
+        #
+        self.assertEqual(len(mail.outbox), 1)
 
     def test_notify_post_fail(self):
         # todo-
@@ -601,7 +622,7 @@ class DispatchViewTests(APITestCase):
                 'sender': email_next},
                 format='json')
             #print(resp, email, email_next, resp.data)
-            print(resp.data)
+            #print(resp.data)
             self.assertEqual(resp.status_code, 400)
             #st()
             resp = self.client.post(f'/{evt_id}/notify/', {'parties': 
@@ -612,7 +633,7 @@ class DispatchViewTests(APITestCase):
                 #{'email': email}}, format='json')
                 email}, format='json')
             #print(resp, email_next, email, resp.data)
-            print(resp.data)
+            #print(resp.data)
             self.assertEqual(resp.status_code, 400)
             slots.pop()
             resp = self.client.post(f'/{evt_id}/notify/', {'parties': 
@@ -620,7 +641,7 @@ class DispatchViewTests(APITestCase):
                 #{'email': email}}, format='json')
                 [email], 'slots': slots, 'sender': 
                 email}, format='json')
-            print(resp.data)
+            #print(resp.data)
             self.assertEqual(resp.status_code, 400)
 
 

@@ -137,6 +137,43 @@ STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+
+
+EMAIL_SUBJECT_PREFIX = '[calndro] '
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+#EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+#EMAIL_FILE_PATH = '/tmp/cald-mail'
+#EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
+#EMAIL_BACKEND = 'django.core.mail.backends.dummy.EmailBackend'
+#EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+'''
+EMAIL_CONFIG = env.email_url('EMAIL_CONFIG')
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+EMAIL_HOST
+EMAIL_PORT
+EMAIL_HOST_USER
+EMAIL_HOST_PASSWORD
+
+EMAIL_USE_TLS
+EMAIL_USE_SSL
+EMAIL_TIMEOUT
+EMAIL_SSL_KEYFILE
+EMAIL_SSL_CERTFILE
+
+EMAIL_SUBJECT_PREFIX
+EMAIL_USE_LOCALTIME
+
+from email.utils import parseaddr
+
+ADMINS = tuple(parseaddr(email) for email in env.list('DJANGO_ADMINS'))
+
+'''
+
+
 REST_FRAMEWORK = {
     #'TEST_REQUEST_DEFAULT_FORMAT': 'json',
     'DEFAULT_AUTHENTICATION_CLASSES': [
@@ -145,6 +182,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ],
 }
+
 '''
     'TEST_REQUEST_RENDERER_CLASSES': [
         'rest_framework.renderers.MultiPartRenderer',

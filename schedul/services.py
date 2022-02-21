@@ -1,12 +1,15 @@
 from datetime import datetime
 from django.utils import timezone
-from django.contrib.auth import login
+from django.contrib.auth import login, get_user_model
 from django.core.mail import send_mail
 
 from rest_framework.exceptions import ValidationError
 
 from schedul.models import EmailToken
 from schedul.serializers import DispatchLogEntrySerializer
+
+
+User = get_user_model()
 
 
 def notify(event, sender_email, recip_email):
@@ -16,11 +19,12 @@ def notify(event, sender_email, recip_email):
     url = '%s?et=%s' % (url_base, token.key)
     msg = 'expires %s' % token.expires
     message = '%s\n%s' %(url, msg)
-    subject = 'Event %d Updated' % evt.id
+    subject = 'Event %d Updated' % event.id
     from_email = sender_email
     recipient_list = [recip_email]
-    print(message)
-    return
+    print('ff', from_email)
+    print('PRESEND', message)
+    #return
     send_mail(subject, message, from_email, recipient_list) 
 
 def token_login(request, event):

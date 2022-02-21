@@ -176,9 +176,10 @@ class EventNotify(APIView):
                 u = request._request.build_absolute_uri('/')
                 #notify(event, request.user, umail['email'], u)
                 #notify(event, request.user.email, recip_email, u)
-                notify(event, user.email, recip_email, u)
-
-                #services.notify(event, user.email, recip_email)
+                #notify(event, user.email, recip_email, u)
+                #import ipdb; ipdb.set_trace()
+                #print(user.email)
+                services.notify(event, user.email, recip_email)
 
             effector = event.sender#request.user
             #effector = token.user

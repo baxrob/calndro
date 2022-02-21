@@ -1,5 +1,4 @@
-
-name: base
+name: CI
 on:
   push
 env:
