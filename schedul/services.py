@@ -24,8 +24,8 @@ def notify(event, sender_email, recip_email):
         event.title)
     from_email = sender_email
     recipient_list = [recip_email]
-    print('ff', from_email)
-    print('PRESEND', message)
+    #print('ff', from_email)
+    #print('PRESEND', message)
     #return
     send_mail(subject, message, from_email, recipient_list) 
 
