@@ -20,6 +20,7 @@ class PartiesInline(admin.TabularInline):
 
 class TimeSpanInline(admin.TabularInline):
     model = TimeSpan
+    extra = 2
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
