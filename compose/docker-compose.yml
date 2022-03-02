@@ -1,0 +1,23 @@
+version: "3.9"
+
+services:
+  web:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      args:
+        - foo=1
+        - bobo
+    #volumes: ..:/code
+    volumes: 
+      - ../db.sqlite3:/code/db.sqlite3
+    image: caldiey
+    ports:
+      - 8000:8000
+    env_file: ../dotenvs/.env.local
+    #command: gunicorn
+    logging: 
+      driver: json-file
+      #max-size: 200K
+      #max-file: 10
+
