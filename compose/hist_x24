@@ -1,0 +1,195 @@
+  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+apt-cache madison docker
+apt-cache madison docker-ce
+apt show docker
+apt show docker-ce
+cat ~/dev/install_docker_foo.sh 
+cat docker-compose-linux-x86_64.sha256 
+cat .dockerignore 
+cat .env.docker
+cd dev/studi/docker/
+cd django-on-docker/
+cd docker
+cd docker/
+cd docker-gtk/
+cd /var/lib/docker/
+chmod +x docker-compose-linux-x86_64
+chown dock' ;mv docker-compose-linux-x86_64 /usr/local/bin
+cp .gitignore .dockerignore
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+curl https://raw.githubusercontent.com/jesseduffield/lazydocker/master/scripts/install_update_linux.sh > lazydocker_install_update_linux.sh
+diff .dockerignore .gitignore 
+docker-app
+docker attach $(docker ps|grep caldor | awk '{ print $1 }')
+docker attach $(docker ps|grep caldor | awk '{ print $1 }') bash
+docker attach --help
+docker attach help
+docker build -t caldor
+docker build -t caldor .
+docker-compose
+./docker-compose-linux-x86_64 --help
+./docker-compose-linux-x86_64 --version
+docker-compose up
+docker container
+docker container ls
+docker container ls -a
+docker container ls -a|grep bdf5
+docker containers
+docker exec $(docker ps|grep caldor | awk '{ print $1 }') bash
+docker exec -it caldor exec "ps |aux"
+docker exec -it caldor-fff bash
+docker exec -it caldor-fff echo $PATH
+docker exec -it caldor-fff exec "ps | aux"
+docker exec -it caldor-fff ./manage.py shell
+docker exec -it caldor-fff "ps |aux"
+docker exec -it caldor-fff sh
+docker exec -it caldor-fff whoami
+docker exec -it caldor "ps |aux"
+docker fg
+docker --help
+docker help
+docker help app
+docker help attach
+docker help compose
+docker help container
+docker help container ls
+docker help exec
+docker help| less
+docker help rm
+docker help run
+docker htlp run
+docker image help
+docker image l
+docker image ls
+docker image ls -a
+docker image rm 50fe
+docker image rm alpine:3.5 
+docker image rm f7b99
+docker images
+docker images --help
+docker images ls
+docker log caldor-fff
+docker logs
+docker logs $(docker ps|grep caldor | awk '{ print $1 }')
+docker logs caldor-fff
+docker ls
+docker ps
+docker ps -a
+docker ps|grep caldor
+docker ps|grep caldor | awk '{ print $! }'
+docker ps|grep caldor | awk '{ print $1 }'
+docker ps|grep caldor | cut -1
+docker ps|grep caldor | cut -f 1
+docker rm -f $(docker ps|grep caldor | awk '{ print $1 }')
+docker rm -f 355b
+docker rm f7b99
+docker rm -f 915a
+docker rm -f c6322
+docker rm -f caldor
+docker rm -f caldor-fff
+docker rm -f caldor-fff && docker build -t caldor .
+docker rm -f caldor-fff && docker build -t caldor-alpine . && docker run --name=caldor-fff -dp 8001:8000 caldor-alpine
+docker rm -f caldor-fff && docker build -t caldor . && docker run --name=caldor-fff -dp 8001:8000 caldor
+docker rm -f f7b99
+docker run -dp 8000:8000
+docker run -dp 8000:8000 caldor
+docker run -dp 8000:8001 caldor
+docker run -it -dp 8000:8001 caldor
+docker run -it -dp 8000:8001 caldor bash
+docker run --name=caldor -dp 8000:8001 caldor
+docker run --name=caldor -dp 8000:8001 caldor bash
+docker run --name=caldor-fff -dp 8000:8001 caldor
+docker run --name=caldor-fff -dp 8001:8000 caldor
+docker start -ai $(docker ps|grep caldor | awk '{ print $1 }')
+docker start -ai caldor
+docker stop $(docker ps|grep caldor | awk '{ print $1 }')
+docker stop 355b
+docker stop 915a
+docker --version
+docker volume ls
+du -sh /var/run/docker
+du -sh /var/run/docker/
+echo   "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
+echo https://github.com/testdrivenio/django-on-docker
+find . -name "docker-compose*"
+find .. -name "docker-compose*"
+find . -name .dockerignore
+find .. -name .dockerignore
+git add .dockerignore 
+git clone https://github.com/clayrisser/docker-gtk.git
+git clone https://github.com/docker/getting-started.git
+git clone https://github.com/dockersamples/example-voting-app.git
+git clone https://github.com/testdrivenio/django-on-docker
+git commit -am 'docker foo'
+git commit -am 'docker, test foo, reorg'
+~/go/bin/lazydocker
+~/go/bin/lazydocker 
+~/go/bin/lazydocker --help
+~/go/bin/lazydocker help
+go get github.com/jesseduffield/lazydocker
+hfind.sh docker
+history | grep docker
+history | grep docker > hist_x24
+history | grep docker | hist_x24
+history|grep docker | less
+history|grep docker|less
+history|grep lazydocker
+ln -s docker-compose-linux-x86_64 dcomp'
+ln -s docker-compose-linux-x86_64 docker-compose
+locate docker
+locate docker-compose
+locate docker|less
+ls docker
+ls docker/Docker.server/
+ls docker -ltr
+ls uplift/uplift-interview-robert-baxter/docker/
+ls uplift/uplift-interview-robert-baxter/docker/Docker.server/
+ls /usr/libexec/docker/cli-plugins/
+ls /var/lib/docker/
+ls /var/run/docker
+mkdir docker
+mv docker-gtk/ security-engineering-ebook/ '
+mv ~/Downloads/docker-compose-linux-x86_64* .
+mv security-engineering-ebook/ docker-gtk/ 20220105/
+newgrp docker
+rm docker-compose-linux-x86_64.sha256 
+rm .env.docker 
+sha256sum docker-compose-linux-x86_64
+sudo apt-get install docker-ce docker-ce-cli containerd.io
+sudo apt-get remove docker docker-engine docker.io containerd runc
+sudo chown root:root docker-compose-linux-x86_64 ;sudo mv docker-compose-linux-x86_64 /usr/local/bin; cd /usr/local/bin
+sudo du -sh /var/lib/docker
+sudo du -sh /var/run/docker
+sudo du -sh /var/run/docker/
+sudo ln -s docker-compose-linux-x86_64 docker-compose
+sudo ls -ltr /var/lib/docker
+sudo ls -ltr /var/run/docker
+sudo ls -l /var/lib/docker/
+sudo ls /var/lib/docker/
+sudo ls /var/run/docker
+sudo tree /var/lib/docker/
+sudo tree /var/lib/docker/ -C | less -R
+sudo usermod -aG docker ob
+/usr/libexec/docker/cli-plugins/docker-app app --help
+/usr/libexec/docker/cli-plugins/docker-app --help
+/usr/libexec/docker/cli-plugins/docker-app help app
+vi .?docker*
+vi docker-* $(find . -name Dockerfile)
+vi docker-compose.* $(find . -name "Dockerfile*")
+vi docker-compose.* $(find . -name Dockerfile)
+vi docker-compose.yml Dockerfile build.sh 
+vi docker-compose.yml .env.example .dockerignore
+vi docker* .dockerignore 
+vi docker/Docker.server/Dockerfile 
+vi Dockerfile docker-compose.yml
+vi Dockerfile docker-compose.yml 
+vi .dockerignore 
+vi ../../install_docker_foo.sh 
+vi install_docker_foo.sh 
+vi lazydocker_install_update_linux.sh 
+vi -O docker.list*
+vi result/.dockerignore 
+which docker
+which docker-app
+which docker-compose
+which lazydocker
