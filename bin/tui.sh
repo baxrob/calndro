@@ -2,23 +2,24 @@
 
 DEFAULT_USER=ob
 DEFAULT_PASS=p
+DEFAULT_SENDER=ob@localhost
 
 user=${user:-$DEFAULT_USER}
 pass=${pass:-$DEFAULT_PASS}
 host=${host:-}
 port=${port:-8000}
+sender=${sender:-$DEFAULT_SENDER}
 
-
-echo ${user:-_} ${pass:-_} ${host:-_} ${port-_}
+echo config: ${user:-_} ${pass:-_} ${host:-_} ${port-_}
 
 prompt() {
     #echo m $1
     case $1 in
-    menu) printf "    l  d[n]  c[n]  p[n]  n[n]  g[n]  ?  \n> " ;;
+    menu) printf "  l   c   d[n]  p[n]  n[n]  g[n]  ?  \n> " ;;
 
     create_parties) printf "create: enter party emails>\n" ;;
     create_slots)
-    printf "create: enter slots as YYYY-MM-DDThh:mm:ss[+-mm:ss/Z] hh:mm:ss>\n"
+    printf "enter slots as YYYY-MM-DDThh:mm:ss[+-mm:ss/Z] hh:mm:ss>\n"
     ;;
     create_slots_nop) ;;
 
@@ -56,8 +57,12 @@ req() {
     http --print=b -a $user:$pass $host:$port/$2/log/
     ;;
     create) ;;
-    patch) ;;
-    notify) ;;
+    patch)
+    printf "$2_$3\n"
+    ;;
+    notify)
+    printf "$2_$3_$4\n"
+    ;;
     esac
 }
 
@@ -82,8 +87,8 @@ pcode=menu
 
 prompt $pcode
 
-#while read cmd; do
-while cmd=$(bash -c 'read -er cmd; echo $cmd'); do
+while read cmd; do
+#while cmd=$(bash -c 'read -er cmd; echo $cmd'); do
     case $pcode in
     menu)
         case "$cmd" in
@@ -93,7 +98,9 @@ while cmd=$(bash -c 'read -er cmd; echo $cmd'); do
         p[0-9]*) evtnum=${cmd#p}; pcode=patch ;;
         n[0-9]*) evtnum=${cmd#n}; pcode=notify ;;
         g[0-9]*) req log ${cmd#g} ;;
-        '?') printf "l list\nd detail\np patch\nn notify\ng log\n? help\n" ;;
+        '?')
+        printf "l list\nc create\nd detail\np patch\nn notify\ng log\n? help\n"
+        ;;
         # X:
         *) echo huh? $cmd ;; #pcode=menu ;;
         esac
@@ -110,13 +117,16 @@ while cmd=$(bash -c 'read -er cmd; echo $cmd'); do
     ;;
     patch|patch_nop)
     s=$(nlist "$cmd" $(req detail $evtnum | jq .slots))
+    printf "$s\n"
+    s=$cmd
     req patch $evtnum "$s"
     pcode=menu
     ;;
     notify)
     p=$(nlist "$cmd" $(req detail $evtnum | jq .parties))
-    s=$(req detail $2 | jq .slots)
-    req notify "$p" "$s"
+    p="$cmd"
+    s=$(req detail $evtnum | jq .slots)
+    req notify $evtnum "$p" "$s"
     pcode=menu
     ;;
 
@@ -124,24 +134,4 @@ while cmd=$(bash -c 'read -er cmd; echo $cmd'); do
     esac
     prompt $pcode $evtnum
 done
-
-
-exit
-
-#while cmd=$(menu $prompt); do
-while true; do
-    :
-    break
-done
-
-while read CMD; do
-    #echo $CMD
-    break
-done
-
-while $(read CMD); do
-    #echo $CMD
-    break
-done
-
 
