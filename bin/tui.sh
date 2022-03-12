@@ -13,31 +13,31 @@ sender=${sender:-$DEFAULT_SENDER}
 echo config: ${user:-_} ${pass:-_} ${host:-_} ${port-_}
 
 prompt() {
-    #echo m $1
     case $1 in
     menu) printf "  l   c   d[n]  p[n]  n[n]  g[n]  ?  \n> " ;;
 
     create_parties) printf "create: enter party emails>\n" ;;
     create_slots)
-    printf "enter slots as YYYY-MM-DDThh:mm:ss[+-mm:ss/Z] hh:mm:ss>\n"
+    printf "enter slots as YYYY-MM-DDThh:mm:ss[+-mm:ss/Z] hh:mm:ss"
+    printf ", followed by blank>\n"
     ;;
     create_slots_nop) ;;
 
     patch)
-    p=$(req detail $2 | jq .parties)
-    np=$(nlist "$p")
-    printf "$p\n"
+    s=$(req detail $2 | jq .slots)
+    nlist "$s"
     printf "patch: enter slots by number> "
     ;;
-    patch_nop) ;;
     
     notify)
-    p=$(http --print=b -a $user:$pass $host:$port/$2/ | jq .parties)
-    printf "$p\n"
+    #p=$(http --print=b -a $user:$pass $host:$port/$2/ | jq .parties)
+    #printf "$p\n"
+    p=$(req detail $2 | jq .parties)
+    nlist "$p"
     printf "notify: enter parties by number> "
     ;;
     
-    *) printf "    [nop $1 $2\n]" ;;
+    *) printf "  [nop $1 $2\n]" ;;
     esac
 }
 
@@ -47,36 +47,50 @@ sess() {
 
 req() {
     case $1 in
-    list) 
-    http --print=b -a $user:$pass $host:$port/
+    list) http --print=b -a $user:$pass $host:$port/ ;;
+    detail) http --print=b -a $user:$pass $host:$port/$2/ ;;
+    log) http --print=b -a $user:$pass $host:$port/$2/log/ ;;
+    create)
+    http --print=b -a $user:$pass $host:$port/ parties:="$2" slots:="$3"
     ;;
-    detail)
-    http --print=b -a $user:$pass $host:$port/$2/
-    ;;
-    log)
-    http --print=b -a $user:$pass $host:$port/$2/log/
-    ;;
-    create) ;;
-    patch)
-    printf "$2_$3\n"
-    ;;
+    patch) http --print=b -a $user:$pass PATCH $host:$port/$2/ slots:="$3" ;;
     notify)
-    printf "$2_$3_$4\n"
+    http --print=b -a $user:$pass $host:$port/$2/notify \
+        parties:="$3" slots:="$4"
     ;;
     esac
 }
 
 create() {
-    printf "p: $1\n"
-    printf "s:\n$2\n"
+    plist=[
+    for eml in $1; do
+        plist="$plist\"$eml\","
+    done
+    plist=$(echo $plist | sed 's/,*$/]/')
+    echo $plist
+    slist=[
+    slist=$slist$(echo $2 | awk '/./ {
+        printf("{\"begin\": \"%s\", \"duration\": \"%s\"},", $1, $2)
+    }')
+    slist=$(echo $slist | sed 's/,*$/]/')
+    echo $slist
+    req create "$plist" "$slist"
 }
 
 nlist() {
-    :
+    len=$(echo "$1" | jq 'length')
+    for i in $(seq $len); do
+        echo $i $(echo "$1" | jq '.['$(($i - 1))']')
+    done
 }
 
 listn() {
-    :
+    list=[
+    for i in $1; do
+        list="$list$(($i - 1)),"
+    done
+    list=$(echo $list | sed 's/,*$/]/')
+    echo $2 | jq -cM [.$list]
 }
 
 evtnum=
@@ -87,8 +101,8 @@ pcode=menu
 
 prompt $pcode
 
-while read cmd; do
-#while cmd=$(bash -c 'read -er cmd; echo $cmd'); do
+#while read cmd; do
+while cmd=$(bash -c 'read -er cmd; echo $cmd'); do
     case $pcode in
     menu)
         case "$cmd" in
@@ -115,22 +129,23 @@ while read cmd; do
         pcode=menu
     fi
     ;;
-    patch|patch_nop)
-    s=$(nlist "$cmd" $(req detail $evtnum | jq .slots))
-    printf "$s\n"
-    s=$cmd
+    patch)
+    #listn "$cmd" "$(req detail $evtnum | jq .slots)"
+    s=$(listn "$cmd" "$(req detail $evtnum | jq .slots)")
+    #printf "ps $s\n"
+    #s=$cmd
     req patch $evtnum "$s"
     pcode=menu
     ;;
     notify)
-    p=$(nlist "$cmd" $(req detail $evtnum | jq .parties))
-    p="$cmd"
+    p=$(listn "$cmd" "$(req detail $evtnum | jq .parties)")
+    #p="$cmd"
     s=$(req detail $evtnum | jq .slots)
     req notify $evtnum "$p" "$s"
     pcode=menu
     ;;
 
-    *) echo whot? $cmd ;;
+    *) echo [whot? $cmd] ;;
     esac
     prompt $pcode $evtnum
 done
