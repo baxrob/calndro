@@ -3,7 +3,7 @@ requirements/requirements_*
 v_*/
 _t
 db.sqlite3*
-schedul/migrations/*
+#schedul/migrations/*
 
 .env
 __pycache__
