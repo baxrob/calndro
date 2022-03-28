@@ -10,11 +10,11 @@ host=${host:-}
 port=${port:-8000}
 sender=${sender:-$DEFAULT_SENDER}
 
-echo config: ${user:-_} ${pass:-_} ${host:-_} ${port-_}
+echo config: ${user:-_} ${pass:-_} ${host:-_} ${port:-_} $sender
 
 prompt() {
     case $1 in
-    menu) printf "  l   c   d[n]  p[n]  n[n]  g[n]  ?  \n> " ;;
+    menu) printf "  l   c   d[n]  p[n]  n[n]  g[n]  ?   q\n> " ;;
 
     create_parties) printf "create: enter party emails>\n" ;;
     create_slots)
@@ -30,8 +30,6 @@ prompt() {
     ;;
     
     notify)
-    #p=$(http --print=b -a $user:$pass $host:$port/$2/ | jq .parties)
-    #printf "$p\n"
     p=$(req detail $2 | jq .parties)
     nlist "$p"
     printf "notify: enter parties by number> "
@@ -67,13 +65,11 @@ create() {
         plist="$plist\"$eml\","
     done
     plist=$(echo $plist | sed 's/,*$/]/')
-    echo $plist
     slist=[
     slist=$slist$(echo $2 | awk '/./ {
         printf("{\"begin\": \"%s\", \"duration\": \"%s\"},", $1, $2)
     }')
     slist=$(echo $slist | sed 's/,*$/]/')
-    echo $slist
     req create "$plist" "$slist"
 }
 
@@ -115,6 +111,7 @@ while cmd=$(bash -c 'read -er cmd; echo $cmd'); do
         '?')
         printf "l list\nc create\nd detail\np patch\nn notify\ng log\n? help\n"
         ;;
+        q) exit 0 ;;
         # X:
         *) echo huh? $cmd ;; #pcode=menu ;;
         esac
