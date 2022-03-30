@@ -4,6 +4,7 @@ import environ
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
+#
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 env = environ.Env()
@@ -16,15 +17,12 @@ environ.Env.read_env(env.str(
 ))
 
 # SECURITY WARNING: keep the secret key used in production secret!
-TOTALLY_SAFE_UNSECRET_KEY_FOR_GITHUB_POPS = 'django-insecure-vp9+ja5i_bdgho0c0ioh#5s^=-9el_e0t)om&@bh_ux9+)@#th'
 SECRET_KEY = env.str('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 DEBUG = env.bool('DJANGO_DEBUG', False)
 print('dbg', DEBUG)
 
-ALLOWED_HOSTS = []
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', [])
 
 
@@ -40,11 +38,6 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'rest_framework.authtoken',
-    #'dj_rest_auth',
-    #'dj_rest_auth.registration',
-    #'drf_yasg',
-
-    #'schedul',
     'schedul.apps.SchedulConfig',
 ]
 
@@ -62,22 +55,6 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'config.urls'
 
-TEMPLATES = [
-    {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-            ],
-        },
-    },
-]
-
 WSGI_APPLICATION = 'config.wsgi.application'
 
 
@@ -86,8 +63,12 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 #DATABASES = {
 #    'default': {
-#        'ENGINE': 'django.db.backends.sqlite3',
-#        'NAME': BASE_DIR / 'db.sqlite3',
+#        'ENGINE': env.str('DATABASE_ENGINE', 'django.db.backends.sqlite3'),
+#        'NAME': env.str('DATABASE_NAME', BASE_DIR / 'db.sqlite3'),
+#        'USER': env.str('DATABASE_USER', ''),
+#        'PASSWORD': env.str('DATABASE_PASSWORD', ''),
+#        'HOST': env.str('DATABASE_HOST', ''),
+#        'PORT': env.str('DATABASE_PORT', '')
 #    }
 #}
 DATABASES = {
@@ -105,12 +86,12 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
     },
-    #{
-    #    'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    #},
-    #{
-    #    'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    #},
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
