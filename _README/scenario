@@ -1,9 +1,10 @@
-# A toy appointment coordination API
 
+# A toy appointment coordination API
 
 ## Scenario
 
 
+```
 you:
 
 
@@ -69,3 +70,4 @@ http GET :8000/$evt_id/log/
 - and gaze at the API
 
 http GET :8000/openapi
+```

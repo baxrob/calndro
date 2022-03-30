@@ -1,8 +1,9 @@
 
-requirements/requirements_*
-v_*/
+#requirements/requirements_*
+#v_*/
 _t
-db.sqlite3*
+_a
+db.sqlite3
 #schedul/migrations/*
 
 .env
