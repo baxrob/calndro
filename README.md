@@ -2,9 +2,9 @@
 ![badge](https://github.com/baxrob/calndro/actions/workflows/ci.yml/badge.svg)
 
 
-# A toy appointment coordination API
+## A toy appointment coordination API
 
-## Scenario
+### Scenario
 
 
 ```
@@ -74,46 +74,3 @@ http GET :8000/$evt_id/log/
 
 http GET :8000/openapi
 ```
-
-## TUI
-
-```
-
-```
-
-# Install
-
-## Python Pip
-
-```
-```
-
-## Docker
-
-```
-```
-
-
-# API
-
-'''
-'''
-
-# Tests
-
-```
-```
-
-# Architectural and design process
-
-## Tree
-
-```
-```
-
-# Future
-
-```
-```
-
-
