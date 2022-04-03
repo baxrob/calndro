@@ -1,8 +1,13 @@
 
 ## A toy appointment coordination API
 
+```
+The idea of this is,
+```
+
 ### Scenario
 
+[with [[httpie]] [[jq]]]
 
 ```
 you:

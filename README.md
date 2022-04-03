@@ -74,3 +74,46 @@ http GET :8000/$evt_id/log/
 
 http GET :8000/openapi
 ```
+
+## TUI
+
+```
+
+```
+
+## Install
+
+### Python Pip
+
+```
+```
+
+### Docker
+
+```
+```
+
+
+## API
+
+'''
+'''
+
+## Tests
+
+```
+```
+
+## Architectural and design process
+
+### Tree
+
+```
+```
+
+## Future
+
+```
+```
+
+

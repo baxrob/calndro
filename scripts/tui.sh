@@ -109,7 +109,9 @@ while cmd=$(bash -c 'read -er cmd; echo $cmd'); do
         n[0-9]*) evtnum=${cmd#n}; pcode=notify ;;
         g[0-9]*) req log ${cmd#g} ;;
         '?')
-        printf "l list\nc create\nd detail\np patch\nn notify\ng log\n? help\n"
+        printf "l list\nc create\n"
+        printf "d detail\np patch\n"
+        printf "n notify\ng log\n? help\n\n"
         ;;
         q) exit 0 ;;
         # X:

@@ -1,4 +1,3 @@
-version: "3.9"
 
 services:
   web:
@@ -6,10 +5,10 @@ services:
     image: caldi
     build:
       context: .
-      dockerfile: compose/stage/dj/Dockerfile
-    env_file: compose/stage/dj/.env
+      dockerfile: compose/stage/Dockerfile-dj
+    env_file: compose/stage/dj.env
     ports:
-      - 8000:8000
+      - ${HOST_PORT:-8000}:8000
     #logging: 
     depends_on: db
   db:
@@ -17,6 +16,8 @@ services:
     #image: postgres:latest-alpine
     build:
       context: .
-      dockerfile: compose/stage/pg/Dockerfile
-    env_file: compose/stage/pg/.env
+      dockerfile: compose/stage/Dockerfile-pg
+    env_file: compose/stage/pg.env
+    #volumes:
 
+#volumes:

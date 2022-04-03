@@ -60,13 +60,16 @@ class TimeSpan(models.Model):
         ordering = ['begin']
 
 
+def five_days_hence():
+    return timezone.now() + timedelta(days=5)
+
 class EmailToken(models.Model):
     event = models.ForeignKey(
         Event, on_delete=models.CASCADE#, related_name='slots'
     )
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     key = models.CharField(max_length=40, primary_key=True, editable=False)
-    expires = models.DateTimeField(default=timezone.now() + timedelta(days=5),
+    expires = models.DateTimeField(default=five_days_hence,
         editable=False)
 
     def save(self, *args, **kwargs):

@@ -1,0 +1,27 @@
+
+services:
+  web:
+    container_name: caldc
+    image: caldi
+    build:
+      context: .
+      # ? local/dj/ ? ./Dockerfile
+      dockerfile: compose/local/Dockerfile
+      #args:
+      #  PG_ENV_PATH: compose/local/pg/.env
+      #
+      #  DK_DEBUG: ':'
+      #  HOST_PORT: 8000
+      #  DK_VARIANT: ''
+    #env_file:
+    #  - config/.env # X: redundant - this will pre-super-cede dj-environ,
+    #                #    yet it's the same .env in settings.py
+    #  - compose/local/pg/.env
+    #environment:
+    #  - ENV_PATH=config.env # X: redundant - this will supercede default
+    #                        #    in settings.py which is the same .env
+    ports:
+      #- $HOST_PORT:8000 # X: ?
+      #- 8000:8000
+      - ${HOST_PORT:-8000}:8000
+    #logging:

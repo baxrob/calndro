@@ -3,10 +3,9 @@ README*
 _README
 LICENSE
 requirements/requirements_*
-v_*/
-_t
+#v_*/
 db.sqlite3*
-schedul/migrations/*
+#schedul/migrations/*
 
 .git
 .gitignore
@@ -23,7 +22,6 @@ venv
 **/*.swp
 *.vim
 
-sec
 tests
 _m
 _t
