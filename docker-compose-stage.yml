@@ -1,0 +1,22 @@
+version: "3.9"
+
+services:
+  web:
+    container_name: caldc
+    image: caldi
+    build:
+      context: .
+      dockerfile: compose/stage/dj/Dockerfile
+    env_file: compose/stage/dj/.env
+    ports:
+      - 8000:8000
+    #logging: 
+    depends_on: db
+  db:
+    container_name: caldb
+    #image: postgres:latest-alpine
+    build:
+      context: .
+      dockerfile: compose/stage/pg/Dockerfile
+    env_file: compose/stage/pg/.env
+

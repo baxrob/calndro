@@ -1,0 +1,26 @@
+FROM python:3-alpine
+#FROM python:3.10.1-alpine3.15
+#FROM python:3.9.9-alpine3.15
+#RUN apk update && apk add --no-cache  gcc libffi-dev musl-dev
+RUN apk add --no-cache gcc libffi-dev musl-dev postgresql postgresql-dev
+
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+WORKDIR /code
+COPY requirements/* /code/
+RUN set -ex && pip install --upgrade pip && pip install -r local_pg.txt
+#RUN set -ex && pip install --upgrade pip && pip install psycopg
+
+COPY . /code/
+#ENV DATABASE_URL=sqlite:////code/db.sqlite3
+
+RUN env
+
+#
+#RUN set -ex && ls -lhtrA && ENV_PATH=compose/local/pg/.env ./scripts/init_pg.sh \
+#RUN set -ex && ls -lhtrA && ./scripts/init_pg.sh \
+#    && ./manage.py check && whoami && ./scripts/reset.sh \
+#    && python --version && cat /etc/os-release
+#EXPOSE 8000
+#CMD ["./manage.py", "runserver", "0.0.0.0:8000"]
+
