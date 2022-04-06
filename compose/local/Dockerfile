@@ -6,7 +6,8 @@ WORKDIR /code
 #COPY requirements/* /code/requirements/
 #RUN set -ex && pip install --upgrade pip && pip install -r requirements/local.txt
 
-COPY . /code/
+#COPY . /code/
+COPY . .
 
 RUN set -ex && pip install --upgrade pip \
     && pip install -r requirements/local.txt \

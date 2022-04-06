@@ -1,27 +1,31 @@
 
-README*
-_README
-LICENSE
-requirements/requirements_*
+#README*
+#LICENSE
+#gpl-3.0.txt
+#requirements/requirements_*
 #v_*/
-db.sqlite3*
 #schedul/migrations/*
+
+db.sqlite3*
 
 .git
 .gitignore
 
 db.sqlite3
 
+venv
 #.env
 **/__pycache__
 
 .python-version
 .coverage
 
-venv
 **/*.swp
 *.vim
 
 tests
+_a
+_aux
 _m
 _t
+_README

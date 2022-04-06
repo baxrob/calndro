@@ -1,23 +1,32 @@
 
 services:
   web:
-    container_name: caldc
-    image: caldi
+    container_name: caldcs
+    image: caldis
     build:
       context: .
       dockerfile: compose/stage/Dockerfile-dj
     env_file: compose/stage/dj.env
+    #  - compose/stage/pg.env
     ports:
-      - ${HOST_PORT:-8000}:8000
+      - ${HOST_PORT:-8001}:8000
     #logging: 
-    depends_on: db
+    depends_on:
+      - db
   db:
-    container_name: caldb
+    container_name: caldbc
     #image: postgres:latest-alpine
+    image: caldbi
     build:
       context: .
       dockerfile: compose/stage/Dockerfile-pg
     env_file: compose/stage/pg.env
     #volumes:
+  #proxy:
+  #  build: compose/stage/ngx
+  #  volumes: static_volume:
 
 #volumes:
+networks:
+  default:
+    name: calds
