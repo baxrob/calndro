@@ -1,0 +1,14 @@
+#!/bin/sh
+
+
+. $ENV_PATH
+
+#cat <<END | sudo -u postgres psql
+cat <<END #| sudo -u postgres psql
+CREATE USER $DATABASE_USER WITH ENCRYPTED PASSWORD '$DATABASE_PASSWORD';
+ALTER ROLE $DATABASE_USER SET client_encoding TO 'utf8';
+ALTER ROLE $DATABASE_USER SET default_transaction_isolation TO 'read committed';
+ALTER ROLE $DATABASE_USER SET timezone TO 'UTC';
+CREATE DATABASE $DATABASE_NAME;
+GRANT ALL PRIVILEGES ON DATABASE $DATABASE_NAME TO $DATABASE_USER;
+END
