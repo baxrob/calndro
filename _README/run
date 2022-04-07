@@ -1,13 +1,20 @@
 
-## Install
-
-### Python Pip
+### Install
 
 ```
 ```
 
-### Docker
+#### Python Pip
 
 ```
 ```
 
+#### Docker
+
+```
+```
+
+#### Envs, fixtures, admin
+
+```
+```

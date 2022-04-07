@@ -6,6 +6,7 @@ services:
     build:
       context: .
       dockerfile: compose/local/Dockerfile
+    env_file: compose/local/dj.env
     ports:
       - ${HOST_PORT:-8000}:8000
     #logging:

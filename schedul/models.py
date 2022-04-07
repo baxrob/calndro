@@ -1,12 +1,10 @@
 import os
 import binascii
 
-#from zoneinfo import ZoneInfo
 from datetime import datetime, timedelta
 from django.utils import timezone
 from django.db import models
 from django.urls import reverse
-#from django.conf import settings
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -65,16 +63,19 @@ def five_days_hence():
 
 class EmailToken(models.Model):
     event = models.ForeignKey(
-        Event, on_delete=models.CASCADE#, related_name='slots'
+        Event, on_delete=models.CASCADE
     )
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     key = models.CharField(max_length=40, primary_key=True, editable=False)
     expires = models.DateTimeField(default=five_days_hence,
         editable=False)
+    #expires = models.DateTimeField(editable=False)
 
     def save(self, *args, **kwargs):
         if not self.key:
             self.key = binascii.hexlify(os.urandom(20)).decode()
+        #if not self.expires:
+        #    self.expires = timezone.now() + timedelta(days=5)
         return super().save(*args, **kwargs)
 
 

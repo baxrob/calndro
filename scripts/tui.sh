@@ -115,7 +115,7 @@ while cmd=$(bash -c 'read -er cmd; echo $cmd'); do
         ;;
         q) exit 0 ;;
         # X:
-        *) echo huh? $cmd ;; #pcode=menu ;;
+        *) printf "\nhuh? $cmd\n" ;; #pcode=menu ;;
         esac
     ;;
     create_parties) cparties="$cmd"; pcode=create_slots ;;

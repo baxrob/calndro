@@ -8,13 +8,15 @@ USER app
 WORKDIR /home/app
 COPY --chown=app:app . .
 
+# dbg
 RUN set -ex && ls -lhtrA \
     && whoami && pwd \
     && python --version && cat /etc/os-release
 
 RUN set -ex && python -m venv venv && . venv/bin/activate \
     && pip install -r requirements/stage.txt \
-    && ./manage.py migrate
+    && ./manage.py migrate \
+    && ./manage.py collectstatic
 
 ENV VIRTUAL_ENV=/home/app/venv
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"

@@ -137,6 +137,8 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+STATIC_ROOT = env.str('STATIC_ROOT', None)
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
@@ -144,6 +146,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 #
+
+ADMINS = [x.split(':') for x in env.list('DJANGO_ADMINS')]
 
 DEFAULT_FROM_EMAIL = env.str('DJANGO_DEFAULT_FROM_EMAIL', 'admin@localhost')
 
@@ -215,14 +219,6 @@ from email.utils import parseaddr
 
 ADMINS = tuple(parseaddr(email) for email in env.list('DJANGO_ADMINS'))
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
-EMAIL_HOST
-EMAIL_PORT
-EMAIL_HOST_USER
-EMAIL_HOST_PASSWORD
-EMAIL_USE_TLS
-EMAIL_USE_SSL
 
 '''
 

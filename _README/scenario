@@ -2,12 +2,11 @@
 ## A toy appointment coordination API
 
 ```
-The idea of this is,
 ```
 
 ### Scenario
 
-[with [[httpie]] [[jq]]]
+[ with [httpie](https://httpie.io), [jq](https://stedolan.github.io/jq/) ]
 
 ```
 you:
