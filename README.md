@@ -101,8 +101,11 @@ http GET :8000/openapi
 
 ### TUI
 
+See [..bloblink]
+
 #### Example
 
+<!-- %volatile -->
 ```
 $ port=8005 scripts/tui.sh
 config: ob p _ 8005 ob@localhost
@@ -120,8 +123,8 @@ q quit
 > d1
 {
     "id": 1,
-    "log_url": "http://localhost:8000/1/log/",
-    "notify_url": "http://localhost:8000/1/notify/",
+    "log_url": "http://localhost:8005/1/log/",
+    "notify_url": "http://localhost:8005/1/notify/",
     "parties": [
         "ob@localhost",
         "zo@localhost"
@@ -141,7 +144,7 @@ q quit
         }
     ],
     "title": "cybes",
-    "url": "http://localhost:8000/1/"
+    "url": "http://localhost:8005/1/"
 }
 
 
