@@ -109,9 +109,14 @@ while cmd=$(bash -c 'read -er cmd; echo $cmd'); do
         n[0-9]*) evtnum=${cmd#n}; pcode=notify ;;
         g[0-9]*) req log ${cmd#g} ;;
         '?')
-        printf "l list\nc create\n"
-        printf "d detail\np patch\n"
-        printf "n notify\ng log\n? help\n\n"
+        printf "l list events\n"
+        printf "c create with emails, time-spans\n"
+        printf "d[n] detail - view event number n\n"
+        printf "p[n] patch time-spans\n"
+        printf "n[n] notify recipients\n"
+        printf "g[n] log - view dispatch/update logs\n"
+        printf "? help - this help\n"
+        printf "q quit\n"
         ;;
         q) exit 0 ;;
         # X:

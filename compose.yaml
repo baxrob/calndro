@@ -6,8 +6,9 @@ services:
     build:
       context: .
       dockerfile: compose/local/Dockerfile
-    env_file: compose/local/dj.env
+    env_file: ./compose/local/.env.dj
     ports:
       - ${HOST_PORT:-8000}:8000
+    #volumes:
     #logging:
 

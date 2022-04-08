@@ -8,10 +8,14 @@
 
 db.sqlite3
 
-.env*
+#*/.env*
+*/.env
+
+.dockerignore
 
 .git
 .gitignore
+.github
 
 venv
 **/__pycache__
@@ -24,7 +28,9 @@ venv
 
 tests
 _a
+*/_a
 _aux
 _m
 _t
+*/_t
 _README

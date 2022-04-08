@@ -3,7 +3,7 @@ on:
   push
 env:
   # X:
-  ENV_PATH: 'config/.env.ci'
+  ENV_PATH: 'config/ci.env'
 jobs:
   test:
     runs-on: ubuntu-latest
