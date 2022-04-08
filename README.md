@@ -153,7 +153,7 @@ q quit
 
 ```
 
-### API
+### Interface
 
 ```
 ```
@@ -173,7 +173,7 @@ q quit
 ```
 ```
 
-### Future
+### Next, possibly
 
 ```
 ```
