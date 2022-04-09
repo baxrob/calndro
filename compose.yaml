@@ -6,9 +6,10 @@ services:
     build:
       context: .
       dockerfile: compose/local/Dockerfile
-    env_file: ./compose/local/.env.dj
+    env_file: ./compose/local/dj.env
     ports:
       - ${HOST_PORT:-8000}:8000
     #volumes:
+    #  - ../db.sqlite3:/code/db.sqlite3
     #logging:
 

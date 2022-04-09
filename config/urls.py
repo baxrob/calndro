@@ -43,6 +43,10 @@ urlpatterns = [
     #  'redoc', cache_timeout=0), name='schema-redoc'),
 ]
 
+import os
+if os.environ.get('DJANGO_SERVE_STATIC'):
+    from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+    urlpatterns += staticfiles_urlpatterns()
 
 '''
 urlpatterns = [

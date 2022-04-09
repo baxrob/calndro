@@ -5,7 +5,7 @@ See [..bloblink]
 
 #### Example
 
-<!-- %volatile -->
+<!-- X: %volatile -->
 ```
 $ port=8005 scripts/tui.sh
 config: ob p _ 8005 ob@localhost

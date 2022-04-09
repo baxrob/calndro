@@ -1,5 +1,5 @@
 FROM python:3-alpine
-#RUN apk update && apk add libpq
+RUN apk update && apk add postgresql-dev gcc musl-dev
 
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
 
@@ -15,12 +15,16 @@ RUN set -ex && ls -lhtrA \
 
 RUN set -ex && python -m venv venv && . venv/bin/activate \
     && pip install -r requirements/stage.txt \
-    && ./manage.py migrate \
-    && ./manage.py collectstatic
+    && env
+#    && ./manage.py migrate \
+#    && ./manage.py collectstatic
 
 ENV VIRTUAL_ENV=/home/app/venv
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 EXPOSE 8000
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "config.wsgi:application"]
+#ENTRYPOINT ["sh"]
+#ENTRYPOINT ["/home/app/compose/stage/entrypoint.sh"]
+ENTRYPOINT ["compose/stage/entrypoint.sh"]
+#CMD ["gunicorn", "--bind", "0.0.0.0:8000", "config.wsgi:application"]
 #CMD ["./manage.py", "runserver", "0.0.0.0:8000"]

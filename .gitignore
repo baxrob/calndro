@@ -6,7 +6,7 @@ _a
 db.sqlite3
 #schedul/migrations/*
 
-.env
+.env*
 __pycache__
 
 .python-version

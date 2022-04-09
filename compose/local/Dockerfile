@@ -3,7 +3,8 @@ FROM python:3-alpine
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
 
 WORKDIR /code
-COPY requirements/* /code/requirements/
+#COPY requirements/* /code/requirements/
+COPY requirements/* requirements/
 RUN set -ex && pip install --upgrade pip && pip install -r requirements/local.txt
 
 #COPY . /code/
@@ -18,7 +19,7 @@ RUN set -ex && ls -lhtrA && find . \
 #RUN set -ex && pip install --upgrade pip \
 #    && pip install -r requirements/local.txt \
 #    && ./scripts/reset.sh
-RUN set -ex && env && cat compose/local/dj.env
+#RUN set -ex && env && cat compose/local/dj.env
 #RUN ./manage.py migrate
 
 

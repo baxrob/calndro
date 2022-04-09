@@ -8,12 +8,14 @@ services:
       dockerfile: compose/stage/Dockerfile-dj
     env_file:
       - compose/stage/dj.env
-    #  - compose/stage/pg.env
+      - compose/stage/pg.env
     ports:
       - ${HOST_PORT:-8001}:8000
     #logging: 
     depends_on:
       - db
+    #restart: on-failure
+    #tty: true
   db:
     container_name: caldbc
     #image: postgres:latest-alpine
