@@ -11,13 +11,11 @@ COPY --chown=app:app . .
 # dbg
 RUN set -ex && ls -lhtrA \
     && whoami && pwd \
-    && python --version && cat /etc/os-release
+    && python --version && cat /etc/os-release \
+    && env
 
 RUN set -ex && python -m venv venv && . venv/bin/activate \
-    && pip install -r requirements/stage.txt \
-    && env
-#    && ./manage.py migrate \
-#    && ./manage.py collectstatic
+    && pip install -r requirements/stage.txt 
 
 ENV VIRTUAL_ENV=/home/app/venv
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"

@@ -1,6 +1,6 @@
 
 services:
-  web:
+  webloc:
     container_name: caldc
     image: caldi
     build:
@@ -11,5 +11,4 @@ services:
       - ${HOST_PORT:-8000}:8000
     #volumes:
     #  - ../db.sqlite3:/code/db.sqlite3
-    #logging:
 

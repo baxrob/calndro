@@ -7,14 +7,26 @@
 #### Python Pip
 
 ```
+python3 -m venv venv \
+    && . venv/bin/activate \
+    && pip install -r requirements/base.txt \
+    && scripts/reset.sh \
+    && ./manage.py runserver 0.0.0.0:8000
 ```
+[1] [ppa pyenv ..]
 
 #### Docker
 
+[ with [docker](), [docker-compose]() ] 
+
 ```
+[up down logs exec / $file= $sys=ubu|alp %cmd[exec]]
 ```
 
 #### Envs, fixtures, admin
 
+
 ```
 ```
+[1] [gen.py blob ..]
+[2] [admin .. ..]

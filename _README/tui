@@ -7,7 +7,7 @@ See [..bloblink]
 
 <!-- X: %volatile -->
 ```
-$ port=8005 scripts/tui.sh
+\$ port=8005 scripts/tui.sh
 config: ob p _ 8005 ob@localhost
   l   c   d[n]  p[n]  n[n]  g[n]  ?   q
 > ?
