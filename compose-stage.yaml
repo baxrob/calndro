@@ -11,7 +11,6 @@ services:
       - compose/stage/pg.env
     ports:
       - ${HOST_PORT:-8001}:8000
-    #logging: 
     depends_on:
       - db
     #restart: on-failure
