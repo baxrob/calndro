@@ -7,6 +7,7 @@ See [..bloblink]
 
 <!-- X: %volatile -->
 ```
+\$ HOST_PORT=8005 docker-compose up
 \$ port=8005 scripts/tui.sh
 config: ob p _ 8005 ob@localhost
   l   c   d[n]  p[n]  n[n]  g[n]  ?   q

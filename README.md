@@ -5,6 +5,7 @@
 ## A toy appointment coordination API
 
 ```
+[cruft/schlock note]
 ```
 
 ### Scenario
@@ -86,18 +87,43 @@ http GET :8000/openapi
 
 #### Python Pip
 
+[ with Python version >=3.8 ]
+
 ```
+python3 -m venv venv \
+    && . venv/bin/activate \
+    && pip install -r requirements/base.txt \
+    $$ cp config/eg.env config/.env \           #
+    && scripts/reset.sh \                       #
+    && ./manage.py runserver 0.0.0.0:8000
 ```
+[1] [ppa pyenv ..]
+[note: ..]
 
 #### Docker
 
+[ with [docker](https://docs.docker.com/get-docker/), [docker-compose](https://github.com/docker/compose) ] 
+
 ```
+[up down logs exec / $file= $sys=ubu|alp %cmd[exec]]
+
+Run:
+
+docker-compose up
+
+Or:
+
+docker-compose -f compose-stage.yaml up
+
 ```
 
 #### Envs, fixtures, admin
 
+
 ```
 ```
+[1] [gen.py blob ..]
+[2] [admin .. ..]
 
 ### TUI
 
@@ -105,9 +131,10 @@ See [..bloblink]
 
 #### Example
 
-<!-- %volatile -->
+<!-- X: %volatile -->
 ```
-$ port=8005 scripts/tui.sh
+\$ HOST_PORT=8005 docker-compose up
+\$ port=8005 scripts/tui.sh
 config: ob p _ 8005 ob@localhost
   l   c   d[n]  p[n]  n[n]  g[n]  ?   q
 > ?
@@ -177,5 +204,3 @@ q quit
 
 ```
 ```
-
-

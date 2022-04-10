@@ -6,21 +6,34 @@
 
 #### Python Pip
 
+[ with Python version >=3.8 ]
+
 ```
 python3 -m venv venv \
     && . venv/bin/activate \
     && pip install -r requirements/base.txt \
-    && scripts/reset.sh \
+    $$ cp config/eg.env config/.env \           #
+    && scripts/reset.sh \                       #
     && ./manage.py runserver 0.0.0.0:8000
 ```
 [1] [ppa pyenv ..]
+[note: ..]
 
 #### Docker
 
-[ with [docker](), [docker-compose]() ] 
+[ with [docker](https://docs.docker.com/get-docker/), [docker-compose](https://github.com/docker/compose) ] 
 
 ```
 [up down logs exec / $file= $sys=ubu|alp %cmd[exec]]
+
+Run:
+
+docker-compose up
+
+Or:
+
+docker-compose -f compose-stage.yaml up
+
 ```
 
 #### Envs, fixtures, admin
