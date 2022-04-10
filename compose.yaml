@@ -1,6 +1,6 @@
 
 services:
-  webloc:
+  dj:
     container_name: caldc
     image: caldi
     build:
@@ -9,6 +9,10 @@ services:
     env_file: ./compose/local/dj.env
     ports:
       - ${HOST_PORT:-8000}:8000
-    #volumes:
-    #  - ../db.sqlite3:/code/db.sqlite3
+    volumes:
+      - ./db.sqlite3:/code/db.sqlite3
+
+networks:
+  default:
+    name: cald_loc
 

@@ -24,14 +24,14 @@ services:
       context: .
       dockerfile: compose/stage/Dockerfile-pg
     env_file: compose/stage/pg.env
-    #volumes:
-    #  - pg_data:/var/lib/postgresql/data/
+    volumes:
+      - pg_data:/var/lib/postgresql/data/
   #proxy:
   #  build: compose/stage/ngx
   #  volumes: static_volume:
 
-#volumes:
-#  - pg_data
+volumes:
+  pg_data:
 networks:
   default:
     name: cald_stage
