@@ -210,9 +210,7 @@ integration: views, auth, dispatch, ..queries
 <!-- this? -->
 ```
 
-| ![initial sketch](_m/IMG_1377-rot90-300.JPG) | ```
-hi
-``` |
+| ![initial sketch](_m/IMG_1377-rot90-300-noexif.JPG) | ``` hi ``` |
 
 #### Tree
 
