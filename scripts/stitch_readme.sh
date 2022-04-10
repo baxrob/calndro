@@ -20,9 +20,25 @@ doc=$(for file in $(cat $segmap); do
     cat $dir/$file
 done)
 
+# X: %[\([^\]]*)] tui coverage cloc tree annotree testdo
+#grep -d skip '%\[' * | sed 's/%\[\(.*\)\]/zz/'
+#grep -d skip '%\[' * | sed 's/\%\[\([^\\]]*\)\]/zz/'
+#grep -d skip '%\[' * | sed 's/\%\[\([^]]*\)\]/zz/'
+#grep -d skip '%\[' * | sed 's/%\[\(.*\)\]/zz/'
+#grep skip '%\[' * | sed 's/%\[\(.*\)\]/zz/'
+#grep '%\[' * | sed 's/%\[\(.*\)\]/zz/'
+#grep -d skip '%\[' * | sed 's/%\[\(.*\)\]/zz/'
+#man grep
+#grep -sh '%\[' * | sed 's/%\[\(.*\)\]/zz/'
+
+#echo "$doc" | grep -sh '%\[' * | sed 's/%\[\(.*\)\]/"$rep"/'
+
+
 echo yo
 
-echo "$doc" | less
+# X: grip
+# N: ttscoff/mdless
+echo "$doc" | mdless
 #echo $doc | less
 
 date

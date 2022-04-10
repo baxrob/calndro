@@ -17,6 +17,7 @@ python3 -m venv venv \
     && ./manage.py runserver 0.0.0.0:8000
 ```
 [1] [ppa pyenv ..]
+
 [note: ..]
 
 #### Docker
@@ -24,8 +25,6 @@ python3 -m venv venv \
 [ with [docker](https://docs.docker.com/get-docker/), [docker-compose](https://github.com/docker/compose) ] 
 
 ```
-[up down logs exec / $file= $sys=ubu|alp %cmd[exec]]
-
 Run:
 
 docker-compose up
@@ -35,11 +34,15 @@ Or:
 docker-compose -f compose-stage.yaml up
 
 ```
+<!--
+[up down logs exec / $file= $sys=ubu|alp %cmd[exec]]
+-->
 
 #### Envs, fixtures, admin
 
 
 ```
 ```
-[1] [gen.py](schedul/fixures/gen.py)
+[1] [gen.py](schedul/fixtures/gen.py)
+
 [2] [admin .. ..]

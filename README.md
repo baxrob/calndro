@@ -41,7 +41,7 @@ they:
 
 - receive message including link with temporary access token
 
-http://localhost:8000/$evt_id/?et=1fe36bfa6f2f2567b5f7ea5a06e1e2202ad57ea7
+http://$host:8000/$evt_id/?et=1fe36bfa6f2f2567b5f7ea5a06e1e2202ad57ea7
 
 
 - view proposed event times
@@ -98,6 +98,7 @@ python3 -m venv venv \
     && ./manage.py runserver 0.0.0.0:8000
 ```
 [1] [ppa pyenv ..]
+
 [note: ..]
 
 #### Docker
@@ -105,8 +106,6 @@ python3 -m venv venv \
 [ with [docker](https://docs.docker.com/get-docker/), [docker-compose](https://github.com/docker/compose) ] 
 
 ```
-[up down logs exec / $file= $sys=ubu|alp %cmd[exec]]
-
 Run:
 
 docker-compose up
@@ -116,13 +115,17 @@ Or:
 docker-compose -f compose-stage.yaml up
 
 ```
+<!--
+[up down logs exec / $file= $sys=ubu|alp %cmd[exec]]
+-->
 
 #### Envs, fixtures, admin
 
 
 ```
 ```
-[1] [gen.py](schedul/fixures/gen.py)
+[1] [gen.py](schedul/fixtures/gen.py)
+
 [2] [admin .. ..]
 
 ### TUI
@@ -133,8 +136,9 @@ See [scripts/tui.sh](scripts/tui.sh)
 
 <!-- X: %volatile -->
 ```
-\$ HOST_PORT=8005 docker-compose up
-\$ port=8005 scripts/tui.sh
+<!-- %[tui] -->
+you@thar:prompt$ HOST_PORT=8005 docker-compose up
+you@thar:prompt$ port=8005 scripts/tui.sh
 config: ob p _ 8005 ob@localhost
   l   c   d[n]  p[n]  n[n]  g[n]  ?   q
 > ?
@@ -189,20 +193,50 @@ q quit
 
 ### Tests
 
+See [tests.py](schedul/test.py)
+
 ```
+helper funcs .. pytest
+integration: views, auth, dispatch, ..queries
+..unit: token, mail
+
+%[testdo]
+%[coverage]
 ```
 
 ### Architecture, design, process
 
 ```
+<!-- this? -->
 ```
+
+| ![initial sketch](_m/IMG_1377-rot90-300.JPG) | ```
+hi
+``` |
 
 #### Tree
 
 ```
+%[tree]
+
+%[annotree]
+
+%[cloc]
+
+%[coverage]
 ```
 
 ### Next, possibly
 
 ```
+- ghub tidy branch - 
+- tests - 
+
+- ssl, mailhog, gpg/pass
+- dataclasses, 
+
+- self-hosting, localnet day scheduling
 ```
+<!-- X: ?
+- ob@localhost $user example.com - fixture/gen
+-->

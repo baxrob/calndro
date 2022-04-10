@@ -1,10 +1,4 @@
 
-## A toy appointment coordination API
-
-```
-[cruft/schlock note]
-```
-
 ### Scenario
 
 [ with [httpie](https://httpie.io), [jq](https://stedolan.github.io/jq/) ]
@@ -38,7 +32,7 @@ they:
 
 - receive message including link with temporary access token
 
-http://localhost:8000/$evt_id/?et=1fe36bfa6f2f2567b5f7ea5a06e1e2202ad57ea7
+http://$host:8000/$evt_id/?et=1fe36bfa6f2f2567b5f7ea5a06e1e2202ad57ea7
 
 
 - view proposed event times

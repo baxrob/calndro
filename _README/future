@@ -2,5 +2,15 @@
 ### Next, possibly
 
 ```
+- ghub tidy branch - 
+- tests - 
+
+- ssl, mailhog, gpg/pass
+- dataclasses, 
+
+- self-hosting, localnet day scheduling
 ```
+<!-- X: ?
+- ob@localhost $user example.com - fixture/gen
+-->
 
