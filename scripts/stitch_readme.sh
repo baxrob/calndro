@@ -30,11 +30,15 @@ date
 file=../README.md
 
 #diff $(
+#dt=$(date +%Y%m%d-%H%M%S)
+#echo "$doc" > GARBAGE-rdmd_$dt
+#diff $tmpname $file
 
 echo write to $file or ctrl-c ?
 
 read foo
 
+echo $file  
 echo "$doc" > $file
 
 
