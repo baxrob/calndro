@@ -4,7 +4,13 @@
 
 ## A toy appointment coordination API
 
+under &#x1f477; &#x1f6a7; 128119 &#128679; 128736
+_ _
+👷🚧🛠
 ```
+_ _
+👷
+under &#x1f477;
 [cruft/schlock note]
 ```
 
