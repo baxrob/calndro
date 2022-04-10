@@ -1,9 +1,6 @@
 
 ### Install
 
-```
-```
-
 #### Python Pip
 
 [ with Python version >=3.8 ]
@@ -16,9 +13,7 @@ python3 -m venv venv \
     && scripts/reset.sh \                       #
     && ./manage.py runserver 0.0.0.0:8000
 ```
-[1] [ppa pyenv ..]
-
-[note: ..]
+[note: ppa pyenv ..]
 
 #### Docker
 
@@ -42,7 +37,12 @@ docker-compose -f compose-stage.yaml up
 
 
 ```
-```
-[1] [gen.py](schedul/fixtures/gen.py)
+./manage.py loaddata users schedul
 
-[2] [admin .. ..]
+docker exec -it caldc ./manage.py loaddata users schedul
+
+docker exec -it caldcs ./manage.py loaddata users schedul
+```
+[1] See [gen.py](schedul/fixtures/gen.py)
+
+[2] [$host/admin .. ..]

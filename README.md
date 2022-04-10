@@ -11,8 +11,8 @@ _ _
 _ _
 👷
 under &#x1f477;
-[cruft/schlock note]
 ```
+<!-- [cruft/schlock note] -->
 
 ### Scenario
 
@@ -88,9 +88,6 @@ http GET :8000/openapi
 
 ### Install
 
-```
-```
-
 #### Python Pip
 
 [ with Python version >=3.8 ]
@@ -103,9 +100,7 @@ python3 -m venv venv \
     && scripts/reset.sh \                       #
     && ./manage.py runserver 0.0.0.0:8000
 ```
-[1] [ppa pyenv ..]
-
-[note: ..]
+[note: ppa pyenv ..]
 
 #### Docker
 
@@ -129,10 +124,15 @@ docker-compose -f compose-stage.yaml up
 
 
 ```
-```
-[1] [gen.py](schedul/fixtures/gen.py)
+./manage.py loaddata users schedul
 
-[2] [admin .. ..]
+docker exec -it caldc ./manage.py loaddata users schedul
+
+docker exec -it caldcs ./manage.py loaddata users schedul
+```
+[1] See [gen.py](schedul/fixtures/gen.py)
+
+[2] [$host/admin .. ..]
 
 ### TUI
 
@@ -142,7 +142,6 @@ See [scripts/tui.sh](scripts/tui.sh)
 
 <!-- X: %volatile -->
 ```
-<!-- %[tui] -->
 you@thar:prompt$ HOST_PORT=8005 docker-compose up
 you@thar:prompt$ port=8005 scripts/tui.sh
 config: ob p _ 8005 ob@localhost
@@ -189,10 +188,13 @@ q quit
 > 
 
 ```
+```
+%[tui]
+```
 
 ### Interface
 
-[openapi-schama.yaml](_m/openapi-schema.yaml)
+See [openapi-schama.yaml](_m/openapi-schema.yaml)
 
 ```
 ```
@@ -216,15 +218,19 @@ integration: views, auth, dispatch, ..queries
 <!-- this? -->
 ```
 
-| ![initial sketch](_m/IMG_1377-rot90-300-noexif.JPG) | ``` hi ``` |
+| ![initial sketch](_m/IMG_1377-rot90-300-noexif.JPG) | ``` hi `In massa tempor nec feugiat nisl pretium. Posuere sollicitudin aliquam ultrices sagittis orci a. Bibendum enim facilisis gravida neque. Quam nulla porttitor massa id. Vitae aliquet nec ullamcorper sit amet risus nullam eget felis. Posuere urna nec tincidunt praesent semper feugiat nibh sed. Eu turpis egestas pretium aenean pharetra magna ac. A erat nam at lectus urna. Porttitor rhoncus dolor purus non enim praesent. Lorem mollis aliquam ut porttitor leo a diam sollicitudin tempor. Mi tempus imperdiet nulla malesuada pellentesque. Lectus vestibulum mattis ullamcorper velit sed ullamcorper morbi tincidunt. Justo eget magna fermentum iaculis eu. A erat nam at lectus urna duis convallis convallis tellus. Faucibus ornare suspendisse sed nisi lacus sed viverra tellus. Cursus mattis molestie a iaculis at erat pellentesque adipiscing commodo.`` |
 
 #### Tree
 
 ```
 %[tree]
+```
 
 %[annotree]
 
+
+#### Stats
+```
 %[cloc]
 
 %[coverage]
