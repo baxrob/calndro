@@ -122,12 +122,12 @@ docker-compose -f compose-stage.yaml up
 
 ```
 ```
-[1] (gen.py)[schedul/fixures/gen.py]
+[1] [gen.py](schedul/fixures/gen.py)
 [2] [admin .. ..]
 
 ### TUI
 
-See (scripts/tui.sh)[scripts/tui.sh]
+See [scripts/tui.sh](scripts/tui.sh)
 
 #### Example
 
@@ -182,7 +182,7 @@ q quit
 
 ### Interface
 
-(openapi-schama.yaml)[_m/openapi-schema.yaml)
+[openapi-schama.yaml](_m/openapi-schema.yaml)
 
 ```
 ```

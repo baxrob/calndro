@@ -41,5 +41,5 @@ docker-compose -f compose-stage.yaml up
 
 ```
 ```
-[1] (gen.py)[schedul/fixures/gen.py]
+[1] [gen.py](schedul/fixures/gen.py)
 [2] [admin .. ..]
