@@ -39,7 +39,7 @@ docker-compose -f compose-stage.yaml up
 ```
 ./manage.py loaddata users schedul
 
-docker exec -it caldc ./manage.py loaddata users schedul
+#docker exec -it caldc ./manage.py loaddata users schedul
 
 docker exec -it caldcs ./manage.py loaddata users schedul
 ```

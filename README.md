@@ -67,8 +67,8 @@ http PATCH :8000/$evt_id/ \
 
 http POST :8000/$evt_id/notify/ \
     parties:='["you@here.net", "them@whar.net"]' \
-    slots:='[{"begin": "2022-11-01T01:11:22.020000Z", "duration": ""},
-             {"begin": "2022-11-01T02:11:22+01:00", "duration": ""}]' \
+    slots:='[{"begin": "2022-11-01T01:11:22.020000Z", "duration": "00:10"},
+             {"begin": "2022-11-01T02:11:22+01:00", "duration": "00:20"}]' \
     et=1fe36bfa6f2f2567b5f7ea5a06e1e2202ad57ea7
 
 
@@ -126,7 +126,7 @@ docker-compose -f compose-stage.yaml up
 ```
 ./manage.py loaddata users schedul
 
-docker exec -it caldc ./manage.py loaddata users schedul
+#docker exec -it caldc ./manage.py loaddata users schedul
 
 docker exec -it caldcs ./manage.py loaddata users schedul
 ```
@@ -218,7 +218,9 @@ integration: views, auth, dispatch, ..queries
 <!-- this? -->
 ```
 
-| ![initial sketch](_m/IMG_1377-rot90-300-noexif.JPG) | ``` hi `In massa tempor nec feugiat nisl pretium. Posuere sollicitudin aliquam ultrices sagittis orci a. Bibendum enim facilisis gravida neque. Quam nulla porttitor massa id. Vitae aliquet nec ullamcorper sit amet risus nullam eget felis. Posuere urna nec tincidunt praesent semper feugiat nibh sed. Eu turpis egestas pretium aenean pharetra magna ac. A erat nam at lectus urna. Porttitor rhoncus dolor purus non enim praesent. Lorem mollis aliquam ut porttitor leo a diam sollicitudin tempor. Mi tempus imperdiet nulla malesuada pellentesque. Lectus vestibulum mattis ullamcorper velit sed ullamcorper morbi tincidunt. Justo eget magna fermentum iaculis eu. A erat nam at lectus urna duis convallis convallis tellus. Faucibus ornare suspendisse sed nisi lacus sed viverra tellus. Cursus mattis molestie a iaculis at erat pellentesque adipiscing commodo.`` |
+<div style="float: right;">
+![initial sketch](_m/IMG_1377-rot90-300-noexif.JPG)
+</div>
 
 #### Tree
 

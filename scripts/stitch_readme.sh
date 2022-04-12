@@ -20,7 +20,31 @@ doc=$(for file in $(cat $segmap); do
     cat $dir/$file
 done)
 
-# X: %[\([^\]]*)] tui coverage cloc tree annotree testdo
+srcwc() {
+    grep -n -B 2 todo ../schedul/tests.py
+}
+cloc() {
+    cd ..
+    cloc --vcs=git
+    cd -
+}
+tuisrc() {
+    :
+}
+covg() {
+    :
+}
+ltree() {
+    :
+}
+annotree() {
+    :
+}
+testdo() {
+    :
+}
+# X: %[\([^\]]*)] tui coverage cloc srcwc tree annotree testdo
+
 #grep -d skip '%\[' * | sed 's/%\[\(.*\)\]/zz/'
 #grep -d skip '%\[' * | sed 's/\%\[\([^\\]]*\)\]/zz/'
 #grep -d skip '%\[' * | sed 's/\%\[\([^]]*\)\]/zz/'
@@ -32,6 +56,13 @@ done)
 #grep -sh '%\[' * | sed 's/%\[\(.*\)\]/zz/'
 
 #echo "$doc" | grep -sh '%\[' * | sed 's/%\[\(.*\)\]/"$rep"/'
+
+#echo "$doc" | sed 's/%\[\(.*\)\]/"$("\1")"/g'
+
+for i in srcwc cloc tuisrc covg ltree annotree testdo; do
+#echo "$doc" | sed 's/%\[\(.*\)\]/"$rep"/'
+    :
+done
 
 
 echo yo

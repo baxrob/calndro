@@ -52,8 +52,8 @@ http PATCH :8000/$evt_id/ \
 
 http POST :8000/$evt_id/notify/ \
     parties:='["you@here.net", "them@whar.net"]' \
-    slots:='[{"begin": "2022-11-01T01:11:22.020000Z", "duration": ""},
-             {"begin": "2022-11-01T02:11:22+01:00", "duration": ""}]' \
+    slots:='[{"begin": "2022-11-01T01:11:22.020000Z", "duration": "00:10"},
+             {"begin": "2022-11-01T02:11:22+01:00", "duration": "00:20"}]' \
     et=1fe36bfa6f2f2567b5f7ea5a06e1e2202ad57ea7
 
 
