@@ -218,9 +218,12 @@ integration: views, auth, dispatch, ..queries
 <!-- this? -->
 ```
 
-<div style="float: right;">
+this that then though them thumb through thither thusly thou their thimble thistle thicket thunder the thinking threw
+<img src="_m/IMG_1377-rot90-300-noexif.JPG" style="float: right;">
+
 ![initial sketch](_m/IMG_1377-rot90-300-noexif.JPG)
-</div>
+
+<img src="_m/IMG_1377-rot90-300-noexif.JPG" style="float: right;">
 
 #### Tree
 
