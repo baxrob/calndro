@@ -14,7 +14,7 @@ under &#x1f477;
 ```
 <!-- [cruft/schlock note] -->
 
-Contents: [scenario](#scenario) [install](#install) [tui](#tui) [api](#interface) [tests](#tests) [architecture](#Architecture, design, process) [future](#Next, possibly)
+Contents: [scenario](#scenario) | [install](#install) | [tui](#tui) [api](#interface) | [tests](#tests) | [design](#architecture-design-process) | [future](#next-possibly)
 
 ### Scenario
 
@@ -350,12 +350,12 @@ Language                     files          blank        comment           code
 -------------------------------------------------------------------------------
 Python                          22            517            483           1671
 JSON                             3              0              0            346
+Markdown                         1             91              0            334
 YAML                             5             10             18            326
-Markdown                         1             90              0            308
 Bourne Shell                     7             61             37            272
 Dockerfile                       2              8             17             23
 -------------------------------------------------------------------------------
-SUM:                            40            686            555           2946
+SUM:                            40            687            555           2972
 -------------------------------------------------------------------------------
 
 wc:
