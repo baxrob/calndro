@@ -5,12 +5,15 @@
 <!-- this? -->
 ```
 
+<img src="_m/IMG_1377-rot90-300-noexif.JPG" align="right">
+<pre align="left">
 this that then though them thumb through thither thusly thou their thimble thistle thicket thunder the thinking threw
-<img src="_m/IMG_1377-rot90-300-noexif.JPG" style="float: right;">
+</pre>
+<br clear="both">
 
+<!--
 ![initial sketch](_m/IMG_1377-rot90-300-noexif.JPG)
-
-<img src="_m/IMG_1377-rot90-300-noexif.JPG" style="float: right;">
+-->
 
 #### Tree
 
@@ -24,6 +27,6 @@ this that then though them thumb through thither thusly thou their thimble thist
 #### Stats
 ```
 %[cloc]
-
+%[wc]
 %[coverage]
 ```

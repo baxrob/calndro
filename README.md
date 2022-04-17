@@ -189,7 +189,7 @@ q quit
 
 ```
 ```
-%[tui]
+%[??tui]
 ```
 
 ### Interface
@@ -208,8 +208,71 @@ helper funcs .. pytest
 integration: views, auth, dispatch, ..queries
 ..unit: token, mail
 
-%[testdo]
-%[coverage]
+97-    def test_detail_patch_dupe(self):
+98:        # todo-
+--
+264-    def test_detail_delete_auth_fail(self):
+265:        # todo-
+--
+336-    def test_notify_post_auth_fail(self):
+337:        # todo-
+--
+439-    def test_detail_get_emailtoken_fail(self):
+440:        # todo-
+--
+476-    def test_detail_patch_emailtoken(self):
+477:        # todo-
+--
+499-    def test_detail_patch_emailtoken_fail(self):
+500:        # todo-
+--
+512-    def test_notify_post_emailtoken(self):
+513:        # todo
+--
+516-    def test_notify_post_emailtoken_fail(self):
+517:        # todo
+--
+524-    def test_emailtoken_expired(self):
+525:        # todo
+--
+578-    def test_notify_post(self):
+579:        # todo-
+--
+599-    def test_notify_post_fail(self):
+600:        # todo-
+--
+649-    def test_notify_post_lognotify(self):
+650:        # todo-
+--
+673-    def test_detail_get_emailtoken_logviewed(self):
+674:        # todo
+/home/ob/dev/r/apps/caldro/venv/bin/coverage
+Name                                                Stmts   Miss  Cover
+-----------------------------------------------------------------------
+config/__init__.py                                      0      0   100%
+config/asgi.py                                          4      4     0%
+config/settings.py                                     44      0   100%
+config/urls.py                                         11      2    82%
+config/wsgi.py                                          4      4     0%
+manage.py                                              12      2    83%
+schedul/__init__.py                                     0      0   100%
+schedul/admin.py                                       52      5    90%
+schedul/apps.py                                         4      0   100%
+schedul/migrations/0001_initial.py                      7      0   100%
+schedul/migrations/0002_alter_timespan_options.py       4      0   100%
+schedul/migrations/0003_event_title.py                  5      0   100%
+schedul/migrations/0004_auto_20220204_1734.py           5      0   100%
+schedul/migrations/0005_emailtoken.py                   7      0   100%
+schedul/migrations/__init__.py                          0      0   100%
+schedul/models.py                                      51      0   100%
+schedul/permissions.py                                  4      0   100%
+schedul/serializers.py                                125      8    94%
+schedul/services.py                                    39      6    85%
+schedul/tests.py                                      423     26    94%
+schedul/urls.py                                         3      0   100%
+schedul/views.py                                      126     18    86%
+-----------------------------------------------------------------------
+TOTAL                                                 930     75    92%
 ```
 
 ### Architecture, design, process
@@ -218,27 +281,139 @@ integration: views, auth, dispatch, ..queries
 <!-- this? -->
 ```
 
+<img src="_m/IMG_1377-rot90-300-noexif.JPG" align="right">
+<pre align="left">
 this that then though them thumb through thither thusly thou their thimble thistle thicket thunder the thinking threw
-<img src="_m/IMG_1377-rot90-300-noexif.JPG" style="float: right;">
+</pre>
+<br clear="both">
 
+<!--
 ![initial sketch](_m/IMG_1377-rot90-300-noexif.JPG)
-
-<img src="_m/IMG_1377-rot90-300-noexif.JPG" style="float: right;">
+-->
 
 #### Tree
 
 ```
-%[tree]
+.
+├── compose
+│   ├── local
+│   │   ├── dj.env
+│   │   ├── Dockerfile
+│   │   └── Dockerfile-alp-pg
+│   └── stage
+│       ├── dj.env
+│       ├── Dockerfile-dj
+│       ├── Dockerfile-pg
+│       ├── entrypoint.sh
+│       ├── ngx
+│       │   ├── Dockerfile
+│       │   └── nginx.conf
+│       └── pg.env
+├── compose-stage.yaml
+├── compose.vim
+├── compose.yaml
+├── config
+│   ├── asgi.py
+│   ├── ci.env
+│   ├── eg.env
+│   ├── __init__.py
+│   ├── settings.py
+│   ├── urls.py
+│   └── wsgi.py
+├── db.sqlite3
+├── docker-compose.png
+├── gpl-3.0.txt
+├── LICENSE
+├── _m
+│   ├── deployen.gnumeric
+│   ├── doc
+│   ├── IMG_1377-300.JPG
+│   ├── IMG_1377.JPG
+│   ├── IMG_1377-rot90-300.JPG
+│   ├── IMG_1377-rot90-300-noexif.JPG
+│   ├── IMG_1377-rot90-300.png
+│   ├── openapi-schema.yaml
+│   └── scripts
+├── manage.py
+├── README.md
+├── schedul
+│   ├── admin.py
+│   ├── apps.py
+│   ├── __init__.py
+│   ├── models.py
+│   ├── permissions.py
+│   ├── serializers.py
+│   ├── services.py
+│   ├── tests.py
+│   ├── urls.py
+│   └── views.py
+└── scripts
+    ├── chore.sh
+    ├── init_pg.sh
+    ├── init.sql
+    ├── reset.sh
+    ├── stitch_readme.sh
+    └── tui.sh
+
+8 directories, 51 files
 ```
 
-%[annotree]
+%[..annotree]
 
 
 #### Stats
 ```
-%[cloc]
-
-%[coverage]
+Language                     files          blank        comment           code
+-------------------------------------------------------------------------------
+Python                          22            517            483           1671
+JSON                             3              0              0            346
+YAML                             5             10             18            326
+Bourne Shell                     7             79             80            286
+Markdown                         1             82              0            178
+Dockerfile                       2              8             17             23
+-------------------------------------------------------------------------------
+SUM:                            40            696            598           2830
+-------------------------------------------------------------------------------
+lines 	 file
+----- 	 ----
+212 	 schedul/views.py
+158 	 schedul/fixtures/gen.py
+83 	 schedul/admin.py
+6 	 schedul/apps.py
+100 	 schedul/models.py
+175 	 schedul/serializers.py
+16 	 schedul/permissions.py
+0 	 schedul/__init__.py
+57 	 schedul/services.py
+11 	 schedul/urls.py
+755 	 schedul/tests.py
+/home/ob/dev/r/apps/caldro/venv/bin/coverage
+Name                                                Stmts   Miss  Cover
+-----------------------------------------------------------------------
+config/__init__.py                                      0      0   100%
+config/asgi.py                                          4      4     0%
+config/settings.py                                     44      0   100%
+config/urls.py                                         11      2    82%
+config/wsgi.py                                          4      4     0%
+manage.py                                              12      2    83%
+schedul/__init__.py                                     0      0   100%
+schedul/admin.py                                       52      5    90%
+schedul/apps.py                                         4      0   100%
+schedul/migrations/0001_initial.py                      7      0   100%
+schedul/migrations/0002_alter_timespan_options.py       4      0   100%
+schedul/migrations/0003_event_title.py                  5      0   100%
+schedul/migrations/0004_auto_20220204_1734.py           5      0   100%
+schedul/migrations/0005_emailtoken.py                   7      0   100%
+schedul/migrations/__init__.py                          0      0   100%
+schedul/models.py                                      51      0   100%
+schedul/permissions.py                                  4      0   100%
+schedul/serializers.py                                125      8    94%
+schedul/services.py                                    39      6    85%
+schedul/tests.py                                      423     26    94%
+schedul/urls.py                                         3      0   100%
+schedul/views.py                                      126     18    86%
+-----------------------------------------------------------------------
+TOTAL                                                 930     75    92%
 ```
 
 ### Next, possibly
