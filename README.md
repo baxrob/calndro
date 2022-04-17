@@ -4,6 +4,8 @@
 
 ## A toy appointment coordination API
 
+Contents: [scenario](#scenario) | [install](#install) | [tui](#tui) [api](#interface) | [tests](#tests) | [design](#architecture-design-process) | [future](#next-possibly)
+
 Document under &#x1f477; &#x1f6a7; 128119 &#128679; 128736
 _ _
 👷🚧🛠
@@ -13,8 +15,6 @@ _ _
 under &#x1f477;
 ```
 <!-- [cruft/schlock note] -->
-
-Contents: [scenario](#scenario) | [install](#install) | [tui](#tui) [api](#interface) | [tests](#tests) | [design](#architecture-design-process) | [future](#next-possibly)
 
 ### Scenario
 
@@ -351,12 +351,12 @@ Language                     files          blank        comment           code
 -------------------------------------------------------------------------------
 Python                          22            517            483           1671
 JSON                             3              0              0            346
-Markdown                         1             91              0            334
+Markdown                         1             94              0            338
 YAML                             5             10             18            326
 Bourne Shell                     7             61             37            272
 Dockerfile                       2              8             17             23
 -------------------------------------------------------------------------------
-SUM:                            40            687            555           2972
+SUM:                            40            690            555           2976
 -------------------------------------------------------------------------------
 
 wc:
@@ -421,12 +421,6 @@ TOTAL                                                 930     75    92%
 - ob@localhost $user example.com - fixture/gen
 -->
 
----
-
-<center>
+<p align="center">
 constructed with <a href="scripts/stitch_readme.sh">stitch_readme.sh</a>
-</center>
-
-----
-
-constructed with [stitch_readme.sh](scripts/stitch_readme.sh)
+</p>
