@@ -110,7 +110,7 @@ while cmd=$(bash -c 'read -er cmd; echo $cmd'); do
         g[0-9]*) req log ${cmd#g} ;;
         '?')
         printf "l list events\n"
-        printf "c create - prompst for emails, time-spans\n"
+        printf "c create - prompts for emails, time-spans\n"
         printf "d[n] detail - view event number n\n"
         printf "p[n] patch time-spans for event n\n"
         printf "n[n] notify recipients for n\n"

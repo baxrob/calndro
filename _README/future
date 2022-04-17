@@ -3,14 +3,13 @@
 
 ```
 - ghub tidy branch - 
-- tests - 
+- tests - finish, rework, pytest
 
 - ssl, mailhog, gpg/pass
 - dataclasses, 
 
 - self-hosting, localnet day scheduling
-```
-<!-- X: ?
+
 - ob@localhost $user example.com - fixture/gen
--->
+```
 

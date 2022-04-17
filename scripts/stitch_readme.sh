@@ -23,10 +23,8 @@ subs() {
     cl=$(cloc --vcs=git) # "$(realpath "$basepath")")
     clc=$(printf "$cl" | wc -l)
     #echo $clc $basepath
-    
-    # X: 
+    # X: '5' 
     clp=$(printf "$cl" | tail -n $(($clc - 5)))
-
     #printf "%s\n%s\n" "$clp" "[cloc](/AlDanial/cloc)"
     printf "%s\n" "$clp"
     ;;
@@ -41,10 +39,14 @@ subs() {
     ;;
     tuisrc) cat scripts/tui.sh ;;
     tree)
-    tree -n -I "venv|_README|__pycache__|_a|_t|_aux|migrations|fixtures|requirements|openapi-fuzzer|lib|coverage|tests"
+    # X:
+    tree -n -I "venv|_README|__pycache__|_a|_t|_aux|migrations|fixtures|requirements|openapi-fuzzer|lib|coverage|tests|_m|LICENESE|gpl-3.0.txt|db.sqlite3|README.md|*.vim"
     ;;
     annotree) echo "%[..$1]" ;;
-    testdo) grep -n -B 1 todo schedul/tests.py ;;
+    testdo)
+    # X:
+    grep -n -B 1 todo schedul/tests.py
+    ;;
     *) echo "%[??$1]" ;;
     esac
     cd - > /dev/null

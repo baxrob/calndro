@@ -4,7 +4,7 @@
 
 ## A toy appointment coordination API
 
-Contents: [scenario](#scenario) | [install](#install) | [tui](#tui) [api](#interface) | [tests](#tests) | [design](#architecture-design-process) | [future](#next-possibly)
+Contents: [scenario](#scenario) | [install](#install) | [tui](#tui) [api](#interface) | [tests](#tests) | [design](#architecture-design-process) | [future](#next-possibly) | [ref](#ref)
 
 ---
 
@@ -146,7 +146,9 @@ See [scripts/tui.sh](scripts/tui.sh)
 
 <!-- X: %volatile -->
 ```
+...
 you@thar:prompt$ HOST_PORT=8005 docker-compose up
+...
 you@thar:prompt$ port=8005 scripts/tui.sh
 config: ob p _ 8005 ob@localhost
   l   c   d[n]  p[n]  n[n]  g[n]  ?   q
@@ -193,7 +195,7 @@ q quit
 
 ```
 ```
-%[??tui]
+%[??tuieg]
 ```
 
 ### Interface
@@ -265,8 +267,8 @@ todos:
 
 <img src="_m/IMG_1377-rot90-300-noexif.JPG" align="right">
 <pre align="left">
-this that then though them thumb through thither thusly 
-thou their thimble thistle thicket thunder the thinking threw
+this that then though they thunk through thither thusly thar their tham
+this that then though they thunk through thither thusly thar their tham
 </pre>
 <br clear="both">
 
@@ -293,7 +295,6 @@ thou their thimble thistle thicket thunder the thinking threw
 │       │   └── nginx.conf
 │       └── pg.env
 ├── compose-stage.yaml
-├── compose.vim
 ├── compose.yaml
 ├── config
 │   ├── asgi.py
@@ -303,22 +304,9 @@ thou their thimble thistle thicket thunder the thinking threw
 │   ├── settings.py
 │   ├── urls.py
 │   └── wsgi.py
-├── db.sqlite3
 ├── docker-compose.png
-├── gpl-3.0.txt
 ├── LICENSE
-├── _m
-│   ├── deployen.gnumeric
-│   ├── doc
-│   ├── IMG_1377-300.JPG
-│   ├── IMG_1377.JPG
-│   ├── IMG_1377-rot90-300.JPG
-│   ├── IMG_1377-rot90-300-noexif.JPG
-│   ├── IMG_1377-rot90-300.png
-│   ├── openapi-schema.yaml
-│   └── scripts
 ├── manage.py
-├── README.md
 ├── schedul
 │   ├── admin.py
 │   ├── apps.py
@@ -339,7 +327,7 @@ thou their thimble thistle thicket thunder the thinking threw
     ├── stitch_readme.sh
     └── tui.sh
 
-8 directories, 52 files
+7 directories, 39 files
 ```
 
 %[..annotree]
@@ -353,13 +341,14 @@ Language                     files          blank        comment           code
 -------------------------------------------------------------------------------
 Python                          22            517            483           1671
 JSON                             3              0              0            346
-Markdown                         1             91              0            335
+Markdown                         1             93              0            337
 YAML                             5             10             18            326
-Bourne Shell                     7             61             37            272
+Bourne Shell                     7             59             39            274
 Dockerfile                       2              8             17             23
 -------------------------------------------------------------------------------
-SUM:                            40            687            555           2973
+SUM:                            40            687            557           2977
 -------------------------------------------------------------------------------
+
 
 wc:
 
@@ -375,34 +364,10 @@ wc:
 11 schedul/urls.py
 755 schedul/tests.py
 
+
 coverage[2]:
 
-Name                                                Stmts   Miss  Cover
------------------------------------------------------------------------
-config/__init__.py                                      0      0   100%
-config/asgi.py                                          4      4     0%
-config/settings.py                                     44      0   100%
-config/urls.py                                         11      2    82%
-config/wsgi.py                                          4      4     0%
-manage.py                                              12      2    83%
-schedul/__init__.py                                     0      0   100%
-schedul/admin.py                                       52      5    90%
-schedul/apps.py                                         4      0   100%
-schedul/migrations/0001_initial.py                      7      0   100%
-schedul/migrations/0002_alter_timespan_options.py       4      0   100%
-schedul/migrations/0003_event_title.py                  5      0   100%
-schedul/migrations/0004_auto_20220204_1734.py           5      0   100%
-schedul/migrations/0005_emailtoken.py                   7      0   100%
-schedul/migrations/__init__.py                          0      0   100%
-schedul/models.py                                      51      0   100%
-schedul/permissions.py                                  4      0   100%
-schedul/serializers.py                                125      8    94%
-schedul/services.py                                    39      6    85%
-schedul/tests.py                                      423     26    94%
-schedul/urls.py                                         3      0   100%
-schedul/views.py                                      126     18    86%
------------------------------------------------------------------------
-TOTAL                                                 930     75    92%
+%[nocoverage]
 ```
 [1] https://github.com/AlDanial/cloc
 
@@ -412,16 +377,19 @@ TOTAL                                                 930     75    92%
 
 ```
 - ghub tidy branch - 
-- tests - 
+- tests - finish, rework, pytest
 
 - ssl, mailhog, gpg/pass
 - dataclasses, 
 
 - self-hosting, localnet day scheduling
-```
-<!-- X: ?
+
 - ob@localhost $user example.com - fixture/gen
--->
+```
+
+### Refs
+
+- 
 
 ---
 

@@ -7,7 +7,9 @@ See [scripts/tui.sh](scripts/tui.sh)
 
 <!-- X: %volatile -->
 ```
+...
 you@thar:prompt$ HOST_PORT=8005 docker-compose up
+...
 you@thar:prompt$ port=8005 scripts/tui.sh
 config: ob p _ 8005 ob@localhost
   l   c   d[n]  p[n]  n[n]  g[n]  ?   q
@@ -54,5 +56,5 @@ q quit
 
 ```
 ```
-%[tui]
+%[tuieg]
 ```
