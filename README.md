@@ -208,6 +208,7 @@ helper funcs .. pytest
 integration: views, auth, dispatch, ..queries
 ..unit: token, mail
 
+todo
 97-    def test_detail_patch_dupe(self):
 98:        # todo-
 --
@@ -246,33 +247,7 @@ integration: views, auth, dispatch, ..queries
 --
 673-    def test_detail_get_emailtoken_logviewed(self):
 674:        # todo
-/home/ob/dev/r/apps/caldro/venv/bin/coverage
-Name                                                Stmts   Miss  Cover
------------------------------------------------------------------------
-config/__init__.py                                      0      0   100%
-config/asgi.py                                          4      4     0%
-config/settings.py                                     44      0   100%
-config/urls.py                                         11      2    82%
-config/wsgi.py                                          4      4     0%
-manage.py                                              12      2    83%
-schedul/__init__.py                                     0      0   100%
-schedul/admin.py                                       52      5    90%
-schedul/apps.py                                         4      0   100%
-schedul/migrations/0001_initial.py                      7      0   100%
-schedul/migrations/0002_alter_timespan_options.py       4      0   100%
-schedul/migrations/0003_event_title.py                  5      0   100%
-schedul/migrations/0004_auto_20220204_1734.py           5      0   100%
-schedul/migrations/0005_emailtoken.py                   7      0   100%
-schedul/migrations/__init__.py                          0      0   100%
-schedul/models.py                                      51      0   100%
-schedul/permissions.py                                  4      0   100%
-schedul/serializers.py                                125      8    94%
-schedul/services.py                                    39      6    85%
-schedul/tests.py                                      423     26    94%
-schedul/urls.py                                         3      0   100%
-schedul/views.py                                      126     18    86%
------------------------------------------------------------------------
-TOTAL                                                 930     75    92%
+
 ```
 
 ### Architecture, design, process
@@ -352,10 +327,11 @@ this that then though them thumb through thither thusly thou their thimble thist
     ├── init_pg.sh
     ├── init.sql
     ├── reset.sh
+    ├── stitch_readme_0.sh
     ├── stitch_readme.sh
     └── tui.sh
 
-8 directories, 51 files
+8 directories, 52 files
 ```
 
 %[..annotree]
@@ -363,31 +339,33 @@ this that then though them thumb through thither thusly thou their thimble thist
 
 #### Stats
 ```
+cloc
 Language                     files          blank        comment           code
 -------------------------------------------------------------------------------
 Python                          22            517            483           1671
+Markdown                         1             82              0            347
 JSON                             3              0              0            346
 YAML                             5             10             18            326
-Bourne Shell                     7             79             80            286
-Markdown                         1             82              0            178
+Bourne Shell                     7             60             35            267
 Dockerfile                       2              8             17             23
 -------------------------------------------------------------------------------
-SUM:                            40            696            598           2830
+SUM:                            40            677            553           2980
 -------------------------------------------------------------------------------
-lines 	 file
------ 	 ----
-212 	 schedul/views.py
-158 	 schedul/fixtures/gen.py
-83 	 schedul/admin.py
-6 	 schedul/apps.py
-100 	 schedul/models.py
-175 	 schedul/serializers.py
-16 	 schedul/permissions.py
-0 	 schedul/__init__.py
-57 	 schedul/services.py
-11 	 schedul/urls.py
-755 	 schedul/tests.py
-/home/ob/dev/r/apps/caldro/venv/bin/coverage
+
+wc
+212 schedul/views.py
+158 schedul/fixtures/gen.py
+83 schedul/admin.py
+6 schedul/apps.py
+100 schedul/models.py
+175 schedul/serializers.py
+16 schedul/permissions.py
+0 schedul/__init__.py
+57 schedul/services.py
+11 schedul/urls.py
+755 schedul/tests.py
+
+coverage
 Name                                                Stmts   Miss  Cover
 -----------------------------------------------------------------------
 config/__init__.py                                      0      0   100%

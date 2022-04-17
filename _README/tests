@@ -8,6 +8,7 @@ helper funcs .. pytest
 integration: views, auth, dispatch, ..queries
 ..unit: token, mail
 
+todo
 %[testdo]
-%[coverage]
+
 ```
