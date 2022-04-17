@@ -263,7 +263,8 @@ todos:
 
 <img src="_m/IMG_1377-rot90-300-noexif.JPG" align="right">
 <pre align="left">
-this that then though them thumb through thither thusly thou their thimble thistle thicket thunder the thinking threw
+this that then though them thumb through thither thusly 
+thou their thimble thistle thicket thunder the thinking threw
 </pre>
 <br clear="both">
 
@@ -420,6 +421,12 @@ TOTAL                                                 930     75    92%
 - ob@localhost $user example.com - fixture/gen
 -->
 
+---
+
 <center>
+constructed with <a href="scripts/stitch_readme.sh">stitch_readme.sh</a>
 </center>
+
+----
+
 constructed with [stitch_readme.sh](scripts/stitch_readme.sh)
