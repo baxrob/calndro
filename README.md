@@ -96,7 +96,7 @@ http GET :8000/openapi
 python3 -m venv venv \
     && . venv/bin/activate \
     && pip install -r requirements/base.txt \
-    $$ cp config/eg.env config/.env \           #
+    && cp config/eg.env config/.env \           #
     && scripts/reset.sh \                       #
     && ./manage.py runserver 0.0.0.0:8000
 ```
@@ -339,20 +339,22 @@ this that then though them thumb through thither thusly thou their thimble thist
 
 #### Stats
 ```
-cloc
+cloc[1]:
+
 Language                     files          blank        comment           code
 -------------------------------------------------------------------------------
 Python                          22            517            483           1671
-Markdown                         1             82              0            347
 JSON                             3              0              0            346
 YAML                             5             10             18            326
-Bourne Shell                     7             60             35            267
+Markdown                         1             90              0            305
+Bourne Shell                     7             61             37            272
 Dockerfile                       2              8             17             23
 -------------------------------------------------------------------------------
-SUM:                            40            677            553           2980
+SUM:                            40            686            555           2943
 -------------------------------------------------------------------------------
 
-wc
+wc:
+
 212 schedul/views.py
 158 schedul/fixtures/gen.py
 83 schedul/admin.py
@@ -365,34 +367,13 @@ wc
 11 schedul/urls.py
 755 schedul/tests.py
 
-coverage
-Name                                                Stmts   Miss  Cover
------------------------------------------------------------------------
-config/__init__.py                                      0      0   100%
-config/asgi.py                                          4      4     0%
-config/settings.py                                     44      0   100%
-config/urls.py                                         11      2    82%
-config/wsgi.py                                          4      4     0%
-manage.py                                              12      2    83%
-schedul/__init__.py                                     0      0   100%
-schedul/admin.py                                       52      5    90%
-schedul/apps.py                                         4      0   100%
-schedul/migrations/0001_initial.py                      7      0   100%
-schedul/migrations/0002_alter_timespan_options.py       4      0   100%
-schedul/migrations/0003_event_title.py                  5      0   100%
-schedul/migrations/0004_auto_20220204_1734.py           5      0   100%
-schedul/migrations/0005_emailtoken.py                   7      0   100%
-schedul/migrations/__init__.py                          0      0   100%
-schedul/models.py                                      51      0   100%
-schedul/permissions.py                                  4      0   100%
-schedul/serializers.py                                125      8    94%
-schedul/services.py                                    39      6    85%
-schedul/tests.py                                      423     26    94%
-schedul/urls.py                                         3      0   100%
-schedul/views.py                                      126     18    86%
------------------------------------------------------------------------
-TOTAL                                                 930     75    92%
+coverage[2]:
+
+%[nocoverage]
 ```
+[1] https://github.com/AlDanial/cloc
+
+[2] https://coverage.readthedocs.io/en/6.3.2/
 
 ### Next, possibly
 
@@ -408,3 +389,7 @@ TOTAL                                                 930     75    92%
 <!-- X: ?
 - ob@localhost $user example.com - fixture/gen
 -->
+
+<center>
+constructed with [stitch_readme.sh](scripts/stitch_readme.sh)
+</center>

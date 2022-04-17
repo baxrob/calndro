@@ -26,12 +26,18 @@ this that then though them thumb through thither thusly thou their thimble thist
 
 #### Stats
 ```
-cloc
+cloc[1]:
+
 %[cloc]
 
-wc
+wc:
+
 %[wc]
 
-coverage
+coverage[2]:
+
 %[coverage]
 ```
+[1] https://github.com/AlDanial/cloc
+
+[2] https://coverage.readthedocs.io/en/6.3.2/

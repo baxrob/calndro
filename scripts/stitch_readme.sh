@@ -1,5 +1,7 @@
 #!/bin/sh
 
+quiet=$([ "$1" != "-q" ]; echo $?)
+
 thispath="$(dirname "$0")"
 basepath="$thispath/.."
 partspath="${partspath:-"$thispath/../_README"}"
@@ -7,7 +9,12 @@ mapfilename=${mapfilename:-map}
 mappath="$partspath/$mapfilename"
 outpath=${outpath:-"$thispath/../README.md"}
 
-echo config: $thispath $basepath $partspath $mapfilename $mappath $outpath
+[ $quiet -ne 0 ] || echo config: $thispath $basepath $partspath \
+    $mapfilename $mappath $outpath
+
+# X: grip
+# N: ttscoff/mdless
+pager=$(which mdless || which less || which more)
 
 subs() {
     cd "$basepath"
@@ -84,27 +91,28 @@ doc=$(for file in $(cat $mappath); do
     fi
 done)
 
-echo "$doc" | mdless
+if [ $quiet -eq 0 ]; then
+#echo "$doc" | mdless
+    echo "$doc" | $pager
 
-echo Enter to write to $outpath or ctrl-c
+    echo Enter to write to $outpath or ctrl-c to quit
 
-read foo
+    read foo
+fi
 
-echo $outpath  
-echo "$doc" > $outpath
+dt=$(date +%Y%m%d-%H%M%S)
+
+#echo $outpath  
+echo "$doc" > $outpath && { echo written $dt; ls -lh $outpath; }
 
 
+
+# X:
 dir=${1:-../_README}
-
 segmap=$dir/map
-
 verdir=$dir/ver
 target=${2:-$verdir/README_$dt.md}
 
-# X: grip
-# N: ttscoff/mdless
-
-#dt=$(date +%Y%m%d-%H%M%S)
 #echo "$doc" > GARBAGE-rdmd_$dt
 #diff $tmpname $file
 

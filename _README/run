@@ -9,7 +9,7 @@
 python3 -m venv venv \
     && . venv/bin/activate \
     && pip install -r requirements/base.txt \
-    $$ cp config/eg.env config/.env \           #
+    && cp config/eg.env config/.env \           #
     && scripts/reset.sh \                       #
     && ./manage.py runserver 0.0.0.0:8000
 ```
