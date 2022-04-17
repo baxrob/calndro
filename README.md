@@ -4,7 +4,7 @@
 
 ## A toy appointment coordination API
 
-under &#x1f477; &#x1f6a7; 128119 &#128679; 128736
+Document under &#x1f477; &#x1f6a7; 128119 &#128679; 128736
 _ _
 👷🚧🛠
 ```
@@ -207,8 +207,11 @@ See [tests.py](schedul/test.py)
 helper funcs .. pytest
 integration: views, auth, dispatch, ..queries
 ..unit: token, mail
+```
 
-todo
+```
+todos:
+-----
 97-    def test_detail_patch_dupe(self):
 98:        # todo-
 --
