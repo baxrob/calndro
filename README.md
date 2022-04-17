@@ -6,6 +6,8 @@
 
 Contents: [scenario](#scenario) | [install](#install) | [tui](#tui) [api](#interface) | [tests](#tests) | [design](#architecture-design-process) | [future](#next-possibly)
 
+---
+
 Document under &#x1f477; &#x1f6a7; 128119 &#128679; 128736
 _ _
 👷🚧🛠
@@ -351,12 +353,12 @@ Language                     files          blank        comment           code
 -------------------------------------------------------------------------------
 Python                          22            517            483           1671
 JSON                             3              0              0            346
-Markdown                         1             94              0            338
+Markdown                         1             91              0            335
 YAML                             5             10             18            326
 Bourne Shell                     7             61             37            272
 Dockerfile                       2              8             17             23
 -------------------------------------------------------------------------------
-SUM:                            40            690            555           2976
+SUM:                            40            687            555           2973
 -------------------------------------------------------------------------------
 
 wc:
@@ -420,6 +422,8 @@ TOTAL                                                 930     75    92%
 <!-- X: ?
 - ob@localhost $user example.com - fixture/gen
 -->
+
+---
 
 <p align="center">
 constructed with <a href="scripts/stitch_readme.sh">stitch_readme.sh</a>
