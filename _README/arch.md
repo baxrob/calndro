@@ -2,13 +2,22 @@
 ### Architecture, design, process
 
 ```
-<!-- this? -->
 ```
 
 <img src="_m/IMG_1377-rot90-300-noexif.JPG" align="right">
 <pre align="left">
 this that then though they thunk through thither thusly thar their tham
-this that then though they thunk through thither thusly thar their tham
+-
+-
+
+-
+-
+
+-
+-
+
+-
+-
 </pre>
 <br clear="both">
 

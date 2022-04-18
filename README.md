@@ -239,13 +239,22 @@ test_detail_get_emailtoken_logviewed
 ### Architecture, design, process
 
 ```
-<!-- this? -->
 ```
 
 <img src="_m/IMG_1377-rot90-300-noexif.JPG" align="right">
 <pre align="left">
 this that then though they thunk through thither thusly thar their tham
-this that then though they thunk through thither thusly thar their tham
+-
+-
+
+-
+-
+
+-
+-
+
+-
+-
 </pre>
 <br clear="both">
 
@@ -312,13 +321,13 @@ cloc[1]:
 Language                     files          blank        comment           code
 -------------------------------------------------------------------------------
 Python                          22            517            483           1671
-Markdown                        10            198              0            475
+Markdown                        10            201              0            476
 JSON                             3              0              0            346
 YAML                             5             10             18            326
 Bourne Shell                     7             59             39            275
 Dockerfile                       2              8             17             23
 -------------------------------------------------------------------------------
-SUM:                            49            792            557           3116
+SUM:                            49            795            557           3117
 -------------------------------------------------------------------------------
 
 
@@ -339,7 +348,32 @@ wc:
 
 coverage[2]:
 
-%[nocoverage]
+Name                                                Stmts   Miss  Cover
+-----------------------------------------------------------------------
+config/__init__.py                                      0      0   100%
+config/asgi.py                                          4      4     0%
+config/settings.py                                     44      0   100%
+config/urls.py                                         11      2    82%
+config/wsgi.py                                          4      4     0%
+manage.py                                              12      2    83%
+schedul/__init__.py                                     0      0   100%
+schedul/admin.py                                       52      5    90%
+schedul/apps.py                                         4      0   100%
+schedul/migrations/0001_initial.py                      7      0   100%
+schedul/migrations/0002_alter_timespan_options.py       4      0   100%
+schedul/migrations/0003_event_title.py                  5      0   100%
+schedul/migrations/0004_auto_20220204_1734.py           5      0   100%
+schedul/migrations/0005_emailtoken.py                   7      0   100%
+schedul/migrations/__init__.py                          0      0   100%
+schedul/models.py                                      51      0   100%
+schedul/permissions.py                                  4      0   100%
+schedul/serializers.py                                125      8    94%
+schedul/services.py                                    39      6    85%
+schedul/tests.py                                      423     26    94%
+schedul/urls.py                                         3      0   100%
+schedul/views.py                                      126     18    86%
+-----------------------------------------------------------------------
+TOTAL                                                 930     75    92%
 ```
 [1] https://github.com/AlDanial/cloc
 
