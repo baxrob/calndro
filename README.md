@@ -4,17 +4,19 @@
 
 ## A toy appointment coordination API
 
-Contents: [scenario](#scenario) | [install](#install) | [tui](#tui) [api](#interface) | [tests](#tests) | [design](#architecture-design-process) | [future](#next-possibly) | [ref](#ref)
+Contents: [scenario](#scenario) | [install](#install) | [tui](#tui) | [api](#interface) | [tests](#tests) | [design](#architecture-design-process) | [future](#next-possibly) | [ref](#ref)
 
 ---
 
 Document under &#x1f477; &#x1f6a7; 128119 &#128679; 128736
+&#x1f477; &#x1f6a7; &#128119; &#128679; &#128736;
 _ _
 👷🚧🛠
 ```
 _ _
-👷
-under &#x1f477;
+👷🚧🛠
+&#128119; &#128679; &#128736;
+under &#x1f477; &#x1f6a7;
 ```
 <!-- [cruft/schlock note] -->
 
@@ -218,44 +220,19 @@ integration: views, auth, dispatch, ..queries
 ```
 todos:
 -----
-97-    def test_detail_patch_dupe(self):
-98:        # todo-
---
-264-    def test_detail_delete_auth_fail(self):
-265:        # todo-
---
-336-    def test_notify_post_auth_fail(self):
-337:        # todo-
---
-439-    def test_detail_get_emailtoken_fail(self):
-440:        # todo-
---
-476-    def test_detail_patch_emailtoken(self):
-477:        # todo-
---
-499-    def test_detail_patch_emailtoken_fail(self):
-500:        # todo-
---
-512-    def test_notify_post_emailtoken(self):
-513:        # todo
---
-516-    def test_notify_post_emailtoken_fail(self):
-517:        # todo
---
-524-    def test_emailtoken_expired(self):
-525:        # todo
---
-578-    def test_notify_post(self):
-579:        # todo-
---
-599-    def test_notify_post_fail(self):
-600:        # todo-
---
-649-    def test_notify_post_lognotify(self):
-650:        # todo-
---
-673-    def test_detail_get_emailtoken_logviewed(self):
-674:        # todo
+test_detail_patch_dupe
+test_detail_delete_auth_fail
+test_notify_post_auth_fail
+test_detail_get_emailtoken_fail
+test_detail_patch_emailtoken
+test_detail_patch_emailtoken_fail
+test_notify_post_emailtoken
+test_notify_post_emailtoken_fail
+test_emailtoken_expired
+test_notify_post
+test_notify_post_fail
+test_notify_post_lognotify
+test_detail_get_emailtoken_logviewed
 
 ```
 
@@ -304,8 +281,6 @@ this that then though they thunk through thither thusly thar their tham
 │   ├── settings.py
 │   ├── urls.py
 │   └── wsgi.py
-├── docker-compose.png
-├── LICENSE
 ├── manage.py
 ├── schedul
 │   ├── admin.py
@@ -319,15 +294,12 @@ this that then though they thunk through thither thusly thar their tham
 │   ├── urls.py
 │   └── views.py
 └── scripts
-    ├── chore.sh
     ├── init_pg.sh
-    ├── init.sql
     ├── reset.sh
-    ├── stitch_readme_0.sh
     ├── stitch_readme.sh
     └── tui.sh
 
-7 directories, 39 files
+7 directories, 34 files
 ```
 
 %[..annotree]
@@ -340,13 +312,13 @@ cloc[1]:
 Language                     files          blank        comment           code
 -------------------------------------------------------------------------------
 Python                          22            517            483           1671
+Markdown                        10            198              0            475
 JSON                             3              0              0            346
-Markdown                         1             93              0            337
 YAML                             5             10             18            326
-Bourne Shell                     7             59             39            274
+Bourne Shell                     7             59             39            275
 Dockerfile                       2              8             17             23
 -------------------------------------------------------------------------------
-SUM:                            40            687            557           2977
+SUM:                            49            792            557           3116
 -------------------------------------------------------------------------------
 
 

@@ -40,12 +40,13 @@ subs() {
     tuisrc) cat scripts/tui.sh ;;
     tree)
     # X:
-    tree -n -I "venv|_README|__pycache__|_a|_t|_aux|migrations|fixtures|requirements|openapi-fuzzer|lib|coverage|tests|_m|LICENESE|gpl-3.0.txt|db.sqlite3|README.md|*.vim"
+    tree -n -I "venv|_README|__pycache__|_a|_t|_aux|migrations|fixtures|requirements|openapi-fuzzer|lib|coverage|tests|_m|LICENSE|gpl-3.0.txt|db.sqlite3|README.md|*.vim"
     ;;
     annotree) echo "%[..$1]" ;;
     testdo)
     # X:
-    grep -n -B 1 todo schedul/tests.py
+    grep -n -B 1 todo schedul/tests.py | grep test_ \
+        | sed 's/^.*\(test_.*\)(.*/\1/'
     ;;
     *) echo "%[??$1]" ;;
     esac
@@ -54,7 +55,7 @@ subs() {
 
 
 doc=$(for file in $(cat $mappath); do
-    fdoc=$(cat "$partspath/$file")
+    fdoc=$(cat "$partspath/${file}.md")
     mlines=$(echo "$fdoc" | grep -n '%\[')
     #echo '==  '$file m 
     if [ -n "$mlines" ]; then
