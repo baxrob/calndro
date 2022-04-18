@@ -246,13 +246,13 @@ test_detail_get_emailtoken_logviewed
 this that then though they thunk through thither thusly thar their tham
 -
 -
-
+and
 -
 -
-
+then
 -
 -
-
+so
 -
 -
 </pre>
@@ -321,13 +321,13 @@ cloc[1]:
 Language                     files          blank        comment           code
 -------------------------------------------------------------------------------
 Python                          22            517            483           1671
-Markdown                        10            201              0            476
+Markdown                        10            201              0            510
 JSON                             3              0              0            346
 YAML                             5             10             18            326
 Bourne Shell                     7             59             39            275
 Dockerfile                       2              8             17             23
 -------------------------------------------------------------------------------
-SUM:                            49            795            557           3117
+SUM:                            49            795            557           3151
 -------------------------------------------------------------------------------
 
 
