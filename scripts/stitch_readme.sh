@@ -75,6 +75,7 @@ doc=$(for file in $(cat $mappath); do
             #echo '==  't $term $doclen $n $idx $mcount $offset $limit
 
             if [ $limit -ge $offset ]; then
+                # X: p=q
                 printf %s "$fdoc" \
                     | sed -n $offset','$limit'p;'$(($limit + 1))'q'
             fi
