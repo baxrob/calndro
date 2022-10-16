@@ -62,6 +62,9 @@ doc=$(for file in $(cat $mappath); do
         # X: echo ..\n re limit<offset below
         doclen=$(echo "$fdoc" | wc -l)
         mcount=$(echo "$mlines" | wc -l)
+
+        #doclen=$(printf "%s" "$fdoc" | wc -l)
+        #mcount=$(printf "%s" "$mlines" | wc -l)
         idx=1
         offset=1
         for line in $mlines; do
@@ -72,6 +75,8 @@ doc=$(for file in $(cat $mappath); do
             
             # X: 
             limit=$(($n - 1))
+
+            #limit=$(($n - 0))
             #echo '==  't $term $doclen $n $idx $mcount $offset $limit
 
             if [ $limit -ge $offset ]; then
