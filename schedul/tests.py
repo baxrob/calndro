@@ -1,12 +1,15 @@
 import json
 from pathlib import Path
 from unittest import skip
+
 try:
     from ipdb import set_trace as st
 except:
     from pdb import set_trace as st
 
-#from django.conf import settings
+from datetime import datetime, timedelta
+from django.utils import timezone
+
 from django.core import mail
 from django.test import tag, override_settings
 from django.contrib.auth import get_user_model
@@ -17,12 +20,16 @@ from schedul.models import EmailToken
 
 User = get_user_model()
 
-#if True:
-if False:
+
+import os
+
+if 'DJTEST_QUIET' in os.environ:
     def st(*args, **kwargs):
         pass
     def print(*args, **kwargs):
         pass
+
+fixture_files = ['users', 'schedul']
 
 def map_fixtures(fixtures):
     #
@@ -51,6 +58,35 @@ def map_fixtures(fixtures):
         #'data': fdata
     }
 
+fdata = map_fixtures(fixture_files)
+
+def get_slots(n=0, m=1):
+    return ([{'begin': x[0], 'duration': x[1]}
+        for x in fdata['slots'][n:n+m]])
+
+def get_parties(n=0, m=1):
+    return fdata['emails'][n:n+m]
+
+def setup_emailtoken(self, token_user):
+    #
+    suser, created = User.objects.get_or_create(username='sup', is_staff=True)
+    self.client.force_login(suser)
+    resp = self.client.post('/', {'parties': [token_user], 'slots': []},
+        format='json')
+    evt_id = resp.data['id']
+    resp = self.client.post(f'/{evt_id}/notify/', {'parties': [token_user],
+        'slots': [], 'sender': token_user}, format='json') 
+    self.client.logout()
+    user = User.objects.get(email=token_user)
+    tok = EmailToken.objects.get(user=user, event_id=evt_id).key
+    return [evt_id, user, tok]
+
+def fetch_log(self, evt_id):
+    suser, created = User.objects.get_or_create(username='sup', is_staff=True)
+    self.client.force_login(suser)
+    resp = self.client.get(f'/{evt_id}/log/')
+    self.client.logout()
+    return resp.data['entries']
 
 class EventViewTests(APITestCase):
     fixtures = ['users', 'schedul']
@@ -58,22 +94,13 @@ class EventViewTests(APITestCase):
     @classmethod
     def setUpTestData(cls):
         cls.fdata = map_fixtures(cls.fixtures)
-        cls.suser = User.objects.create(username='sup', #is_superuser=True,
-            is_staff=True)
+        cls.suser = User.objects.create(username='sup', is_staff=True)
         cls.suser.set_password('p')
         cls.suser.save()
 
     def setUp(self):
         print(self._testMethodName)
         self.client.login(username='sup', password='p')
-
-    def get_slots(self, n=0, m=1):
-        return ([{'begin': x[0], 'duration': x[1]}
-            for x in self.fdata['slots'][n:n+m]])
-
-    def get_parties(self, n=0, m=1):
-        #return [{'email': x} for x in self.fdata['emails'][n:n+m]]
-        return self.fdata['emails'][n:n+m]
 
 
     def test_openapi_get(self):
@@ -84,19 +111,121 @@ class EventViewTests(APITestCase):
         resp = self.client.get('/openapi/')
         self.assertEqual(resp.status_code, 404)
 
+
+    def test_list_get(self):
+        resp = self.client.get('/')
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.data), len(self.fdata['events']))
+
+    def test_list_get_fail(self):
+        resp = self.client.get('/foo')
+        self.assertEqual(resp.status_code, 404)
+
+    def test_list_post(self):
+        resp = self.client.post('/', {
+            'title': 'boofar',
+            'parties': get_parties(0, len(self.fdata['emails'])),
+            'slots': get_slots(0, len(self.fdata['slots']))
+        }, format='json')
+        self.assertEqual(resp.status_code, 201)
+
+        # Empty parties and slots
+        resp = self.client.post('/', {
+            'parties': [], 'slots': [],
+        }, format='json')
+        self.assertEqual(resp.status_code, 201)
+
+    def test_list_post_nonuserparty_created(self):
+        emails = ['nonesuch@localhost', 'nilnil@localhost'] 
+        resp = self.client.post('/', {
+            'parties': emails,
+            'slots': get_slots(0, len(self.fdata['slots']))
+        }, format='json')
+        self.assertEqual(resp.status_code, 201)
+        for eml in emails:
+            umatch = User.objects.filter(email=eml)
+            self.assertEqual(len(umatch), 1)
+            self.assertFalse(umatch[0].is_active)
+
+    def test_list_post_fail(self):
+        # X: format='json' - note field error throws on top-level 
+        #   dict attr before multipart invalid
+
+        # Non-json format
+        resp = self.client.post('/')
+        self.assertEqual(resp.status_code, 400)
+
+        # Missing slots
+        resp = self.client.post('/', {
+            'parties': get_parties(0, len(self.fdata['emails']))
+        }, format='json')
+        self.assertEqual(resp.status_code, 400)
+
+        # Malformed slots - datetime
+        resp = self.client.post('/', {
+            'parties': get_parties(0, len(self.fdata['emails'])),
+            'slots': [{
+                'begin': '2021-asdfT14:58:26.611000Z', 
+                'duration': 'zy0:00:01'}]
+        }, format='json')
+        self.assertEqual(resp.status_code, 400)
+
+        # Malformed slots - dict
+        resp = self.client.post('/', {
+            'parties': get_parties(0, len(self.fdata['emails'])),
+            'slots': {'bad': 'data'}
+        }, format='json')
+        self.assertEqual(resp.status_code, 400)
+
+        # Non-json format
+        resp = self.client.post('/', {
+            'parties': get_parties(0, len(self.fdata['emails'])),
+            'slots': []
+        })
+        self.assertEqual(resp.status_code, 400)
+
+        # Non-json format, malformed slots - dict
+        with self.assertRaises(AssertionError):
+            resp = self.client.post('/', {
+                'parties': get_parties(0, len(self.fdata['emails'])),
+                'slots': {'bad': 'data'}
+            })
+
+
     def test_detail_get(self):
         for n in self.fdata['events']:
             resp = self.client.get(f'/{n}/')
             self.assertEqual(resp.status_code, 200)
+
+    def test_detail_get_noendslash_redirect(self):
+        resp = self.client.get('/0')
+        self.assertEqual(resp.status_code, 301)
+        self.assertEqual(resp.url, '/0/')
 
     def test_detail_get_fail(self):
         n = len(self.fdata['events']) + 1
         resp = self.client.get(f'/{n}/')
         self.assertEqual(resp.status_code, 404)
 
-    def test_detail_patch_dupe(self):
-        # todo-
-        # X: redundant loop
+
+    def test_detail_patch_add_slots(self):
+        for n in self.fdata['events']:
+            resp = self.client.patch(f'/{n}/', {
+                'title': 'foobar',
+                'slots': get_slots(0, len(self.fdata['slots'])),
+            }, format='json')
+            self.assertEqual(resp.status_code, 202)
+            self.assertEqual(
+                len(resp.data['slots']), len(self.fdata['slots']))
+
+    def test_detail_patch_empty_slots(self):
+        for n in self.fdata['events']:
+            resp = self.client.patch(f'/{n}/', {'slots': []},
+                format='json')
+            self.assertEqual(resp.status_code, 202)
+            self.assertEqual(len(resp.data['slots']), 0)
+
+    def test_detail_patch_duplicate_slots_ignored(self):
         for n in self.fdata['events']:
             resp1 = self.client.get(f'/{n}/')
             slots = resp1.data['slots'] + resp1.data['slots']
@@ -105,34 +234,21 @@ class EventViewTests(APITestCase):
             self.assertEqual(
                 len(resp1.data['slots']), len(resp2.data['slots']))
 
-    def test_detail_patch_add(self):
-        for n in self.fdata['events']:
-            resp = self.client.patch(f'/{n}/', {
-                'slots': self.get_slots(0, len(self.fdata['slots'])),
-            }, format='json')
-            self.assertEqual(resp.status_code, 202)
-            self.assertEqual(
-                len(resp.data['slots']), len(self.fdata['slots']))
-
-    def test_detail_patch_empty(self):
-        for n in self.fdata['events']:
-            resp = self.client.patch(f'/{n}/', {'slots': []},
-                format='json')
-            #print(resp.data)
-            self.assertEqual(resp.status_code, 202)
-            self.assertEqual(len(resp.data['slots']), 0)
-
     def test_detail_patch_parties_ignored(self):
         n = self.fdata['events'][0]
         resp = self.client.get(f'/{n}/')
         p_a = len(resp.data['parties'])
+        
+        # Add all parties, ignored
         resp = self.client.patch(f'/{n}/', {
-            'parties': self.get_parties(0, len(self.fdata['emails'])),
+            'parties': get_parties(0, len(self.fdata['emails'])),
             'slots': []
         }, format='json')
         resp = self.client.get(f'/{n}/')
         p_b = len(resp.data['parties'])
         self.assertEqual(p_a, p_b)
+
+        # Clear parties, ignored
         resp = self.client.patch(f'/{n}/', {
             'parties': [],
             'slots': []
@@ -143,78 +259,37 @@ class EventViewTests(APITestCase):
 
     def test_detail_patch_fail(self):
         n = self.fdata['events'][0]
+
+        # Missing slots
         resp = self.client.patch(f'/{n}/', {'parties': []}, format='json')
         self.assertEqual(resp.status_code, 400)
-        #print(resp.data)
-        resp = self.client.patch(f'/{n}/', {'slots': [{
+
+        # Malformed slots - datetime
+        resp = self.client.patch(f'/{n}/', {
+            'slots': [{
                 'begin': '2021-asdfT14:58:26.611000Z', 
                 'duration': 'zy0:00:01'}]
-            },
-            format='json')
-        #print(resp.data)
+        }, format='json')
         self.assertEqual(resp.status_code, 400)
-        # rather pointless
+
+        # Malformed slots - dict
+        resp = self.client.patch(f'/{n}/', {'slots': {'bad': 'data'}},
+            format='json')
+        self.assertEqual(resp.status_code, 400)
+
+        # Non-json format
+        resp = self.client.patch(f'/{n}/', {'slots': []})
+        self.assertEqual(resp.status_code, 400)
+
+        # Non-json format, malformed slots - dict
         with self.assertRaises(AssertionError):
-            resp = self.client.patch(f'/{n}/', {'slots': {'break': 'foo'}})
-            self.assertEqual(resp.status_code, 400)
-        #print(resp.data)
-        resp = self.client.patch(f'/{n}/', {'slots': {'break': 'foo'}},
-            format='json')
-        #print(resp.data)
-        self.assertEqual(resp.status_code, 400)
-
-    def test_list_get(self):
-        resp = self.client.get('/')
-        self.assertEqual(resp.status_code, 200)
-        self.assertEqual(len(resp.data), len(self.fdata['events']))
-
-    def test_list_get_fail(self):
-        # how?
-        pass
-
-    def test_list_post(self):
-        resp = self.client.post('/', {
-            'parties': self.get_parties(0, len(self.fdata['emails'])),
-            'slots': self.get_slots(0, len(self.fdata['slots']))
-        }, format='json')
-        self.assertEqual(resp.status_code, 201)
-
-    def test_list_post_nonuserparty(self):
-        emails = ['nonesuch@localhost', 'nilnil@localhost'] 
-        resp = self.client.post('/', {
-            #'parties': [{'email': e} for e in emails],
-            'parties': emails,
-            'slots': self.get_slots(0, len(self.fdata['slots']))
-        }, format='json')
-        self.assertEqual(resp.status_code, 201)
-        for eml in emails:
-            umatch = User.objects.filter(email=eml)
-            #st()
-            self.assertEqual(len(umatch), 1)
-            self.assertFalse(umatch[0].is_active)
-
-    def test_list_post_fail(self):
-        # X: x format='json' - note field error before multipart invalid
-        resp = self.client.post('/')
-        self.assertEqual(resp.status_code, 400)
-        #st()
-        resp = self.client.post('/', {
-            'parties': self.get_parties(0, len(self.fdata['emails']))
-        })
-        #print(resp, resp.data)
-        self.assertEqual(resp.status_code, 400)
-        resp = self.client.post('/', {
-            'parties': [],
-            'slots': self.get_slots(0, len(self.fdata['slots']))
-        })
-        #print(resp, resp.data)
-        self.assertEqual(resp.status_code, 400)
-        # X: multi-event, malformed email, malformed dtime
+            resp = self.client.patch(f'/{n}/', {'slots': {'bad': 'data'}})
 
     def test_detail_delete(self):
         n = self.fdata['events'][0]
         resp = self.client.delete(f'/{n}/')
         self.assertEqual(resp.status_code, 204)
+
 
 
 @tag('auth')
@@ -229,20 +304,13 @@ class ViewAuthTests(APITestCase):
     def setUp(self):
         print(self._testMethodName)
 
-    def get_slots(self, n=0, m=1):
-        return ([{'begin': x[0], 'duration': x[1]}
-            for x in self.fdata['slots'][n:n+m]])
-
-    def get_parties(self, n=0, m=1):
-        #return [{'email': x} for x in self.fdata['emails'][n:n+m]]
-        return self.fdata['emails'][n:n+m]
-
     def loop_user_event_tests(self, method, path='', payload=None, 
         succ_code=200, fail_code=403):
+        # Expect success for user in event or staff
         for uidx in range(len(self.fdata['users'])):
             uid = self.fdata['users'][uidx]
             uevts = self.fdata['uevents'][uidx]
-            user = get_user_model().objects.get(pk=uid)
+            user = User.objects.get(pk=uid)
             self.client.force_login(user)
             for evt_id in self.fdata['events']:
                 resp = eval('self.client.' + method)(f'/{evt_id}/{path}',
@@ -255,195 +323,152 @@ class ViewAuthTests(APITestCase):
                     self.assertEqual(resp.status_code, fail_code)
 
 
-    def test_detail_get_auth_fail(self):
+    def test_list_get_auth(self):
+        for uidx in range(len(self.fdata['users'])):
+            uid = self.fdata['users'][uidx]
+            uevts = self.fdata['uevents'][uidx]
+            user = User.objects.get(pk=uid)
+            self.client.force_login(user)
+            resp = self.client.get('/', format='json')
+            is_staff = self.fdata['staff'][uidx]
+            if user.is_active:
+                if is_staff:
+                    # All events
+                    self.assertEqual(len(resp.data), len(self.fdata['events']))
+                else:
+                    # User events
+                    self.assertEqual(len(resp.data), len(uevts))
+            else:
+                self.assertEqual(resp.status_code, 403)
+
+    def test_list_post_auth(self):
+        # Any active user can post
+        for uidx in range(len(self.fdata['users'])):
+            uid = self.fdata['users'][uidx]
+            user = User.objects.get(pk=uid)
+            self.client.force_login(user)
+            payload = {
+                'parties': get_parties(0, len(self.fdata['emails'])),
+                'slots': get_slots(0, len(self.fdata['slots']))
+            }
+            resp = self.client.post('/', payload, format='json')
+            if user.is_active: 
+                self.assertEqual(resp.status_code, 201)
+            else:
+                self.assertEqual(resp.status_code, 403)
+
+
+    def test_detail_get_auth(self):
         self.loop_user_event_tests('get')
 
-    def test_detail_patch_auth_fail(self):
+    def test_detail_patch_auth(self):
         self.loop_user_event_tests('patch', '', {'slots': []}, 202, 403)
 
+    @tag('todo-')
     def test_detail_delete_auth_fail(self):
-        # todo-
-        # check: not in event and not staff, not active
-        # X: alternatively, loop users/evts and skip valid/deleting
+        # todo- refactor a bit
         failu = []
         for eidx, eid in enumerate(self.fdata['events']):
+            # Non-event-party non-staff active users
             u1 = [uu for u, uu in enumerate(self.fdata['users'])
                 if uu not in self.fdata['eventp'][eidx]
                     and not self.fdata['staff'][u]
                     and self.fdata['active'][u]
             ]
+            # Inactive users
             u2 = [uu for u, uu in enumerate(self.fdata['users'])
                 if not self.fdata['active'][u]
             ]
-            failu.append([u1, u2])
-        #import ipdb; ipdb.set_trace()
+            # In party, non-staff users
+            u3 = [uu for u, uu in enumerate(self.fdata['users'])
+                if uu in self.fdata['eventp'][eidx]
+                    and not self.fdata['staff'][u]
+            ]
+            failu.append([u1, u2, u3])
         for idx, failers in enumerate(failu):
             evt_id = self.fdata['events'][idx]
             for uid in failers[0]:
                 user = User.objects.get(pk=uid)
+                #print(user.__dict__)
                 self.client.force_login(user)
                 resp = self.client.delete(f'/{evt_id}/')
                 self.assertEqual(resp.status_code, 403)
             for uid in failers[1]:
                 user = User.objects.get(pk=uid)
+                #print(user.__dict__)
+                self.client.force_login(user)
+                resp = self.client.delete(f'/{evt_id}/')
+                self.assertEqual(resp.status_code, 403)
+            for uid in failers[2]:
+                user = User.objects.get(pk=uid)
+                #print(user.__dict__)
                 self.client.force_login(user)
                 resp = self.client.delete(f'/{evt_id}/')
                 self.assertEqual(resp.status_code, 403)
 
-    def test_list_get_auth(self):
-        # X: abstract?
-        for uidx in range(len(self.fdata['users'])):
-            uid = self.fdata['users'][uidx]
-            uevts = self.fdata['uevents'][uidx]
-            user = get_user_model().objects.get(pk=uid)
-            self.client.force_login(user)
-            #evt_id = self.fdata['events'][0]
-            resp = self.client.get('/', format='json')
-            is_staff = self.fdata['staff'][uidx]
-            if user.is_active:
-                #if evt_id in uevts or is_staff:
-                if is_staff:
-                    #self.assertTrue(resp.status_code == 201)
-                    self.assertEqual(len(resp.data), len(self.fdata['events']))
-                else:
-                    #self.assertTrue(resp.status_code == 403)
-                    self.assertEqual(len(resp.data), len(uevts))
-            else:
-                self.assertEqual(resp.status_code, 403)
 
-    def test_list_post_auth_fail(self):
-        # X: abstract?
-        for uidx in range(len(self.fdata['users'])):
-            uid = self.fdata['users'][uidx]
-            #uevts = self.fdata['uevents'][uidx]
-            user = get_user_model().objects.get(pk=uid)
-            self.client.force_login(user)
-            payload = {
-                'parties': self.get_parties(0, len(self.fdata['emails'])),
-                'slots': self.get_slots(0, len(self.fdata['slots']))
-            }
-            resp = self.client.post('/', payload, format='json')
-            #evt_id = resp.data['id']
-            #is_staff = self.fdata['staff'][uidx]
-            if user.is_active: # and evt_id in uevts or is_staff:
-                self.assertEqual(resp.status_code, 201)
-            else:
-                self.assertEqual(resp.status_code, 403)
-
-    #def test_notify_get_auth_fail(self):
-    #    self.loop_user_event_tests('get', 'notify/')
-
-    def test_notify_post_auth_fail(self):
-        # todo-
-        # X: abstract
-        # X: sender in event vs recipient in event
-        # X: get and notify as suser - for each userXevent
+    def test_notify_post_auth(self):
         suser = User.objects.create(username='sup', is_staff=True)
-
+        mail_count = 0
         for uidx in range(len(self.fdata['users'])):
             uid = self.fdata['users'][uidx]
-
             uevts = self.fdata['uevents'][uidx]
-            user = get_user_model().objects.get(pk=uid)
+            user = User.objects.get(pk=uid)
             
             for evt_id in self.fdata['events']:
-                #resp = self.client.get(f'/{evt_id}/')
-                #resp = eval('self.client.' + method)(f'/{evt_id}/{path}',
-                #    payload, format='json')
                 evt_idx = self.fdata['events'].index(evt_id)
                 ur_id = self.fdata['eventp'][evt_idx][0]
                 ur_idx = self.fdata['users'].index(ur_id)
-                #u_eml = {'email': self.fdata['emails'][ur_idx]}
                 u_eml = self.fdata['emails'][ur_idx]
 
                 self.client.force_login(suser)
                 resp = self.client.get(f'/{evt_id}/')
-                
-                #st()
-                #print(evt_id, evt_idx, u_eml, resp.data)
 
                 self.client.force_login(user)
                 resp = self.client.post(f'/{evt_id}/notify/', {'parties':
                     [u_eml], 'slots': resp.data['slots'], 'sender': u_eml},
                     format='json') 
-                #print(resp)
                 is_staff = self.fdata['staff'][uidx]
-                #if user.is_active and evt_id in uevts or user.is_staff:
-                #print(resp, user.is_active, evt_id, uevts, is_staff)
-                #print(resp.data)
-                #st()
-
-                # X: 
-                #for m in mail.outbox:
-                #    print(vars(m))
 
                 if user.is_active and evt_id in uevts or is_staff:
+                    mail_count += 1
                     self.assertEqual(resp.status_code, 202)
                 else:
                     self.assertEqual(resp.status_code, 403)
 
-    def test_log_get_auth_fail(self):
+                self.assertEqual(len(mail.outbox), mail_count)
+
+    def test_log_get_auth(self):
         self.loop_user_event_tests('get', 'log/')
+
     
-    #def test_list_post_logupdate_auth_fail(self):
-    #def test_list_get_emailtoken_logupdate_auth_fail(self):
-    #def test_list_get_logviewed_auth_fail(self):
+    ''' Emailtokens '''
 
+    def test_list_get_emailtoken_fail(self):
+        ue = 'nonesuch@localhost'
+        evt_id, user, tok = setup_emailtoken(self, ue)
+        resp = self.client.get(f'/?et={tok}')
+        self.assertEqual(resp.status_code, 403)
 
-    def setup_emailtoken(self, token_user):
-        #
-        suser = User.objects.create(username='sup', is_staff=True)
-        self.client.force_login(suser)
-        resp = self.client.post('/', {'parties': [token_user], 'slots': []},
-            format='json')
-        evt_id = resp.data['id']
-        resp = self.client.post(f'/{evt_id}/notify/', {'parties': [token_user],
-            #'slots': [], 'sender': {'email': suser.email}}, format='json') 
-            'slots': [], 'sender': token_user}, format='json') 
-        self.client.logout()
-        return evt_id
-
+    def test_list_post_emailtoken_fail(self):
+        ue = 'nonesuch@localhost'
+        evt_id, user, tok = setup_emailtoken(self, ue)
+        resp = self.client.post(f'/?et={tok}', {'parties': [], 'slots': []})
+        self.assertEqual(resp.status_code, 403)
 
     def test_detail_get_emailtoken(self):
-        #evt_id = self.fdata['events'][0]
-
-        # X: this sh* - updy tests and fix srz.to_internal ? 
-        #ur_eml = {'email': 'nonesuch@localhost'}
         ur_eml = 'nonesuch@localhost'
-
-        # X: helper
-        suser = User.objects.create(username='sup', is_staff=True)
-        self.client.force_login(suser)
-        #uc_id = self.fdata['users'][0]
-        #userc = User.objects.get(pk=uc_id)
-        #st()
-        resp = self.client.post('/', {'parties': [ur_eml], 'slots': []},
-            format='json')
-        evt_id = resp.data['id']
-        resp = self.client.post(f'/{evt_id}/notify/', {'parties': [ur_eml],
-            'slots': [], 'sender': ur_eml}, format='json') 
-        self.client.logout()
-
-        #userr = User.objects.get(email=ur_eml['email'])
-        userr = User.objects.get(email=ur_eml)
-        #det = EmailToken(en, userr.id)
-        #det.save()
-        #tok = det.key
-        #usrr = User.objects.get(unr)
-        #self.client.force_login(userr)
-        tok = EmailToken.objects.get(user=userr, event_id=evt_id).key
+        evt_id, user, tok = setup_emailtoken(self, ur_eml)
         resp = self.client.get(f'/{evt_id}/?et={tok}')
-        #st()
         self.assertEqual(resp.status_code, 200)
 
+    @tag('todo-')
     def test_detail_get_emailtoken_fail(self):
-        # todo-
+        # todo- comments on strategy
         # user*3 : mismatch : ut et -- no, logged in user would be ignored
         suser = User.objects.create(username='sup', is_staff=True)
         self.client.force_login(suser)
 
-        #ur1_eml = {'email': 'nonesuch@localhost'}
-        #ur2_eml = {'email': 'nohownil@localhost'}
         ur1_eml = 'nonesuch@localhost'
         ur2_eml = 'nohownil@localhost'
         resp = self.client.post('/', {'parties': [ur1_eml, ur2_eml],
@@ -460,8 +485,6 @@ class ViewAuthTests(APITestCase):
         self.client.logout()
 
         # X: redundant - user won't mismatch token since that identifies user
-        #user1 = User.objects.get(email=ur1_eml['email'])
-        #user2 = User.objects.get(email=ur2_eml['email'])
         user1 = User.objects.get(email=ur1_eml)
         user2 = User.objects.get(email=ur2_eml)
         tok1 = EmailToken.objects.get(user=user1, event_id=evt1_id).key
@@ -472,58 +495,150 @@ class ViewAuthTests(APITestCase):
         resp4 = self.client.get(f'/{evt1_id}/?et={tok2}')
         self.assertEqual(resp4.status_code, 403)
         #print(resp3.data, resp4.data)
+    
+    @tag('todo-')
+    def test_detail_get_emailtoken_logviewed(self):
+        # todo-
+        ue = ur_eml = 'nonesuch@localhost'
+        evt_id, usr, tok = setup_emailtoken(self, ue)
+        log_a = fetch_log(self, evt_id)
+        resp = self.client.get(f'/{evt_id}/?et={tok}')
+        log_b = fetch_log(self, evt_id)
+        self.assertEqual(len(log_a) + 1, len(log_b))
+        self.assertEqual(log_b[-1]['occurrence'], 'VIEW')
+        self.assertIn('token', log_b[-1]['data'])
 
     def test_detail_patch_emailtoken(self):
-        # todo-
-        # X:
-        #ur_eml = {'email': 'nonesuch@localhost'}
         ur_eml = 'nonesuch@localhost'
-        suser = User.objects.create(username='sup', is_staff=True)
-        self.client.force_login(suser)
-
-        resp = self.client.post('/', {'parties': [ur_eml], 'slots': []},
-            format='json')
-        evt_id = resp.data['id']
-        resp = self.client.post(f'/{evt_id}/notify/', {'parties': [ur_eml],
-            'slots': [], 'sender': ur_eml}, format='json') 
-        self.client.logout()
-
-        #userr = User.objects.get(email=ur_eml['email'])
-        userr = User.objects.get(email=ur_eml)
-        tok = EmailToken.objects.get(user=userr, event_id=evt_id).key
-        #resp = self.client.get(f'/{evt_id}/?et={tok}')
+        evt_id, user, tok = setup_emailtoken(self, ur_eml)
         resp = self.client.patch(f'/{evt_id}/?et={tok}', {'slots': []},
             format='json')
         self.assertEqual(resp.status_code, 202)
 
+    @tag('todo-')
     def test_detail_patch_emailtoken_fail(self):
         # todo-
         ue = 'nonesuch@localhost'
-        # X: 
-        #tok_evt_id = self.setup_emailtoken({'email': ue})
-        tok_evt_id = self.setup_emailtoken(ue)
-        tok_user = User.objects.get(email=ue)
-        #import ipdb; ipdb.set_trace()
-        tok = EmailToken.objects.get(user=tok_user, event_id=tok_evt_id).key
+        tok_evt_id, tok_user, tok = setup_emailtoken(self, ue)
+
         nevt_id = self.fdata['events'][0]
-        resp = self.client.patch(f'/{nevt_id}/?et={tok}')
+        # X: invalid patch ?? 
+        #st()
+        resp = self.client.patch(f'/{nevt_id}/?et={tok}', {'slots': []},
+            format='json')
         self.assertEqual(resp.status_code, 403)
 
+    @tag('todo-')
+    def test_detail_patch_emailtoken_logupdate(self):
+        # todo-
+        evt_id = self.fdata['uevents'][0][0]
+        user_id = self.fdata['users'][0]
+        tok = EmailToken.objects.create(event_id=evt_id, user_id=user_id).key
+        log_a = fetch_log(self, evt_id)
+        resp = self.client.patch(f'/{evt_id}/?et={tok}', {'slots': []},
+            format='json')
+        log_b = fetch_log(self, evt_id)
+        #st()
+        self.assertEqual(len(log_a) + 1, len(log_b))
+        self.assertEqual(log_b[-1]['occurrence'], 'UPDATE')
+        self.assertIn('token', log_b[-1]['data'])
+
     def test_notify_post_emailtoken(self):
-        # todo
-        self.assertTrue(True)
+        ue = 'nonesuch@localhost'
+        tok_evt_id, tok_user, tok = setup_emailtoken(self, ue)
+
+        resp_get = self.client.get(f'/{tok_evt_id}/?et={tok}')
+        resp_noti = self.client.post(f'/{tok_evt_id}/notify/?et={tok}', 
+            {'parties': [ue], 'slots': resp_get.data['slots'],
+            'sender': ue}, format='json') 
+        self.assertEqual(resp_noti.status_code, 202)
 
     def test_notify_post_emailtoken_fail(self):
-        # todo
-        for uidx in range(len(self.fdata['users'])):
-            uid = self.fdata['users'][uidx]
-            uevts = self.fdata['uevents'][uidx]
-            user = get_user_model().objects.get(pk=uid)
-        self.assertTrue(True)
+        ue = 'nonesuch@localhost'
+        tok_evt_id, tok_user, tok = setup_emailtoken(self, ue)
 
+        resp_tok = self.client.get(f'/{tok_evt_id}/?et={tok}')
+
+        # Anon user, no token
+        resp_noti_t = self.client.post(f'/{tok_evt_id}/notify/', 
+            {'parties': [ue], 'slots': resp_tok.data['slots'],
+            'sender': ue}, format='json') 
+        self.assertEqual(resp_noti_t.status_code, 403)
+        
+        nevt_id = self.fdata['events'][0]
+
+        # Token/event mismatch
+        resp_noti_n = self.client.post(f'/{nevt_id}/notify/?et={tok}',
+            {'parties': [ue], 'slots': resp_tok.data['slots'],
+            'sender': ue}, format='json') 
+        self.assertEqual(resp_noti_n.status_code, 403)
+
+    @tag('todo-')
+    def test_notify_post_emailtoken_lognotify(self):
+        # todo-
+        ue = self.fdata['emails'][0]
+        evt_id, user, tok = setup_emailtoken(self, ue)
+
+        resp_get = self.client.get(f'/{evt_id}/?et={tok}')
+        log_a = fetch_log(self, evt_id)
+        len_a = len(log_a)
+
+        resp_noti = self.client.post(f'/{evt_id}/notify/?et={tok}', 
+            {'parties': [ue], 'slots': resp_get.data['slots'],
+            'sender': ue}, format='json') 
+        
+        log_b = fetch_log(self, evt_id)
+        self.assertEqual(len_a + 1, len(log_b))
+        self.assertEqual(log_b[-1]['occurrence'], 'NOTIFY')
+        self.assertIn('token', log_b[-1]['data'])
+
+
+    @tag('todo-')
+    def test_loggedinuser_emailtoken_ignored(self):
+        # todo-
+        # setup tok user 0, login user, get?tok, check log..
+        evt_id = self.fdata['uevents'][0][0]
+        user_id = self.fdata['users'][0]
+        tok = EmailToken.objects.create(event_id=evt_id, user_id=user_id).key
+        user = User.objects.get(pk=user_id)
+        self.client.force_login(user)
+        resp = self.client.get(f'/{evt_id}/?et={tok}')
+        #st()
+        resp_log = self.client.get(f'/{evt_id}/log/')
+        self.assertNotIn('token', resp_log.data['entries'][-1]['data'])
+    
+    def test_log_get_emailtoken(self):
+        ue = 'nonesuch@localhost'
+        evt_id, usr, tok = setup_emailtoken(self, ue)
+        resp = self.client.get(f'/{evt_id}/log/?et={tok}')
+        self.assertEqual(resp.status_code, 200)
+
+    def test_log_get_emailtoken_fail(self):
+        user_id = self.fdata['users'][0]
+        user = User.objects.get(pk=user_id)
+        evt_id = self.fdata['uevents'][0][0]
+        tok = EmailToken.objects.create(event_id=evt_id, user_id=user_id).key
+
+        # X: implies fixture requrement
+        evt_id = self.fdata['uevents'][0][1]
+        resp = self.client.get(f'/{evt_id}/log/?et={tok}')
+        self.assertEqual(resp.status_code, 403)
+
+    @tag('todo-')
     def test_emailtoken_expired(self):
-        # todo
-        self.assertEqual
+        # todo- double check this
+        user_id = self.fdata['users'][0]
+        user = User.objects.get(pk=user_id)
+        evt_id = self.fdata['uevents'][0][0]
+        tok = EmailToken.objects.create(
+            event_id=evt_id, user_id=user_id, 
+            expires=timezone.now() - timedelta(days=5)
+            # X: relevant here?
+            #expires=datetime.now() - timedelta(days=5)
+        ).key
+        resp = self.client.get(f'/{evt_id}/?et={tok}')
+        self.assertEqual(resp.status_code, 400)
+        self.assertEqual(resp.data[0].title(), 'Token Expired')
 
 
 
@@ -535,9 +650,7 @@ class DispatchViewTests(APITestCase):
     def setUpClass(cls):
         super().setUpClass() 
         cls.fdata = map_fixtures(cls.fixtures)
-        User = get_user_model()
-        cls.suser = User.objects.create(username='sup', #is_superuser=True,
-            is_staff=True)
+        cls.suser = User.objects.create(username='sup', is_staff=True)
         cls.suser.set_password('p')
         cls.suser.save()
 
@@ -545,13 +658,75 @@ class DispatchViewTests(APITestCase):
         print(self._testMethodName)
         self.client.login(username='sup', password='p')
 
-    def get_slots(self, n=0, m=1):
-        return ([{'begin': x[0], 'duration': x[1]}
-            for x in self.fdata['slots'][n:n+m]])
 
-    def get_parties(self, n=0, m=1):
-        #return [{'email': x} for x in self.fdata['emails'][n:n+m]]
-        return self.fdata['emails'][n:n+m]
+    def test_notify_get_fail(self):
+        n = self.fdata['events'][0]
+        resp = self.client.get(f'/{n}/notify/')
+        self.assertEqual(resp.status_code, 405)
+
+    def test_notify_post(self):
+        evt_id = self.fdata['uevents'][0][0]
+        user_id = self.fdata['users'][0]
+        user = User.objects.get(pk=user_id)
+        u_eml = user.email
+        resp = self.client.get(f'/{evt_id}/')
+        resp = self.client.post(f'/{evt_id}/notify/', {'parties': [u_eml],
+            'slots': resp.data['slots'], 'sender': u_eml}, format='json') 
+        self.assertEqual(resp.status_code, 202)
+        self.assertEqual(len(mail.outbox), 1)
+
+    @tag('this')
+    def test_notify_post_fail(self):
+        users = []
+        evt_ids = []
+        user_ids = self.fdata['users']
+        for uidx, uid in enumerate(user_ids):
+            email = self.fdata['emails'][uidx]
+            # X: ? use fixture - assumes covering pattern -- as above, coupling
+            resp = self.client.post('/', {'parties': [email],
+                'slots': get_slots(0, len(self.fdata['slots']))},
+                format='json')
+            evt_ids.append(resp.data['id'])
+            evt_id = resp.data['id']
+            slots = resp.data['slots']
+            uidx_next = (uidx + 1) % len(user_ids)
+            email_next = self.fdata['emails'][uidx_next]
+
+            # Sender not in event
+            resp = self.client.post(f'/{evt_id}/notify/', {'parties': 
+                [email], 'slots': slots, 
+                'sender': email_next},
+                format='json')
+            self.assertEqual(resp.status_code, 400)
+
+            # No such sender
+            resp = self.client.post(f'/{evt_id}/notify/', {'parties': 
+                [email], 'slots': slots, 
+                'sender': 'nonesuch@localhost'},
+                format='json')
+            self.assertEqual(resp.status_code, 400)
+
+            # Recipients not in event
+            resp = self.client.post(f'/{evt_id}/notify/', {'parties': 
+                [email_next, 'limbo@localhost'],
+                'slots': slots, 'sender': 
+                email}, format='json')
+            self.assertEqual(resp.status_code, 400)
+            
+            # Slots mismatch
+            slots.pop()
+            resp = self.client.post(f'/{evt_id}/notify/', {'parties': 
+                [email], 'slots': slots, 'sender': 
+                email}, format='json')
+            self.assertEqual(resp.status_code, 400)
+
+            # No such slot
+            slots = [dict(begin=str(timezone.now()), 
+                duration=str(timedelta(hours=1)))]
+            resp = self.client.post(f'/{evt_id}/notify/', {'parties': 
+                [email], 'slots': slots, 'sender': 
+                email}, format='json')
+            self.assertEqual(resp.status_code, 400)
 
 
     def test_log_get(self):
@@ -560,106 +735,22 @@ class DispatchViewTests(APITestCase):
         self.assertEqual(resp.status_code, 200)
 
     def test_log_get_fail(self):
-        self.assertEqual
         n = len(self.fdata['events']) + 1
         resp = self.client.get(f'/{n}/log/')
         self.assertEqual(resp.status_code, 404)
-    
-    def test_notify_get(self):
-        # nonesuch
-        pass
-
-    def test_notify_get_fail(self):
-        n = self.fdata['events'][0]
-        resp = self.client.get(f'/{n}/notify/')
-        #self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp.status_code, 405)
-
-    def test_notify_post(self):
-        # todo-
-        # X: presumes u1 in e1 - should get uevents[0][0]
-        evt_id = self.fdata['events'][0]
-        evt_id = self.fdata['uevents'][0][0]
-        user_id = self.fdata['users'][0]
-        user = User.objects.get(pk=user_id)
-        #u_eml = {'email': user.email}
-        u_eml = user.email
-        resp = self.client.get(f'/{evt_id}/')
-        resp = self.client.post(f'/{evt_id}/notify/', {'parties': [u_eml],
-            'slots': resp.data['slots'], 'sender': u_eml}, format='json') 
-        print(mail.outbox[0].subject)
-        mm = mail.outbox[0]
-        print(vars(mm))
-        #st()
-        self.assertEqual(resp.status_code, 202)
-
-        #
-        self.assertEqual(len(mail.outbox), 1)
-
-    def test_notify_post_fail(self):
-        # todo-
-        # parties, eml, slots, dt
-        # sender not in evt, party/s not in evt, slots mismatch
-        users = []
-        evt_ids = []
-        user_ids = self.fdata['users']
-        for uidx, uid in enumerate(user_ids):
-            email = self.fdata['emails'][uidx]
-            # X: ? use fixture - assumes covering pattern -- as above, coupling
-            #resp = self.client.post('/', {'parties': [{'email': email}],
-            resp = self.client.post('/', {'parties': [email],
-                'slots': self.get_slots(0, len(self.fdata['slots']))},
-                format='json')
-            evt_ids.append(resp.data['id'])
-            evt_id = resp.data['id']
-            slots = resp.data['slots']
-            uidx_next = (uidx + 1) % len(user_ids)
-            email_next = self.fdata['emails'][uidx_next]
-            resp = self.client.post(f'/{evt_id}/notify/', {'parties': 
-                #[{'email': email}], 'slots': slots, 
-                #'sender': {'email': email_next}},
-                [email], 'slots': slots, 
-                'sender': email_next},
-                format='json')
-            #print(resp, email, email_next, resp.data)
-            #print(resp.data)
-            self.assertEqual(resp.status_code, 400)
-            #st()
-            resp = self.client.post(f'/{evt_id}/notify/', {'parties': 
-                #[{'email': email_next}], 
-                #[{'email': email_next}, {'email': 'limbo@localhost'}],
-                [email_next, 'limbo@localhost'],
-                'slots': slots, 'sender': 
-                #{'email': email}}, format='json')
-                email}, format='json')
-            #print(resp, email_next, email, resp.data)
-            #print(resp.data)
-            self.assertEqual(resp.status_code, 400)
-            slots.pop()
-            resp = self.client.post(f'/{evt_id}/notify/', {'parties': 
-                #[{'email': email}], 'slots': slots, 'sender': 
-                #{'email': email}}, format='json')
-                [email], 'slots': slots, 'sender': 
-                email}, format='json')
-            #print(resp.data)
-            self.assertEqual(resp.status_code, 400)
 
 
+    ''' Log entries '''
 
-    def test_notify_post_lognotify(self):
-        # todo-
-        self.assertEqual
-        evt_id = self.fdata['events'][0]
-        user_id = self.fdata['users'][0]
-        user = User.objects.get(pk=user_id)
-        #u_eml = {'email': user.email}
-        u_eml = user.email
-        resp = self.client.get(f'/{evt_id}/')
-        resp = self.client.post(f'/{evt_id}/notify/', {'parties': [u_eml],
-            'slots': resp.data['slots'], 'sender': u_eml}, format='json') 
-        resp = self.client.get(f'/{evt_id}/log/')
-        #st()
-        self.assertEqual(resp.data['entries'][-1]['occurrence'], 'NOTIFY')
+    def test_list_post_logupdate(self):
+        resp = self.client.post('/', {
+            'parties': get_parties(0, len(self.fdata['emails'])),
+            'slots': get_slots(0, len(self.fdata['slots']))
+        }, format='json')
+        n = resp.data['id']
+        resp = self.client.get(f'/{n}/log/')
+        self.assertEqual(len(resp.data['entries']), 1)
+        self.assertEqual(resp.data['entries'][-1]['occurrence'], 'UPDATE')
 
     def test_detail_get_logviewed(self):
         n = self.fdata['events'][0]
@@ -669,34 +760,75 @@ class DispatchViewTests(APITestCase):
         resp = self.client.get(f'/{n}/log/')
         len_b = len(resp.data['entries'])
         self.assertEqual(len_a + 1, len_b)
-    
-    def test_detail_get_emailtoken_logviewed(self):
-        # todo
-        # isn't this covered by ...get_logviewed
-        self.assertTrue(True)
+        self.assertEqual(resp.data['entries'][-1]['occurrence'], 'VIEW')
+
+    @tag('todo-')
+    def test_detail_get_logviewed_fail(self):
+        # todo-
+        n = self.fdata['events'][0]
+        resp = self.client.get(f'/{n}/log/')
+        len_a = len(resp.data['entries'])
+        # Fail, redirect
+        resp = self.client.get(f'/{n}')
+        resp = self.client.get(f'/{n}/log/')
+        len_b = len(resp.data['entries'])
+        self.assertEqual(len_a, len_b)
 
     def test_detail_patch_logupdate(self):
         n = self.fdata['events'][0]
         resp = self.client.get(f'/{n}/log/')
         len_a = len(resp.data['entries'])
         resp = self.client.patch(f'/{n}/', {
-            'slots': self.get_slots(0, len(self.fdata['slots']))
+            'slots': get_slots(0, len(self.fdata['slots']))
         }, format='json')
         resp = self.client.get(f'/{n}/log/')
         self.assertEqual(len(resp.data['entries']), len_a + 1)
+        self.assertEqual(resp.data['entries'][-1]['occurrence'], 'UPDATE')
 
-    def test_list_post_logupdate(self):
-        resp = self.client.post('/', {
-            'parties': self.get_parties(0, len(self.fdata['emails'])),
-            'slots': self.get_slots(0, len(self.fdata['slots']))
-        }, format='json')
-        #print(resp.data)
-        n = resp.data['id']
+    @tag('todo-')
+    def test_detail_patch_logupdate_fail(self):
+        # todo-
+        n = self.fdata['events'][0]
         resp = self.client.get(f'/{n}/log/')
-        self.assertEqual(len(resp.data['entries']), 1)
+        len_a = len(resp.data['entries'])
+        # Fail, no payload
+        resp = self.client.patch(f'/{n}/', format='json')
+        resp = self.client.get(f'/{n}/log/')
+        len_b = len(resp.data['entries'])
+        self.assertEqual(len_a, len_b)
+
+    def test_notify_post_lognotify(self):
+        evt_id = self.fdata['uevents'][0][0]
+        user_id = self.fdata['users'][0]
+        user = User.objects.get(pk=user_id)
+        u_eml = user.email
+        resp_get = self.client.get(f'/{evt_id}/')
+
+        resp = self.client.get(f'/{evt_id}/log/')
+        len_a = len(resp.data['entries'])
+
+        resp = self.client.post(f'/{evt_id}/notify/', {'parties': [u_eml],
+            'slots': resp_get.data['slots'], 'sender': u_eml}, format='json') 
+
+        resp = self.client.get(f'/{evt_id}/log/')
+        len_b = len(resp.data['entries'])
+        self.assertEqual(len_a + 1, len_b)
+        self.assertEqual(resp.data['entries'][-1]['occurrence'], 'NOTIFY')
+
+    @tag('todo-')
+    def test_notify_post_lognotify_fail(self):
+        # todo-
+        n = self.fdata['events'][0]
+        resp = self.client.get(f'/{n}/log/')
+        len_a = len(resp.data['entries'])
+        # Fail, no payload
+        resp = self.client.post(f'/{n}/notify/', format='json')
+        resp = self.client.get(f'/{n}/log/')
+        len_b = len(resp.data['entries'])
+        self.assertEqual(len_a, len_b)
 
 
-@skip
+#@skip
 @tag('queries')
 @override_settings(DEBUG=True)
 class ViewQueryTests(APITestCase):
@@ -704,52 +836,79 @@ class ViewQueryTests(APITestCase):
 
     @classmethod
     def setUpTestData(cls):
+        print(len(connection.queries))
         cls.fdata = map_fixtures(cls.fixtures)
-        User = get_user_model()
-        cls.suser = User.objects.create(username='sup', #is_superuser=True,
-            is_staff=True)
+        cls.suser = User.objects.create(username='sup', is_staff=True)
         cls.suser.set_password('p')
         cls.suser.save()
+        print(len(connection.queries))
+        reset_queries()
 
     def setUp(self):
-        #print(self._testMethodName)
-        print(len(connection.queries))
+        print(self._testMethodName)
         self.client.login(username='sup', password='p')
         print(len(connection.queries))
-        self.assertEqual
+        #expect = 16
+        #self.assertEqual(len(connection.queries), expect)
         reset_queries()
-        print(len(connection.queries))
-
-    def get_slots(self, n=0, m=1):
-        return ([{'begin': x[0], 'duration': x[1]}
-            for x in self.fdata['slots'][n:n+m]])
-
-    def get_parties(self, n=0, m=1):
-        #return [{'email': x} for x in self.fdata['emails'][n:n+m]]
-        return self.fdata['emails'][n:n+m]
 
         
-    def test_detail_get(self):
-        self.assertEqual
-    def test_detail_patch(self):
-        self.assertEqual
     def test_list_get(self):
-        self.assertEqual
-    def test_list_post(self):
-        self.assertEqual
-    def test_detail_delete(self):
-        self.assertEqual
-    def test_log_get(self):
-        self.assertEqual
-    def test_notify_get(self):
-        self.assertEqual
-    def test_notify_post(self):
-        self.assertEqual
-    def test_list_post_update(self):
-        self.assertEqual
+        expect = 9
+        resp = self.client.get('/')
+        #st()
+        print(len(connection.queries), resp.status_code)
+        self.assertEqual(len(connection.queries), expect)
 
-    # X: scrap - can't get list with emailtoken
-    def test_list_get_emailtoken_update(self):
-        #
-        self.assertEqual
-        self.assertEqual
+    def test_list_post(self):
+        expect = 6
+        resp = self.client.post('/', {'parties': [], 'slots': []},
+            format='json')
+        print(len(connection.queries), resp.status_code)
+        self.assertEqual(len(connection.queries), expect)
+    
+    def test_detail_get(self):
+        expect = 7
+        resp = self.client.get('/1/')
+        print(len(connection.queries), resp.status_code)
+        self.assertEqual(len(connection.queries), expect)
+    
+    def test_detail_patch(self):
+        expect = 11
+        resp = self.client.patch('/1/', {'slots': []}, format='json')
+        print(len(connection.queries), resp.status_code)
+        self.assertEqual(len(connection.queries), expect)
+    
+    #@skip
+    def test_detail_delete(self):
+        # X: varies on related ?
+        expect = 12
+        resp = self.client.delete('/1/')
+        print(len(connection.queries), resp.status_code)
+        self.assertEqual(len(connection.queries), expect)
+    
+    def test_notify_post(self):
+        #st()
+        expect = 17
+        resp = self.client.post('/', {'parties': [], 'slots': []},
+            format='json')
+        evt_id = self.fdata['uevents'][0][0]
+        user_id = self.fdata['users'][0]
+        u_eml = self.fdata['emails'][0]
+        resp = self.client.get(f'/{evt_id}/')
+        print(len(connection.queries), resp.status_code)
+        reset_queries()
+        print(len(connection.queries), resp.status_code)
+        resp = self.client.post(f'/{evt_id}/notify/', {'parties': [u_eml],
+            'slots': resp.data['slots'], 'sender': u_eml}, format='json') 
+        print(len(connection.queries), resp.status_code)
+        self.assertEqual(len(connection.queries), expect)
+    
+    #@skip
+    def test_log_get(self):
+        # X: varies on related
+        expect = 6
+        resp = self.client.get('/1/log/')
+        print(len(connection.queries), resp.status_code)
+        self.assertEqual(len(connection.queries), expect)
+
