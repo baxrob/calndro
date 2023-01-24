@@ -22,10 +22,8 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: deps
         run: pip install --upgrade pip && pip install -r requirements/base.txt
-        #run: pip install -r requirements/base.txt
       - name: db
         run: python manage.py makemigrations && python manage.py migrate
-        #run: python manage.py migrate
       - name: test
-        run: python manage.py test
+        run: DJTEST_QUIET=1 python manage.py test
 
