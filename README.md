@@ -2,33 +2,38 @@
 ![badge](https://github.com/baxrob/calndro/actions/workflows/ci.yml/badge.svg)
 
 
-## A toy appointment coordination API
+## An appointment coordination API
 
-Contents: [scenario](#scenario) | [install](#install) | [tui](#tui) | [api](#interface) | [tests](#tests) | [design](#architecture-design-process) | [future](#next-possibly) | [ref](#ref)
+Contents: [scenario](#scenario) | [install](#install) | [api](#interface) | [tui](#tui) | [tests](#tests) | [design](#architecture-design-process) | [future](#next-possibly) | [ref](#ref)
 
 ---
+<br>
+<p align="center">
+&mdash; <i>Document under &#128119; &#128679; &#128736;</i> &mdash;
+</p>
+<br>
 
-Document under &#x1f477; &#x1f6a7; 128119 &#128679; 128736
-&#x1f477; &#x1f6a7; &#128119; &#128679; &#128736;
-_ _
-👷🚧🛠
+This is a WIP POC. 
+It's in an interim state with some cruft.
+Briefly, its 
+intent is similar to the core function of Calendly, or [cal.com](https://github.com/calcom/cal.com).
+
+In summary:
+> Invite registered or unregistered parties, narrow to agreement on a scheduled time span, send notification of updates, with all actions logged
+
 ```
-_ _
-👷🚧🛠
-&#128119; &#128679; &#128736;
-under &#x1f477; &#x1f6a7;
+propose -> narrow -> agree : audit
 ```
-<!-- [cruft/schlock note] -->
 
 ### Scenario
 
 [ with [httpie](https://httpie.io), [jq](https://stedolan.github.io/jq/) ]
 
 ```
-you:
+# You:
 
 
-- instantiate a coordination proposal
+# - Instantiate a coordination proposal - note [tz..RFC]
 
 evt_id=$(http -a $user:$pwd POST :8000/ \
     parties:='["you@here.net", "they@thar.net", "them@whar.net"]' \
@@ -38,7 +43,7 @@ evt_id=$(http -a $user:$pwd POST :8000/ \
     | jq .id)
 
 
-- notify other parties
+# - Notify other parties
 
 http -a $user:$pwd POST :8000/$evt_id/notify/ \
     parties:='["they@thar.net", "them@whar.net"]' \
@@ -48,20 +53,20 @@ http -a $user:$pwd POST :8000/$evt_id/notify/ \
 
 
 
-they:
+# They:
 
 
-- receive message including link with temporary access token
+# - Receive message including link with temporary access token
 
 http://$host:8000/$evt_id/?et=1fe36bfa6f2f2567b5f7ea5a06e1e2202ad57ea7
 
 
-- view proposed event times
+# - View proposed event times
 
 http GET :8000/$evt_id/ et=1fe36bfa6f2f2567b5f7ea5a06e1e2202ad57ea7
 
 
-- update with suitable selection
+# - Update with suitable selection - time slots can only be attenuated
 
 http PATCH :8000/$evt_id/ \
     slots:='[{"begin": "2022-11-01T01:11:22.02", "duration": "00:10"},
@@ -69,7 +74,7 @@ http PATCH :8000/$evt_id/ \
     et=1fe36bfa6f2f2567b5f7ea5a06e1e2202ad57ea7
 
 
-- notify other parties
+# - Notify other parties (note timezone shift and microsecond syntax)
 
 http POST :8000/$evt_id/notify/ \
     parties:='["you@here.net", "them@whar.net"]' \
@@ -79,17 +84,21 @@ http POST :8000/$evt_id/notify/ \
 
 
 
-later:
+# Later:
 
 
-- everyone can enjoy logs of the process
+# - Interested parties can view logs of the process
 
 http GET :8000/$evt_id/log/
 
 
-- and gaze at the API
+# - and write clients to the API
 
 http GET :8000/openapi
+
+# - requesting a DRF Session auth token
+
+http -a $user:$pwd POST :8000/...
 ```
 
 ### Install
@@ -97,6 +106,8 @@ http GET :8000/openapi
 #### Python Pip
 
 [ with Python version >=3.8 ]
+
+
 
 ```
 python3 -m venv venv \
@@ -106,11 +117,12 @@ python3 -m venv venv \
     && scripts/reset.sh \                       #
     && ./manage.py runserver 0.0.0.0:8000
 ```
+
 [note: ppa pyenv ..]
 
 #### Docker
 
-[ with [docker](https://docs.docker.com/get-docker/), [docker-compose](https://github.com/docker/compose) ] 
+[ with [docker](https://docs.docker.com/get-docker/), [docker-compose](https://github.com/docker/compose) ]
 
 ```
 Run:
@@ -122,11 +134,20 @@ Or:
 docker-compose -f compose-stage.yaml up
 
 ```
+
+- The default [compose.yaml](compose.yaml) mounts the local sqlite db and runs Django's dev server
+- The [compose-stage.yaml](compose-stage.yaml) config runs a posgresql service and gunicorn
+
+_
+- [pg, ngx]
+
 <!--
 [up down logs exec / $file= $sys=ubu|alp %cmd[exec]]
 -->
 
 #### Envs, fixtures, admin
+#### Admin, fixtures, envs
+#### Fixtures, envs, admin
 
 
 ```
@@ -136,9 +157,51 @@ docker-compose -f compose-stage.yaml up
 
 docker exec -it caldcs ./manage.py loaddata users schedul
 ```
-[1] See [gen.py](schedul/fixtures/gen.py)
+[1] See [schedul/fixtures/gen.py](schedul/fixtures/gen.py)
 
-[2] [$host/admin .. ..]
+
+
+<!--
+![entries.png](_m/admin_scaps/entries-400.png)
+![entries_1.png](_m/admin_scaps/entries_1-400.png)
+![events.png](_m/admin_scaps/events-400.png)
+![events_1a.png](_m/admin_scaps/events_1a-400.png)
+![events_1b.png](_m/admin_scaps/events_1b-400.png)
+![events_1c.png](_m/admin_scaps/events_1c-400.png)
+-->
+
+ob zo ub : p
+
+There is a full-featured Django admin at
+```$host/admin```
+
+<img src="_m/admin_scaps/entries.png" width="250"> <img src="_m/admin_scaps/entries_1.png" width="250"> <img src="_m/admin_scaps/events.png" width="250"> <img src="_m/admin_scaps/events_1a.png" width="250"> <img src="_m/admin_scaps/events_1b.png" width="250"> <img src="_m/admin_scaps/events_1c.png" width="250">
+
+### Interface
+
+See [_m/openapi-schama.yaml](_m/openapi-schema.yaml)
+
+```
+op        uri            methods
+---------------------------------------------------------
+list      /              get     post    
+detail    /id/           get             patch     delete
+notify    /id/notify             post
+logs      /id/log        get
+```
+
+#### Auth
+```
+op        uri            method:auth*
+---------------------------------------------------------
+list      /              get:r*  post:r
+detail    /id/           get:t           patch:t   delete:s
+notify    /id/notify             post:t
+logs      /id/log        get:r*
+
+* t: unregistered event party with token; r: registered user, *party-to events; s: staff
+
+```
 
 ### TUI
 
@@ -195,55 +258,206 @@ q quit
   l   c   d[n]  p[n]  n[n]  g[n]  ?   q
 > 
 
+> c
+create: enter party emails>
+bobo@frofro.info
+enter slots as YYYY-MM-DDThh:mm:ss[+-mm:ss/Z] hh:mm:ss, followed by blank>
+2029-01-01T11:29 01:01
+{
+    "id": 4,
+    "log_url": "http://localhost:8000/4/log/",
+    "notify_url": "http://localhost:8000/4/notify/",
+    "parties": [
+        "bobo@frofro.info"
+    ],
+    "slots": [
+        {
+            "begin": "2029-01-01T11:29:00Z",
+            "duration": "00:01:01"
+        }
+    ],
+    "title": "pisaj",
+    "url": "http://localhost:8000/4/"
+}
+
+
+  l   c   d[n]  p[n]  n[n]  g[n]  ?   q
+
+> c
+
+- awkward time entry .. rfc#..
+
 ```
+
+<!--
 ```
 %[??tuieg]
 ```
-
-### Interface
-
-See [openapi-schama.yaml](_m/openapi-schema.yaml)
-
-```
-```
+-->
 
 ### Tests
 
-See [tests.py](schedul/test.py)
+See [schedul/tests.py](schedul/test.py)
+
+There are feature tests with branch coverage.
+- I don't like the number of utility functions
+- Some auth tests are excessive to the point of redundancy
+- I need to stipulate assumptions built into the fixture structure
+- 
 
 ```
 helper funcs .. pytest
-integration: views, auth, dispatch, ..queries
+integration / functional / feature: views, auth, dispatch, queries
 ..unit: token, mail
 ```
 
 ```
 todos:
 -----
-test_detail_patch_dupe
 test_detail_delete_auth_fail
-test_notify_post_auth_fail
 test_detail_get_emailtoken_fail
-test_detail_patch_emailtoken
-test_detail_patch_emailtoken_fail
-test_notify_post_emailtoken
-test_notify_post_emailtoken_fail
-test_emailtoken_expired
-test_notify_post
-test_notify_post_fail
-test_notify_post_lognotify
 test_detail_get_emailtoken_logviewed
+test_detail_patch_emailtoken_fail
+test_detail_patch_emailtoken_logupdate
+test_notify_post_emailtoken_lognotify
+test_loggedinuser_emailtoken_ignored
+test_emailtoken_expired
+test_detail_get_logviewed_fail
+test_detail_patch_logupdate_fail
+test_notify_post_lognotify_fail
 
 ```
+
+#### CI
+
+See [.github/workflows/ci.yml](.github/workflows/ci.yml)
+
+
+#### Coverage
+```
+Name                     Stmts   Miss  Cover
+--------------------------------------------
+config/__init__.py           0      0   100%
+config/asgi.py               4      4     0%
+config/settings.py          44      0   100%
+config/urls.py              11      2    82%
+config/wsgi.py               4      4     0%
+schedul/__init__.py          0      0   100%
+schedul/admin.py            52      5    90%
+schedul/apps.py              4      0   100%
+schedul/models.py           51      0   100%
+schedul/permissions.py       4      0   100%
+schedul/serializers.py     123      0   100%
+schedul/services.py         39      5    87%
+schedul/tests.py           569      6    99%
+schedul/urls.py              3      0   100%
+schedul/views.py           129     17    87%
+--------------------------------------------
+TOTAL                     1037     43    96%
+
+https://github.com/nedbat/coveragepy
+```
+<!--
+https://coverage.readthedocs.io/en/6.3.2/
+-->
 
 ### Architecture, design, process
 
-```
+
+<!--
+event
+  parties
+  slots
+  title
+  log
+slot
+  event
+  begin
+  duration
+user
+  events
+entry
+  when
+  occurrence
+  effector
+  slots
+  data
+
+
+event                                               event                       
+  parties   user | anon                               parties >---< user
+  slots     [ begin, duration ]         slot >------- slots           events
+  title     optional string               begin       title                     
+  log       [ entries ]                   duration    log --------< entry       
+                                                                      when      
+                                                                      occurrence
+                                                                      effector  
+                                                                      slots     
+                                                                      data      
+     
+-->
+
 ```
 
+....|....1....|....2....|....3....|....4....|....5....|....6....|....7....|....8....|....9....|....0
+```
+
+The core entity is the Event class
+```
+event
+  parties   user | anon
+  slots     [ begin, duration ]
+  title     optional string
+  log       [ entries ]
+```
+- Inclusion of non-registered emails creates inactive user records
+- The list of time slots can only be narrowed once created
+- A gibberish title is generated if one is not provided
+- Creation, update, related notification, and deletion are logged in detail
+
+
+
+```
+            event                         
+              parties >---< user
+slot >------- slots           email 
+  begin       title                          
+  duration    log --------< entry           
+                              when          
+                              occurrence    
+                              effector      
+                              slots         
+                              data
+
+```
+- user
+- tz
+- entry
+- data
+
+#### Security
+
+-
+
+#### Mail / messages
+
+<!--
+
+....|....1....|....2....|....3....|....4....|....5....|....6....|....7....|....8....|....9....|....0
+-->
+#### Time
+
+...
+
+
+#### A Story
+
 <img src="_m/IMG_1377-rot90-300-noexif.JPG" align="right">
+
 <pre align="left">
-this that then though they thunk through thither thusly thar their tham
+
+this that then though they thunk through 
+thither thusly thar their tham
 -
 -
 and
@@ -255,18 +469,33 @@ then
 so
 -
 -
-</pre>
-<br clear="both">
 
+layer
+deriv
+strategy
+debug/diag / exper process
+
+apifuz
+lzydkr
+act
+grip
+
+pdb / test loop
+
+</pre>
 <!--
-![initial sketch](_m/IMG_1377-rot90-300-noexif.JPG)
 -->
 
-#### Tree
+<br clear="both">
+
+#### Stats
+
+##### tree
 
 ```
 .
 ├── compose
+│   ├── hist_x23
 │   ├── local
 │   │   ├── dj.env
 │   │   ├── Dockerfile
@@ -295,89 +524,63 @@ so
 │   ├── admin.py
 │   ├── apps.py
 │   ├── __init__.py
+│   ├── list_tests.sh
 │   ├── models.py
 │   ├── permissions.py
 │   ├── serializers.py
 │   ├── services.py
+│   ├── testdoc.txt
+│   ├── testlist
+│   ├── testlist_0
 │   ├── tests.py
 │   ├── urls.py
 │   └── views.py
-└── scripts
-    ├── init_pg.sh
-    ├── reset.sh
-    ├── stitch_readme.sh
-    └── tui.sh
+├── scripts
+│   ├── init_pg.sh
+│   ├── reset.sh
+│   ├── stew.sh
+│   ├── stitch_readme.sh
+│   ├── tui.sh
+│   └── watch_readme.sh
+├── test0_curl.html
+└── test0.md
 
-7 directories, 34 files
+
 ```
 
-%[..annotree]
+##### cloc
 
-
-#### Stats
 ```
-cloc[1]:
-
 Language                     files          blank        comment           code
 -------------------------------------------------------------------------------
-Python                          22            517            483           1671
-Markdown                        10            201              0            510
+Python                          22            564            436           1844
+Markdown                        10            254              0            669
 JSON                             3              0              0            346
-YAML                             5             10             18            326
-Bourne Shell                     7             59             39            275
+YAML                             5             10             16            326
+Bourne Shell                     7             61             49            280
 Dockerfile                       2              8             17             23
 -------------------------------------------------------------------------------
-SUM:                            49            795            557           3151
+SUM:                            49            897            518           3488
 -------------------------------------------------------------------------------
 
-
-wc:
-
-212 schedul/views.py
-158 schedul/fixtures/gen.py
-83 schedul/admin.py
-6 schedul/apps.py
-100 schedul/models.py
-175 schedul/serializers.py
-16 schedul/permissions.py
-0 schedul/__init__.py
-57 schedul/services.py
-11 schedul/urls.py
-755 schedul/tests.py
-
-
-coverage[2]:
-
-Name                                                Stmts   Miss  Cover
------------------------------------------------------------------------
-config/__init__.py                                      0      0   100%
-config/asgi.py                                          4      4     0%
-config/settings.py                                     44      0   100%
-config/urls.py                                         11      2    82%
-config/wsgi.py                                          4      4     0%
-manage.py                                              12      2    83%
-schedul/__init__.py                                     0      0   100%
-schedul/admin.py                                       52      5    90%
-schedul/apps.py                                         4      0   100%
-schedul/migrations/0001_initial.py                      7      0   100%
-schedul/migrations/0002_alter_timespan_options.py       4      0   100%
-schedul/migrations/0003_event_title.py                  5      0   100%
-schedul/migrations/0004_auto_20220204_1734.py           5      0   100%
-schedul/migrations/0005_emailtoken.py                   7      0   100%
-schedul/migrations/__init__.py                          0      0   100%
-schedul/models.py                                      51      0   100%
-schedul/permissions.py                                  4      0   100%
-schedul/serializers.py                                125      8    94%
-schedul/services.py                                    39      6    85%
-schedul/tests.py                                      423     26    94%
-schedul/urls.py                                         3      0   100%
-schedul/views.py                                      126     18    86%
------------------------------------------------------------------------
-TOTAL                                                 930     75    92%
+https://github.com/AlDanial/cloc
 ```
-[1] https://github.com/AlDanial/cloc
 
-[2] https://coverage.readthedocs.io/en/6.3.2/
+##### wc
+```
+907	schedul/tests.py
+230	schedul/views.py
+175	schedul/serializers.py
+158	schedul/fixtures/gen.py
+100	schedul/models.py
+83	schedul/admin.py
+58	schedul/services.py
+18	schedul/permissions.py
+11	schedul/urls.py
+6	schedul/apps.py
+0	schedul/__init__.py
+0	schedul/fixtures/__init__.py
+```
 
 ### Next, possibly
 
@@ -391,14 +594,18 @@ TOTAL                                                 930     75    92%
 - self-hosting, localnet day scheduling
 
 - ob@localhost $user example.com - fixture/gen
+
+- cgit, grip
 ```
 
 ### Refs
 
-- 
+- [Decoupled Django]() book
+- [Django for APIs]() book
+- [Django For Startups](https://alexkrupp.typepad.com/sensemaking/2021/06/django-for-startup-founders-a-better-software-architecture-for-saas-startups-and-consumer-apps.html) article by Alex Krupp 
 
 ---
 
 <p align="center">
-constructed with <a href="scripts/stitch_readme.sh">stitch_readme.sh</a>
+constructed with <a href="scripts/stitch_readme.sh">scripts/stitch_readme.sh</a>
 </p>
