@@ -152,7 +152,7 @@ class EventViewTests(APITestCase):
         #   dict attr before multipart invalid
 
         # Non-json format
-        resp = self.client.post('/')
+        resp = self.client.post('/', {'parties': [], 'slots': []})
         self.assertEqual(resp.status_code, 400)
 
         # Missing slots
@@ -465,7 +465,6 @@ class ViewAuthTests(APITestCase):
     @tag('todo-')
     def test_detail_get_emailtoken_fail(self):
         # todo- comments on strategy
-        # user*3 : mismatch : ut et -- no, logged in user would be ignored
         suser = User.objects.create(username='sup', is_staff=True)
         self.client.force_login(suser)
 
@@ -484,17 +483,15 @@ class ViewAuthTests(APITestCase):
             'slots': [], 'sender': ur2_eml}, format='json') 
         self.client.logout()
 
-        # X: redundant - user won't mismatch token since that identifies user
         user1 = User.objects.get(email=ur1_eml)
         user2 = User.objects.get(email=ur2_eml)
         tok1 = EmailToken.objects.get(user=user1, event_id=evt1_id).key
         tok2 = EmailToken.objects.get(user=user2, event_id=evt2_id).key
-        #print(tok1, tok2)
+        # Token mismatches
         resp3 = self.client.get(f'/{evt2_id}/?et={tok1}')
         self.assertEqual(resp3.status_code, 403)
         resp4 = self.client.get(f'/{evt1_id}/?et={tok2}')
         self.assertEqual(resp4.status_code, 403)
-        #print(resp3.data, resp4.data)
     
     @tag('todo-')
     def test_detail_get_emailtoken_logviewed(self):
@@ -520,10 +517,7 @@ class ViewAuthTests(APITestCase):
         # todo-
         ue = 'nonesuch@localhost'
         tok_evt_id, tok_user, tok = setup_emailtoken(self, ue)
-
         nevt_id = self.fdata['events'][0]
-        # X: invalid patch ?? 
-        #st()
         resp = self.client.patch(f'/{nevt_id}/?et={tok}', {'slots': []},
             format='json')
         self.assertEqual(resp.status_code, 403)
@@ -538,7 +532,6 @@ class ViewAuthTests(APITestCase):
         resp = self.client.patch(f'/{evt_id}/?et={tok}', {'slots': []},
             format='json')
         log_b = fetch_log(self, evt_id)
-        #st()
         self.assertEqual(len(log_a) + 1, len(log_b))
         self.assertEqual(log_b[-1]['occurrence'], 'UPDATE')
         self.assertIn('token', log_b[-1]['data'])

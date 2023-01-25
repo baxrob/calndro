@@ -9,6 +9,7 @@ from rest_framework.views import APIView
 from rest_framework.generics import GenericAPIView
 
 from rest_framework import status
+from rest_framework.exceptions import ErrorDetail
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.permissions import IsAuthenticated
@@ -57,6 +58,8 @@ def enlog(event, effector, occurrence, slots, data={}):
 class EventList(GenericAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = EventSerializer
+
+    # ? all() ?
     queryset = Event.objects.all()
 
     def get_queryset(self):
@@ -78,7 +81,7 @@ class EventList(GenericAPIView):
         if serializer.is_valid():
             event = serializer.save()
             enlog(event, request.user.email, 'UPDATE', 
-                serializer.data['slots'])
+                serializer.data['slots'], {'opened': 'created'})
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors,
             status=status.HTTP_400_BAD_REQUEST)
@@ -97,9 +100,9 @@ class EventDetail(APIView):
         event = get_object_or_404(Event, pk=self.kwargs['pk'])
         self.token = services.token_login(self.request, event)
         self.check_object_permissions(self.request, event)
-        if self.token:
+        if False and self.token:
             #print('logout', self.token.key)
-            print('logout', self.token.key, self.token.user)
+            print('logout g', self.token.key, self.token.user)
             logout(self.request)
         return event
 
@@ -128,9 +131,18 @@ class EventDetail(APIView):
             status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk, format=None):
-        # X: admin only ?
-        event = get_object_or_404(Event, pk=pk)
+        #event = get_object_or_404(Event, pk=pk)
+
+        # X: permission in class, enlog and return 204
+
+        event = self.get_object()
         self.check_object_permissions(request, event)
+        serializer = EventSerializer(event, context={'request': request})
+        #event.delete()
+        enlog(event, request.user.email, 'UPDATE', serializer.data['slots'], 
+            {'closed': 'deleted'})
+        #return Response(status=status.HTTP_204_NO_CONTENT)
+
         if request.user.is_staff:
             event.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
@@ -160,8 +172,9 @@ class EventNotify(APIView):
 
         user = request.user
 
+        # X: this never happens; plan changed to not logout active w/ token
         if token:
-            print('logout', token.key, user)
+            print('logout n', token.key, user)
             logout(request)
         
         event.sender = user
@@ -173,7 +186,7 @@ class EventNotify(APIView):
             for recip_email in serializer.validated_data['parties']:
 
                 # X: just pass request for user/url
-                u = request._request.build_absolute_uri('/')
+                #u = request._request.build_absolute_uri('/')
                 #notify(event, request.user, umail['email'], u)
                 #notify(event, request.user.email, recip_email, u)
                 #notify(event, user.email, recip_email, u)
@@ -197,10 +210,13 @@ class EventNotify(APIView):
 
 
 class DispatchLog(APIView):
+    """
+    """
     permission_classes = [IsEventPartyOrAdmin]
 
     def get(self, request, pk, format=None):
         event = get_object_or_404(Event, pk=self.kwargs['pk'])
+        token = services.token_login(self.request, event)
         self.check_object_permissions(self.request, event)
         logs = event.dispatch_log.all()
         serializer = DispatchLogSerializer({'event': event, 'entries': logs,

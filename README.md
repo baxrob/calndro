@@ -96,9 +96,15 @@ http GET :8000/$evt_id/log/
 
 http GET :8000/openapi
 
-# - requesting a DRF Session auth token
+# - requesting and using a DRF Session auth token
 
-http -a $user:$pwd POST :8000/...
+http POST :8000/api-token-auth/ username=$user password=$pwd
+
+#   {"token": "48fc19e55a884b24e77913542a9822917a9c167a"}   
+
+http GET :8000 Authorization:'Token 48fc19e55a884b24e77913542a9822917a9c167a'
+
+
 ```
 
 ### Install
@@ -301,9 +307,8 @@ See [schedul/tests.py](schedul/test.py)
 
 There are feature tests with branch coverage.
 - I don't like the number of utility functions
-- Some auth tests are excessive to the point of redundancy
+- Some auth tests are excessive or redundant
 - I need to stipulate assumptions built into the fixture structure
-- 
 
 ```
 helper funcs .. pytest
@@ -351,9 +356,9 @@ schedul/serializers.py     123      0   100%
 schedul/services.py         39      5    87%
 schedul/tests.py           569      6    99%
 schedul/urls.py              3      0   100%
-schedul/views.py           129     17    87%
+schedul/views.py           129     27    79%
 --------------------------------------------
-TOTAL                     1037     43    96%
+TOTAL                     1037     53    95%
 
 https://github.com/nedbat/coveragepy
 ```
@@ -524,26 +529,21 @@ pdb / test loop
 │   ├── admin.py
 │   ├── apps.py
 │   ├── __init__.py
-│   ├── list_tests.sh
 │   ├── models.py
 │   ├── permissions.py
 │   ├── serializers.py
 │   ├── services.py
-│   ├── testdoc.txt
-│   ├── testlist
-│   ├── testlist_0
 │   ├── tests.py
 │   ├── urls.py
 │   └── views.py
-├── scripts
-│   ├── init_pg.sh
-│   ├── reset.sh
-│   ├── stew.sh
-│   ├── stitch_readme.sh
-│   ├── tui.sh
-│   └── watch_readme.sh
-├── test0_curl.html
-└── test0.md
+└── scripts
+    ├── init_pg.sh
+    ├── list_tests.sh
+    ├── reset.sh
+    ├── stew.sh
+    ├── stitch_readme.sh
+    ├── tui.sh
+    └── watch_readme.sh
 
 
 ```
@@ -553,14 +553,14 @@ pdb / test loop
 ```
 Language                     files          blank        comment           code
 -------------------------------------------------------------------------------
-Python                          22            564            436           1844
-Markdown                        10            254              0            669
+Python                          22            565            433           1844
+Markdown                        10            309              0            826
 JSON                             3              0              0            346
-YAML                             5             10             16            326
-Bourne Shell                     7             61             49            280
+YAML                             5             10             19            326
+Bourne Shell                     7             61             50            280
 Dockerfile                       2              8             17             23
 -------------------------------------------------------------------------------
-SUM:                            49            897            518           3488
+SUM:                            49            953            519           3645
 -------------------------------------------------------------------------------
 
 https://github.com/AlDanial/cloc
@@ -569,7 +569,7 @@ https://github.com/AlDanial/cloc
 ##### wc
 ```
 907	schedul/tests.py
-230	schedul/views.py
+228	schedul/views.py
 175	schedul/serializers.py
 158	schedul/fixtures/gen.py
 100	schedul/models.py
