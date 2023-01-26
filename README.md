@@ -24,6 +24,7 @@ In summary:
 ```
 propose -> narrow -> agree : audit
 ```
+no ui
 
 ### Scenario
 
@@ -96,9 +97,16 @@ http GET :8000/$evt_id/log/
 
 http GET :8000/openapi
 
-# - requesting a DRF Session auth token
+# - requesting and using a DRF Session auth token
 
-http -a $user:$pwd POST :8000/...
+http POST :8000/api-token-auth/ username=$user password=$pwd
+
+#   {"token": "48fc19e55a884b24e77913542a9822917a9c167a"}   
+
+http GET :8000 Authorization:'Token 48fc19e55a884b24e77913542a9822917a9c167a'
+
+# - session auth is also enabled
+
 ```
 
 ### Install
@@ -141,15 +149,6 @@ docker-compose -f compose-stage.yaml up
 _
 - [pg, ngx]
 
-<!--
-[up down logs exec / $file= $sys=ubu|alp %cmd[exec]]
--->
-
-#### Envs, fixtures, admin
-#### Admin, fixtures, envs
-#### Fixtures, envs, admin
-
-
 ```
 ./manage.py loaddata users schedul
 
@@ -157,29 +156,44 @@ _
 
 docker exec -it caldcs ./manage.py loaddata users schedul
 ```
-[1] See [schedul/fixtures/gen.py](schedul/fixtures/gen.py)
-
-
-
-<!--
-![entries.png](_m/admin_scaps/entries-400.png)
-![entries_1.png](_m/admin_scaps/entries_1-400.png)
-![events.png](_m/admin_scaps/events-400.png)
-![events_1a.png](_m/admin_scaps/events_1a-400.png)
-![events_1b.png](_m/admin_scaps/events_1b-400.png)
-![events_1c.png](_m/admin_scaps/events_1c-400.png)
--->
 
 ob zo ub : p
 
-There is a full-featured Django admin at
+<!--
+[up down logs exec / $file= $sys=ubu|alp %cmd[exec]]
+-->
+
+#### Envs
+
+-
+-
+-
+-
+
+
+
+#### Fixtures
+
+-
+-
+-
+-
+
+
+[1] See [schedul/fixtures/gen.py](schedul/fixtures/gen.py)
+
+
+#### Admin
+
+
+
+
+There is a full Django admin at
 ```$host/admin```
 
 <img src="_m/admin_scaps/entries.png" width="250"> <img src="_m/admin_scaps/entries_1.png" width="250"> <img src="_m/admin_scaps/events.png" width="250"> <img src="_m/admin_scaps/events_1a.png" width="250"> <img src="_m/admin_scaps/events_1b.png" width="250"> <img src="_m/admin_scaps/events_1c.png" width="250">
 
 ### Interface
-
-See [_m/openapi-schama.yaml](_m/openapi-schema.yaml)
 
 ```
 op        uri            methods
@@ -203,6 +217,17 @@ logs      /id/log        get:r*
 
 ```
 
+#### OpenAPI
+
+See [_m/openapi-schama.yaml](_m/openapi-schema.yaml)
+or run
+```./manage.py generateschema```
+or visit $host/openapi
+
+```
+$path/ vs $path  dj/humyn vs api/machine
+```
+
 ### TUI
 
 See [scripts/tui.sh](scripts/tui.sh)
@@ -219,10 +244,10 @@ config: ob p _ 8005 ob@localhost
   l   c   d[n]  p[n]  n[n]  g[n]  ?   q
 > ?
 l list events
-c create with emails, time-spans
+c create - prompts for emails, time-spans
 d[n] detail - view event number n
-p[n] patch time-spans
-n[n] notify recipients
+p[n] patch time-spans for event n
+n[n] notify recipients for n
 g[n] log - view dispatch/update logs
 ? help - this help
 q quit
@@ -305,9 +330,17 @@ There are feature tests with branch coverage.
 - I need to stipulate assumptions built into the fixture structure
 
 ```
+core axials ?
+log authn/z pii disposabil
+
 helper funcs .. pytest
 integration / functional / feature: views, auth, dispatch, queries
 ..unit: token, mail
+
+action : result : match condition
+list_tests.sh
+
+tooling : py dj drf
 ```
 
 ```
@@ -325,12 +358,19 @@ test_detail_get_logviewed_fail
 test_detail_patch_logupdate_fail
 test_notify_post_lognotify_fail
 
+mail tests
 ```
 
 #### CI
 
+basic
+Python 3.8 - 3.10
+
+env vars  above / gh
+
 See [.github/workflows/ci.yml](.github/workflows/ci.yml)
 
+https://github.com/nektos/act
 
 #### Coverage
 ```
@@ -344,15 +384,15 @@ config/wsgi.py               4      4     0%
 schedul/__init__.py          0      0   100%
 schedul/admin.py            52      5    90%
 schedul/apps.py              4      0   100%
-schedul/models.py           51      0   100%
+schedul/models.py           51      6    88%
 schedul/permissions.py       4      0   100%
 schedul/serializers.py     123      0   100%
 schedul/services.py         39      5    87%
 schedul/tests.py           569      6    99%
 schedul/urls.py              3      0   100%
-schedul/views.py           129     17    87%
+schedul/views.py           129     27    79%
 --------------------------------------------
-TOTAL                     1037     43    96%
+TOTAL                     1037     59    94%
 
 https://github.com/nedbat/coveragepy
 ```
@@ -363,41 +403,8 @@ https://coverage.readthedocs.io/en/6.3.2/
 ### Architecture, design, process
 
 
-<!--
-event
-  parties
-  slots
-  title
-  log
-slot
-  event
-  begin
-  duration
-user
-  events
-entry
-  when
-  occurrence
-  effector
-  slots
-  data
-
-
-event                                               event                       
-  parties   user | anon                               parties >---< user
-  slots     [ begin, duration ]         slot >------- slots           events
-  title     optional string               begin       title                     
-  log       [ entries ]                   duration    log --------< entry       
-                                                                      when      
-                                                                      occurrence
-                                                                      effector  
-                                                                      slots     
-                                                                      data      
-     
--->
 
 ```
-
 ....|....1....|....2....|....3....|....4....|....5....|....6....|....7....|....8....|....9....|....0
 ```
 
@@ -415,7 +422,6 @@ event
 - Creation, update, related notification, and deletion are logged in detail
 
 
-
 ```
             event                         
               parties >---< user
@@ -427,48 +433,67 @@ slot >------- slots           email
                               effector      
                               slots         
                               data
-
 ```
 - user
 - tz
 - entry
-- data
+- data  tok  opened/closed
+
+#### Design
+```
+naming splay
+
+disinterleaving
+```
 
 #### Security
 
--
+```
+- no incentive, eml/dt and evt title only
+- disposability
+- no disaster case
+- PII cases, pwd reuse cases
+
+core axials ?
+log authn/z pii disposabil
+```
 
 #### Mail / messages
 
-<!--
-
-....|....1....|....2....|....3....|....4....|....5....|....6....|....7....|....8....|....9....|....0
--->
+```
+- sendmail, localnet
+- _ mailhog
+```
 #### Time
 
 ...
+```
+RFC
+RFC
+```
 
 
-#### A Story
+#### Use cases
+```
+- storage, close/delete net, confirm, update flow
+- confirm: view=  not req  updy same
+- left to you cases
 
-<img src="_m/IMG_1377-rot90-300-noexif.JPG" align="right">
+confirm : view vs update  all vs all-1
 
-<pre align="left">
+closed : slots [] or [1] + confirmation
+delete reserved  only log of closing  future maint op
 
-this that then though they thunk through 
-thither thusly thar their tham
--
--
-and
--
--
-then
--
--
-so
--
--
+expected flow  reopen by copying title  prevserved in log  id is pk
 
+```
+#### Motivations
+```
+- no (g)ui  dj api  diag ver  test design  audit trail  containeren
+- coherent (pythonic) subset of posix sh .. refiving
+```
+#### Process
+```
 layer
 deriv
 strategy
@@ -480,12 +505,9 @@ act
 grip
 
 pdb / test loop
+```
 
-</pre>
-<!--
--->
 
-<br clear="both">
 
 #### Stats
 
@@ -523,27 +545,21 @@ pdb / test loop
 │   ├── admin.py
 │   ├── apps.py
 │   ├── __init__.py
-│   ├── list_tests.sh
 │   ├── models.py
 │   ├── permissions.py
 │   ├── serializers.py
 │   ├── services.py
-│   ├── testdoc.txt
-│   ├── testlist
-│   ├── testlist_0
 │   ├── tests.py
 │   ├── urls.py
 │   └── views.py
-├── scripts
-│   ├── init_pg.sh
-│   ├── reset.sh
-│   ├── stew.sh
-│   ├── stitch_readme.sh
-│   ├── tui.sh
-│   └── watch_readme.sh
-├── test0_curl.html
-└── test0.md
-
+└── scripts
+    ├── init_pg.sh
+    ├── list_tests.sh
+    ├── reset.sh
+    ├── stew.sh
+    ├── stitch_readme.sh
+    ├── tui.sh
+    └── watch_readme.sh
 
 ```
 
@@ -552,14 +568,14 @@ pdb / test loop
 ```
 Language                     files          blank        comment           code
 -------------------------------------------------------------------------------
-Python                          22            564            436           1844
-Markdown                        10            305              0            824
+Python                          22            565            439           1844
+Markdown                        10            334              0            893
 JSON                             3              0              0            346
 YAML                             5             10             19            326
-Bourne Shell                     7             61             49            280
+Bourne Shell                     7             61             50            293
 Dockerfile                       2              8             17             23
 -------------------------------------------------------------------------------
-SUM:                            49            948            521           3643
+SUM:                            49            978            525           3725
 -------------------------------------------------------------------------------
 
 https://github.com/AlDanial/cloc
@@ -568,12 +584,12 @@ https://github.com/AlDanial/cloc
 ##### wc
 ```
 907	schedul/tests.py
-230	schedul/views.py
+228	schedul/views.py
 175	schedul/serializers.py
 158	schedul/fixtures/gen.py
-100	schedul/models.py
+101	schedul/models.py
 83	schedul/admin.py
-58	schedul/services.py
+63	schedul/services.py
 18	schedul/permissions.py
 11	schedul/urls.py
 6	schedul/apps.py
@@ -581,13 +597,79 @@ https://github.com/AlDanial/cloc
 0	schedul/fixtures/__init__.py
 ```
 
-### Next, possibly
+
+
+<!--
+....|....1....|....2....|....3....|....4....|....5....|....6....|....7....|....8....|....9....|....0
+-->
+<!--
+#### A Story
+
+<img src="_m/IMG_1377-rot90-300-noexif.JPG" align="right">
+
+<pre align="left">
+
+this that then though they thunk through 
+thither thusly thar their tham
+-
+-
+and
+-
+-
+then
+-
+-
+so
+-
+-
+
+
+</pre>
+
+<br clear="both">
+-->
+<!--
+event
+  parties
+  slots
+  title
+  log
+slot
+  event
+  begin
+  duration
+user
+  events
+entry
+  when
+  occurrence
+  effector
+  slots
+  data
+
+
+event                                               event                       
+  parties   user | anon                               parties >---< user
+  slots     [ begin, duration ]         slot >------- slots           events
+  title     optional string               begin       title                     
+  log       [ entries ]                   duration    log --------< entry       
+                                                                      when      
+                                                                      occurrence
+                                                                      effector  
+                                                                      slots     
+                                                                      data      
+     
+-->
+
+### Future considerations
 
 ```
 - ghub tidy branch - 
 - tests - finish, rework, pytest
 
-- ssl, mailhog, gpg/pass
+- ssl 
+- mailhog
+- gpg/pass
 - dataclasses, 
 
 - self-hosting, localnet day scheduling
@@ -595,6 +677,17 @@ https://github.com/AlDanial/cloc
 - ob@localhost $user example.com - fixture/gen
 
 - cgit, grip
+
+linting
+
+m/tq db sms maint eml
+beeptime / cron
+celery redis kafka
+
+caching
+throttling
+paging
+gql flask fastapi
 ```
 
 ### Refs
@@ -603,6 +696,10 @@ https://github.com/AlDanial/cloc
 - [Django for APIs]() book
 - [Django For Startups](https://alexkrupp.typepad.com/sensemaking/2021/06/django-for-startup-founders-a-better-software-architecture-for-saas-startups-and-consumer-apps.html) article by Alex Krupp 
 
+```
+pdfs _aux ../studi
+py dj drf
+```
 ---
 
 <p align="center">
