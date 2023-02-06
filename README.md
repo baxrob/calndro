@@ -19,14 +19,63 @@ Briefly, its
 intent is similar to the core function of Calendly, or [cal.com](https://github.com/calcom/cal.com).
 
 In summary:
-> Invite registered or unregistered parties, narrow to agreement on a scheduled time span, send notification of updates, with all actions logged
+> Invite registered or unregistered parties, narrow to agreement on a scheduled time span, send notification of updates, with <!--all--> actions logged
 
 ```
 propose -> narrow -> agree : audit
 ```
-no ui
+
+There's no graphical interface, but a [tui](#tui) [or cli?]. 
+The
+[api](#interface)
+is
+small, with [somewhat and in the direction of] minimal corners.
+[Install](#install) with venv/pip or docker.
+[Tests](#tests)
+may
+give a 
+simplest 
+overview.
+Below, 
+you
+can/may/will
+find
+some elaboration on
+[design](#architecture-design-process)
+process,
+including some [stats](#stats)
+and [workflow](#process) notes,
+possible [future](#next-possibly)
+expansion/s
+and some
+[background/contributing] /
+[referential](#ref)
+material.
+
+First a scenario
+
+```
+> Conventions used in this document:\n\n
+> \s\s some pre/code blocks connote provisional notes
+
+```
+
+<!--
+[scenario](#scenario)
+
+[scenario](#scenario)
+[install](#install)
+[api](#interface)
+[tui](#tui)
+[tests](#tests)
+[design](#architecture-design-process)
+[future](#next-possibly)
+[ref](#ref)
+-->
 
 ### Scenario
+
+
 
 [ with [httpie](https://httpie.io), [jq](https://stedolan.github.io/jq/) ]
 
@@ -34,7 +83,7 @@ no ui
 # You:
 
 
-# - Instantiate a coordination proposal - note [tz..RFC]
+# - Instantiate a coordination proposal - with date-time strings per ISO 8601
 
 evt_id=$(http -a $user:$pwd POST :8000/ \
     parties:='["you@here.net", "they@thar.net", "them@whar.net"]' \
@@ -75,7 +124,7 @@ http PATCH :8000/$evt_id/ \
     et=1fe36bfa6f2f2567b5f7ea5a06e1e2202ad57ea7
 
 
-# - Notify other parties (note timezone shift and microsecond syntax)
+# - Notify other parties (note microsecond syntax and timezone shift)
 
 http POST :8000/$evt_id/notify/ \
     parties:='["you@here.net", "them@whar.net"]' \
@@ -105,7 +154,7 @@ http POST :8000/api-token-auth/ username=$user password=$pwd
 
 http GET :8000 Authorization:'Token 48fc19e55a884b24e77913542a9822917a9c167a'
 
-# - session auth is also enabled
+# - Session auth is also enabled
 
 ```
 
@@ -116,34 +165,38 @@ http GET :8000 Authorization:'Token 48fc19e55a884b24e77913542a9822917a9c167a'
 [ with Python version >=3.8 ]
 
 
-
+To install and run in one "line"
 ```
 python3 -m venv venv \
     && . venv/bin/activate \
     && pip install -r requirements/base.txt \
-    && cp config/eg.env config/.env \           #
-    && scripts/reset.sh \                       #
+    && cp config/eg.env config/.env \           # @todo
+    && scripts/reset.sh \                       # @todo
     && ./manage.py runserver 0.0.0.0:8000
 ```
 
-[note: ppa pyenv ..]
+[note: ppa pyenv .. https://github.com/pyenv/pyenv]
 
 #### Docker
 
 [ with [docker](https://docs.docker.com/get-docker/), [docker-compose](https://github.com/docker/compose) ]
 
 ```
-Run:
+# Run:
 
 docker-compose up
 
-Or:
+# Or:
 
 docker-compose -f compose-stage.yaml up
 
+# Pass a host port
+
+HOST_PORT=8005 docker-compose up
+
 ```
 
-- The default [compose.yaml](compose.yaml) mounts the local sqlite db and runs Django's dev server
+- The default [compose.yaml](compose.yaml) creates or mounts the local db.sqlite3 and runs Django's dev server
 - The [compose-stage.yaml](compose-stage.yaml) config runs a posgresql service and gunicorn
 
 _
@@ -157,30 +210,94 @@ _
 docker exec -it caldcs ./manage.py loaddata users schedul
 ```
 
+- minimal ?
+
 ob zo ub : p
 
 <!--
 [up down logs exec / $file= $sys=ubu|alp %cmd[exec]]
 -->
 
-#### Envs
-
--
--
--
--
-
-
 
 #### Fixtures
 
--
--
--
--
+```
+```
+
+See [schedul/fixtures/gen.py](schedul/fixtures/gen.py)
 
 
-[1] See [schedul/fixtures/gen.py](schedul/fixtures/gen.py)
+#### Envs
+
+[config/eg.env](config/eg.env) contains a variable reference
+```
+dj environ
+setting ENV_PATH
+```
+
+<!--
+
+environ.Env.read_env(env.str(
+    'ENV_PATH', 
+    Path(__file__).resolve().parent / '.env'
+))
+
+-->
+```
+DJANGO_SECRET_KEY
+
+DJANGO_DEBUG
+
+DJANGO_ADMINS
+DJANGO_DEFAULT_FROM_EMAIL
+
+STATIC_ROOT
+ALLOWED_HOSTS
+
+EMAILTOKEN_EXPIRATION_DAYS
+
+DATABASE_ENGINE
+DATABASE_NAME
+DATABASE_USER
+DATABASE_PASSWORD
+DATABASE_HOST
+DATABASE_PORT
+
+EMAIL_SUBJECT_PREFIX='[calndro] '
+EMAIL_USE_LOCALTIME=False
+EMAIL_BACKEND=console filebased smtp locmem dummy 
+EMAIL_FILE_PATH=/tmp/cald-mail
+
+/cf
+#EMAIL_SUBJECT_PREFIX='[calndro] '
+#EMAIL_USE_LOCALTIME=False
+#EMAIL_BACKEND=console filebased smtp locmem dummy 
+#EMAIL_FILE_PATH=/tmp/cald-mail
+
+EMAIL_SUBJECT_PREFIX    #'[calndro] '
+EMAIL_USE_LOCALTIME     #False
+EMAIL_BACKEND=console   #filebased smtp locmem dummy 
+EMAIL_FILE_PATH         #/tmp/cald-mail
+
+#EMAIL_SUBJECT_PREFIX    #'[calndro] '
+#EMAIL_USE_LOCALTIME     #False
+#EMAIL_BACKEND=console   #filebased smtp locmem dummy 
+#EMAIL_FILE_PATH         #/tmp/cald-mail
+
+\cf [grip? ghub? breaks on single backslash in code/pre/tilde-triple]
+
+EMAIL_HOST
+EMAIL_HOST_USER
+EMAIL_HOST_PASSWORD
+EMAIL_TIMEOUT
+EMAIL_USE_TLS
+EMAIL_USE_SSL
+EMAIL_SSL_KEYFILE
+EMAIL_SSL_CERTFILE
+
+[%eg.env]
+```
+\
 
 
 #### Admin
@@ -193,8 +310,15 @@ There is a full Django admin at
 
 <img src="_m/admin_scaps/entries.png" width="250"> <img src="_m/admin_scaps/entries_1.png" width="250"> <img src="_m/admin_scaps/events.png" width="250"> <img src="_m/admin_scaps/events_1a.png" width="250"> <img src="_m/admin_scaps/events_1b.png" width="250"> <img src="_m/admin_scaps/events_1c.png" width="250">
 
+<!-- ugh, .tf
+<span style="display: inline-block;" align="center"><span style="display: block;">entries</span><img src="_m/admin_scaps/entries.png" width="250"></span> <img src="_m/admin_scaps/entries_1.png" width="250"> <img src="_m/admin_scaps/events.png" width="250"> <img src="_m/admin_scaps/events_1a.png" width="250"> <img src="_m/admin_scaps/events_1b.png" width="250"> <img src="_m/admin_scaps/events_1c.png" width="250">
+-->
+
+<br>
+
 ### Interface
 
+There are four endpoints with seven supported method calls altogether
 ```
 op        uri            methods
 ---------------------------------------------------------
@@ -205,6 +329,8 @@ logs      /id/log        get
 ```
 
 #### Auth
+
+Access varies by three user classes - staff, registered, and temporary token access
 ```
 op        uri            method:auth*
 ---------------------------------------------------------
@@ -217,12 +343,13 @@ logs      /id/log        get:r*
 
 ```
 
+
 #### OpenAPI
 
 See [_m/openapi-schama.yaml](_m/openapi-schema.yaml)
 or run
 ```./manage.py generateschema```
-or visit $host/openapi
+or visit ```$host/openapi```
 
 ```
 $path/ vs $path  dj/humyn vs api/machine
@@ -286,7 +413,7 @@ q quit
 > c
 create: enter party emails>
 bobo@frofro.info
-enter slots as YYYY-MM-DDThh:mm:ss[+-mm:ss/Z] hh:mm:ss, followed by blank>
+enter slots as YYYY-MM-DDThh:mm:ss[+-hh:mm/Z] hh:mm:ss, followed by blank>
 2029-01-01T11:29 01:01
 {
     "id": 4,
@@ -330,6 +457,8 @@ There are feature tests with branch coverage.
 - I need to stipulate assumptions built into the fixture structure
 
 ```
+overly parameterized
+
 core axials ?
 log authn/z pii disposabil
 
@@ -338,6 +467,11 @@ integration / functional / feature: views, auth, dispatch, queries
 ..unit: token, mail
 
 action : result : match condition
+stitching together axiomatic view
+thinking toward
+formal verification
+nice of self-doc typed api tools
+
 list_tests.sh
 
 tooling : py dj drf
@@ -346,6 +480,7 @@ tooling : py dj drf
 ```
 todos:
 -----
+check:
 test_detail_delete_auth_fail
 test_detail_get_emailtoken_fail
 test_detail_get_emailtoken_logviewed
@@ -358,19 +493,28 @@ test_detail_get_logviewed_fail
 test_detail_patch_logupdate_fail
 test_notify_post_lognotify_fail
 
+write:
+test_list_post_fail
+test_detail_patch_title_change
+test_detail_patch_fail
+test_service_enlog_fail
+test_loggedinuser_emailtoken_mismatch
+
+add:
 mail tests
+env tests
+docker tests
+
+refactor:
+fixture axiomatics
+pytest
 ```
 
 #### CI
 
-basic
-Python 3.8 - 3.10
+Basic github workflow running Python 3.8 - 3.10. See [.github/workflows/ci.yml](.github/workflows/ci.yml)
 
-env vars  above / gh
-
-See [.github/workflows/ci.yml](.github/workflows/ci.yml)
-
-https://github.com/nektos/act
+Using ```Act``` frequently, an offline github workflow runner: https://github.com/nektos/act
 
 #### Coverage
 ```
@@ -378,21 +522,21 @@ Name                     Stmts   Miss  Cover
 --------------------------------------------
 config/__init__.py           0      0   100%
 config/asgi.py               4      4     0%
-config/settings.py          44      0   100%
-config/urls.py              11      2    82%
+config/settings.py          45      0   100%
+config/urls.py               9      2    78%
 config/wsgi.py               4      4     0%
 schedul/__init__.py          0      0   100%
 schedul/admin.py            52      5    90%
 schedul/apps.py              4      0   100%
-schedul/models.py           51      6    88%
-schedul/permissions.py       4      0   100%
-schedul/serializers.py     123      0   100%
-schedul/services.py         39      5    87%
-schedul/tests.py           569      6    99%
+schedul/models.py           57     22    61%
+schedul/permissions.py       6      0   100%
+schedul/serializers.py     123     22    82%
+schedul/services.py         39      8    79%
+schedul/tests.py           597    136    77%
 schedul/urls.py              3      0   100%
-schedul/views.py           129     27    79%
+schedul/views.py            88      3    97%
 --------------------------------------------
-TOTAL                     1037     59    94%
+TOTAL                     1031    206    80%
 
 https://github.com/nedbat/coveragepy
 ```
@@ -416,12 +560,14 @@ event
   title     optional string
   log       [ entries ]
 ```
-- Inclusion of non-registered emails creates inactive user records
-- The list of time slots can only be narrowed once created
+- Inclusion of non-registered email creates an inactive user record
+- Party/user list cannot be altered after event creation
+- Time slot list can be narrowed or extended indefinitely
 - A gibberish title is generated if one is not provided
 - Creation, update, related notification, and deletion are logged in detail
 
 
+An Event has three main relations, to user/parties, time slots, and log entries
 ```
             event                         
               parties >---< user
@@ -434,20 +580,72 @@ slot >------- slots           email
                               slots         
                               data
 ```
-- user
-- tz
-- entry
-- data  tok  opened/closed
+- ```User``` is a relation to Django/AUTH_USER_MODEL, relying only on email address
+- The ```begin``` field of a ```slot``` is a normal timezone-aware Django db field
+- Log ```entry``` is a flat structure[, so there are no second order relations]
+- The ```slots``` field of a log ```entry``` is thus fixed size, which places a limit on the number of slots
+- The ```data``` field of a log ```entry``` stores indication of token usage, notification recipient, and/or event open/close actions as applicable
+
+
+An EmailToken is created and sent with notifications for non-authenticated access
+```
+emailtoken
+  event >--- event
+  user >---- user
+  key
+  expires
+```
+Expiration defaults to five days, or the value of EMAILTOKEN_EXPIRATION_DAYS setting
+
 
 #### Design
 ```
-naming splay
-
 disinterleaving
+naming splay  splay:join
+complexities  auth  tok  log
+awareness enhancing  design  practice  strategem
+
+axials:
+fixed parties : avoid confusion : log clarity ; reset op: copy slots title, close
+
+```
+```
+career: 
+...
 ```
 
-#### Security
+##### Cases
+```
+groupings:
+- storage, close/delete net, confirm, update flow
+- left to you cases - realistically, overlays on spec
 
+closed : slots [] or [1] + confirmation
+delete reserved  only log of closing  future maint op
+
+confirm: view=  not req  updy same
+confirm : view vs update  all vs all-1
+
+expected flow  reopen by copying title  prevserved in log  id is pk
+
+- ewe eye  mechane
+- lamport/vector test
+- beeptime net
+- machine <-> machine
+
+aspects:
+soa dj drf  eval study integrate
+net time
+sec contain
+wrkflow tooling
+
+```
+- 
+
+
+##### Security
+
+The project aims to be small, coherent, and auditable.
 ```
 - no incentive, eml/dt and evt title only
 - disposability
@@ -456,55 +654,116 @@ disinterleaving
 
 core axials ?
 log authn/z pii disposabil
+
+..roles?
+sender initiator
+recipient token
+staff super
+[mailhost]
 ```
 
-#### Mail / messages
+##### Mail / notifications
 
 ```
 - sendmail, localnet
 - _ mailhog
+
+agnostic on agree/confirm operation process
+mail  sms  talk
+m/t q
+myriad svc net
+celery redis kafka  broker queue
+
+
+req slots to match latest
+  no mis-notification
+   ?error means
 ```
-#### Time
+
+##### Time
 
 ...
 ```
-RFC
-RFC
+ISO 8601
+RFC 3339
+https://stackoverflow.com/questions/522251/whats-the-difference-between-iso-8601-and-rfc-3339-date-formats
+[RFC 2822]
+
+CSP papers 1,2,3  hickey
 ```
+<!-- tba ftw -->
 
-
-#### Use cases
-```
-- storage, close/delete net, confirm, update flow
-- confirm: view=  not req  updy same
-- left to you cases
-
-confirm : view vs update  all vs all-1
-
-closed : slots [] or [1] + confirmation
-delete reserved  only log of closing  future maint op
-
-expected flow  reopen by copying title  prevserved in log  id is pk
+##### Validation
 
 ```
-#### Motivations
+post
+patch
+notify
+delete
 ```
+<!--
+list      /              get     post    
+detail    /id/           get             patch     delete
+notify    /id/notify             post
+logs      /id/log        get
+-->
+
+##### Logs
+
+```
+event
+parties
+entries
+  id
+  when
+  occurrence : update | notify | view
+  effector : user
+  slots
+  data : { token, opened, closed, recipient }
+```
+
+##### Documentation
+
+- [grip/fork] / rdmd
+- @todo: docstrings
+
+<!-- @todo
+##### Extensibility
+-
+-
+-->
+
+##### Motivations
+```
+minima complexity
+
+career / tech path
+
 - no (g)ui  dj api  diag ver  test design  audit trail  containeren
-- coherent (pythonic) subset of posix sh .. refiving
+- coherent (pythonic) subset of posix sh .. refining
+small scale code/arch/test/etc view tools
+sh -> py underview
+    py wraps unix/posix
+
+network experiments
 ```
 #### Process
 ```
+gluing together
+sense of flow
 layer
 deriv
 strategy
 debug/diag / exper process
-
-apifuz
-lzydkr
-act
-grip
-
+  work loop
 pdb / test loop
+    reinventing sh
+
+act
+lzydkr
+grip
+apifuz
+
 ```
 
 
@@ -545,6 +804,14 @@ pdb / test loop
 │   ├── admin.py
 │   ├── apps.py
 │   ├── __init__.py
+│   ├── migrations_0
+│   │   ├── 0001_initial.py
+│   │   ├── 0002_alter_timespan_options.py
+│   │   ├── 0003_event_title.py
+│   │   ├── 0004_auto_20220204_1734.py
+│   │   ├── 0005_emailtoken.py
+│   │   ├── 0006_alter_emailtoken_expires.py
+│   │   └── __init__.py
 │   ├── models.py
 │   ├── permissions.py
 │   ├── serializers.py
@@ -552,14 +819,49 @@ pdb / test loop
 │   ├── tests.py
 │   ├── urls.py
 │   └── views.py
-└── scripts
-    ├── init_pg.sh
-    ├── list_tests.sh
-    ├── reset.sh
-    ├── stew.sh
-    ├── stitch_readme.sh
-    ├── tui.sh
-    └── watch_readme.sh
+├── scripts
+│   ├── init_pg.sh
+│   ├── list_tests.sh
+│   ├── reset.sh
+│   ├── stew.sh
+│   ├── stitch_readme.sh
+│   ├── tui.sh
+│   └── watch_readme.sh
+└── venv_
+    ├── bin
+    │   ├── activate
+    │   ├── activate.csh
+    │   ├── activate.fish
+    │   ├── Activate.ps1
+    │   ├── coverage3
+    │   ├── coverage-3.9
+    │   ├── django-admin
+    │   ├── django-admin.py
+    │   ├── http
+    │   ├── httpie
+    │   ├── https
+    │   ├── ipdb3
+    │   ├── iptest
+    │   ├── iptest3
+    │   ├── ipython
+    │   ├── ipython3
+    │   ├── normalizer
+    │   ├── pip
+    │   ├── pip3
+    │   ├── pip3.10
+    │   ├── pip3.9
+    │   ├── pygmentize
+    │   ├── python -> /home/ob/.pyenv/versions/3.9.7/bin/python
+    │   ├── python3 -> python
+    │   ├── python3.9 -> python
+    │   └── sqlformat
+    ├── include
+    ├── lib64 -> lib
+    ├── pyvenv.cfg
+    └── share
+        └── man
+            └── man1
+                └── ipython.1.gz
 
 ```
 
@@ -568,14 +870,14 @@ pdb / test loop
 ```
 Language                     files          blank        comment           code
 -------------------------------------------------------------------------------
-Python                          22            565            439           1844
-Markdown                        10            334              0            893
-JSON                             3              0              0            346
+Python                          18            495            224           1792
+Markdown                        10            389              0           1158
+JSON                             3              0              0            349
 YAML                             5             10             19            326
-Bourne Shell                     7             61             50            293
+Bourne Shell                     7             61             50            297
 Dockerfile                       2              8             17             23
 -------------------------------------------------------------------------------
-SUM:                            49            978            525           3725
+SUM:                            45            963            310           3945
 -------------------------------------------------------------------------------
 
 https://github.com/AlDanial/cloc
@@ -583,83 +885,19 @@ https://github.com/AlDanial/cloc
 
 ##### wc
 ```
-907	schedul/tests.py
-228	schedul/views.py
-175	schedul/serializers.py
-158	schedul/fixtures/gen.py
-101	schedul/models.py
-83	schedul/admin.py
-63	schedul/services.py
-18	schedul/permissions.py
+970	schedul/tests.py
+180	schedul/serializers.py
+135	schedul/views.py
+107	schedul/fixtures/gen.py
+84	schedul/models.py
+82	schedul/admin.py
+60	schedul/services.py
+14	schedul/permissions.py
 11	schedul/urls.py
 6	schedul/apps.py
 0	schedul/__init__.py
 0	schedul/fixtures/__init__.py
 ```
-
-
-
-<!--
-....|....1....|....2....|....3....|....4....|....5....|....6....|....7....|....8....|....9....|....0
--->
-<!--
-#### A Story
-
-<img src="_m/IMG_1377-rot90-300-noexif.JPG" align="right">
-
-<pre align="left">
-
-this that then though they thunk through 
-thither thusly thar their tham
--
--
-and
--
--
-then
--
--
-so
--
--
-
-
-</pre>
-
-<br clear="both">
--->
-<!--
-event
-  parties
-  slots
-  title
-  log
-slot
-  event
-  begin
-  duration
-user
-  events
-entry
-  when
-  occurrence
-  effector
-  slots
-  data
-
-
-event                                               event                       
-  parties   user | anon                               parties >---< user
-  slots     [ begin, duration ]         slot >------- slots           events
-  title     optional string               begin       title                     
-  log       [ entries ]                   duration    log --------< entry       
-                                                                      when      
-                                                                      occurrence
-                                                                      effector  
-                                                                      slots     
-                                                                      data      
-     
--->
 
 ### Future considerations
 

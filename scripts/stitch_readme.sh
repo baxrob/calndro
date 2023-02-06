@@ -14,7 +14,7 @@ outpath=${outpath:-"$thispath/../README.md"}
 
 # X: grip
 # N: ttscoff/mdless
-pager=$(which mdless || which less || which more)
+pager=$(which mdless > /dev/null && printf %s 'mdless --no-color' || which less || which more)
 
 subs() {
     cd "$basepath"
@@ -31,22 +31,48 @@ subs() {
     wc)
     find schedul -name '*.py' -exec wc -l {} \; | grep -v migrations \
         | awk '{ 
+            OFS = "\t"
             print $1, $2 
-        }'
+        }' | sort -hr
     ;;
     coverage) 
     which coverage > /dev/null && coverage report || echo '%[nocoverage]'
     ;;
     tuisrc) cat scripts/tui.sh ;;
     tree)
+    ex="venv|_README|__pycache__|_a|_t|_aux|migrations|fixtures|\
+        requirements|openapi-fuzzer|lib|coverage|tests|_m|LICENSE|\
+        gpl-3.0.txt|db.sqlite3|README.md|*.vim|readme_draft.md"
+    #echo '   bo  lo fro  ' | sed 's/\b /|/g; s/ //g; s/|$//'
+    ex="$(echo "$ex" | sed 's/ //g')"
     # X:
-    tree -n -I "venv|_README|__pycache__|_a|_t|_aux|migrations|fixtures|requirements|openapi-fuzzer|lib|coverage|tests|_m|LICENSE|gpl-3.0.txt|db.sqlite3|README.md|*.vim"
+    #tree -n -I "venv|_README|__pycache__|_a|_t|_aux|migrations|fixtures|requirements|openapi-fuzzer|lib|coverage|tests|_m|LICENSE|gpl-3.0.txt|db.sqlite3|README.md|*.vim" | sed '$d'
+    tree -n -I "$ex" | sed \$d
+    #ig="$ig|..." 
+    #out="$(tree -n -I "$ig") 
+    #tn=$(($(printf "$out" | wc -l) - 2)) 
+    #printf "$out" | sed $tn\$d
+    ##printf "$out" | head -n $tn
     ;;
-    annotree) echo "%[..$1]" ;;
+    annotree) echo "%[..$1]"
+    subs = "
+       Dockerfile-alp-pg
+       Dockerfile-pg
+       ngx
+       config
+       schedul
+       init_pg.sh
+       reset.sh
+    "
+    ;;
     testdo)
     # X:
-    grep -n -B 1 todo schedul/tests.py | grep test_ \
-        | sed 's/^.*\(test_.*\)(.*/\1/'
+    checks="$(grep -n -B 1 todo- schedul/tests.py | grep test_ \
+        | sed 's/^.*\(test_.*\)(.*/\1/')"
+    [ -n "$checks" ] && printf "check:\n%s\n" "$checks"
+    writes="$(grep -n -B 1 todo$ schedul/tests.py | grep test_ \
+        | sed 's/^.*\(test_.*\)(.*/\1/')"
+    [ -n "$writes" ] && printf "\nwrite:\n%s\n" "$writes"
     ;;
     *) echo "%[??$1]" ;;
     esac
@@ -102,7 +128,7 @@ done)
 
 if [ $quiet -eq 0 ]; then
 #echo "$doc" | mdless
-    echo "$doc" | $pager
+    echo "$doc" | eval "$pager"
 
     echo Enter to write to $outpath or ctrl-c to quit
 
