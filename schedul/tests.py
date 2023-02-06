@@ -17,12 +17,12 @@ from django.db import connection, reset_queries
 from rest_framework.test import APITestCase
 
 from schedul.models import EmailToken
+from schedul.fixtures import gen
 
 User = get_user_model()
 
 
 import os
-
 if 'DJTEST_QUIET' in os.environ:
     def st(*args, **kwargs):
         pass
@@ -55,7 +55,6 @@ def map_fixtures(fixtures):
         'events': ev,
         'uevents':[[x[0] for x in zip(ev,ep) if y in x[1]] for y in uu],
         'eventp': ep,
-        #'data': fdata
     }
 
 fdata = map_fixtures(fixture_files)
@@ -88,12 +87,12 @@ def fetch_log(self, evt_id):
     self.client.logout()
     return resp.data['entries']
 
+
 class EventViewTests(APITestCase):
-    fixtures = ['users', 'schedul']
+    fixtures = fixture_files
 
     @classmethod
     def setUpTestData(cls):
-        cls.fdata = map_fixtures(cls.fixtures)
         cls.suser = User.objects.create(username='sup', is_staff=True)
         cls.suser.set_password('p')
         cls.suser.save()
@@ -115,7 +114,7 @@ class EventViewTests(APITestCase):
     def test_list_get(self):
         resp = self.client.get('/')
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(len(resp.data), len(self.fdata['events']))
+        self.assertEqual(len(resp.data), len(fdata['events']))
 
     def test_list_get_fail(self):
         resp = self.client.get('/foo')
@@ -124,14 +123,14 @@ class EventViewTests(APITestCase):
     def test_list_post(self):
         resp = self.client.post('/', {
             'title': 'boofar',
-            'parties': get_parties(0, len(self.fdata['emails'])),
-            'slots': get_slots(0, len(self.fdata['slots']))
+            'parties': get_parties(0, len(fdata['emails'])),
+            'slots': get_slots(0, len(fdata['slots']))
         }, format='json')
         self.assertEqual(resp.status_code, 201)
 
-        # Empty parties and slots
+        # Empty slots
         resp = self.client.post('/', {
-            'parties': [], 'slots': [],
+            'parties': get_parties(), 'slots': [],
         }, format='json')
         self.assertEqual(resp.status_code, 201)
 
@@ -139,7 +138,7 @@ class EventViewTests(APITestCase):
         emails = ['nonesuch@localhost', 'nilnil@localhost'] 
         resp = self.client.post('/', {
             'parties': emails,
-            'slots': get_slots(0, len(self.fdata['slots']))
+            'slots': get_slots(0, len(fdata['slots']))
         }, format='json')
         self.assertEqual(resp.status_code, 201)
         for eml in emails:
@@ -147,23 +146,43 @@ class EventViewTests(APITestCase):
             self.assertEqual(len(umatch), 1)
             self.assertFalse(umatch[0].is_active)
 
+    @tag('todo')
     def test_list_post_fail(self):
+        # todo
+        #  parties not empty enforced
+
         # X: format='json' - note field error throws on top-level 
         #   dict attr before multipart invalid
 
+        # X: mistest
         # Non-json format
-        resp = self.client.post('/', {'parties': [], 'slots': []})
+        resp = self.client.post('/', {'parties': get_parties(), 'slots': []})
         self.assertEqual(resp.status_code, 400)
 
         # Missing slots
         resp = self.client.post('/', {
-            'parties': get_parties(0, len(self.fdata['emails']))
+            'parties': get_parties(0, len(fdata['emails']))
+        }, format='json')
+        self.assertEqual(resp.status_code, 400)
+
+        # todo
+        # Over maximum slots
+        from django.conf import settings
+        resp = self.client.post('/', {
+            'parties': get_parties(),
+            'slots': gen.gen_slots([31])
+        }, format='json')
+        self.assertEqual(resp.status_code, 400)
+
+        # Missing Parties
+        resp = self.client.post('/', {
+            'slots': []
         }, format='json')
         self.assertEqual(resp.status_code, 400)
 
         # Malformed slots - datetime
         resp = self.client.post('/', {
-            'parties': get_parties(0, len(self.fdata['emails'])),
+            'parties': get_parties(0, len(fdata['emails'])),
             'slots': [{
                 'begin': '2021-asdfT14:58:26.611000Z', 
                 'duration': 'zy0:00:01'}]
@@ -172,14 +191,14 @@ class EventViewTests(APITestCase):
 
         # Malformed slots - dict
         resp = self.client.post('/', {
-            'parties': get_parties(0, len(self.fdata['emails'])),
+            'parties': get_parties(0, len(fdata['emails'])),
             'slots': {'bad': 'data'}
         }, format='json')
         self.assertEqual(resp.status_code, 400)
 
         # Non-json format
         resp = self.client.post('/', {
-            'parties': get_parties(0, len(self.fdata['emails'])),
+            'parties': get_parties(0, len(fdata['emails'])),
             'slots': []
         })
         self.assertEqual(resp.status_code, 400)
@@ -187,13 +206,13 @@ class EventViewTests(APITestCase):
         # Non-json format, malformed slots - dict
         with self.assertRaises(AssertionError):
             resp = self.client.post('/', {
-                'parties': get_parties(0, len(self.fdata['emails'])),
+                'parties': get_parties(0, len(fdata['emails'])),
                 'slots': {'bad': 'data'}
             })
 
 
     def test_detail_get(self):
-        for n in self.fdata['events']:
+        for n in fdata['events']:
             resp = self.client.get(f'/{n}/')
             self.assertEqual(resp.status_code, 200)
 
@@ -203,30 +222,40 @@ class EventViewTests(APITestCase):
         self.assertEqual(resp.url, '/0/')
 
     def test_detail_get_fail(self):
-        n = len(self.fdata['events']) + 1
+        n = len(fdata['events']) + 1
         resp = self.client.get(f'/{n}/')
         self.assertEqual(resp.status_code, 404)
 
 
+    @tag('todo')
+    def test_detail_patch_title_change(self):
+        # todo
+        resp = self.client.get('/1/')
+        oldtitle = resp.data['title']
+        resp = self.client.patch('/1/', {'title': oldtitle+'newtitle'})
+        #st()
+        #self.assertTrue(resp.data['title'] == oldtitle+'newtitle')
+
     def test_detail_patch_add_slots(self):
-        for n in self.fdata['events']:
+        # X: presumes event fixtures vary in slot inclusion
+        for n in fdata['events']:
             resp = self.client.patch(f'/{n}/', {
                 'title': 'foobar',
-                'slots': get_slots(0, len(self.fdata['slots'])),
+                'slots': get_slots(0, len(fdata['slots'])),
             }, format='json')
             self.assertEqual(resp.status_code, 202)
             self.assertEqual(
-                len(resp.data['slots']), len(self.fdata['slots']))
+                len(resp.data['slots']), len(fdata['slots']))
 
     def test_detail_patch_empty_slots(self):
-        for n in self.fdata['events']:
+        for n in fdata['events']:
             resp = self.client.patch(f'/{n}/', {'slots': []},
                 format='json')
             self.assertEqual(resp.status_code, 202)
             self.assertEqual(len(resp.data['slots']), 0)
 
     def test_detail_patch_duplicate_slots_ignored(self):
-        for n in self.fdata['events']:
+        for n in fdata['events']:
             resp1 = self.client.get(f'/{n}/')
             slots = resp1.data['slots'] + resp1.data['slots']
             resp2 = self.client.patch(f'/{n}/', {'slots': slots},
@@ -235,13 +264,13 @@ class EventViewTests(APITestCase):
                 len(resp1.data['slots']), len(resp2.data['slots']))
 
     def test_detail_patch_parties_ignored(self):
-        n = self.fdata['events'][0]
+        n = fdata['events'][0]
         resp = self.client.get(f'/{n}/')
         p_a = len(resp.data['parties'])
         
         # Add all parties, ignored
         resp = self.client.patch(f'/{n}/', {
-            'parties': get_parties(0, len(self.fdata['emails'])),
+            'parties': get_parties(0, len(fdata['emails'])),
             'slots': []
         }, format='json')
         resp = self.client.get(f'/{n}/')
@@ -257,8 +286,10 @@ class EventViewTests(APITestCase):
         p_c = len(resp.data['parties'])
         self.assertEqual(p_a, p_c)
 
+    @tag('todo')
     def test_detail_patch_fail(self):
-        n = self.fdata['events'][0]
+        # todo
+        n = fdata['events'][0]
 
         # Missing slots
         resp = self.client.patch(f'/{n}/', {'parties': []}, format='json')
@@ -277,16 +308,22 @@ class EventViewTests(APITestCase):
             format='json')
         self.assertEqual(resp.status_code, 400)
 
-        # Non-json format
+        # Non-json format - strips slots/list with no error
+        #   clearing slots has no effect
+        resp = self.client.get(f'/{n}/')
+        len_a = len(resp.data['slots'])
         resp = self.client.patch(f'/{n}/', {'slots': []})
-        self.assertEqual(resp.status_code, 400)
+        #self.assertEqual(resp.status_code, 400)
+        resp = self.client.get(f'/{n}/')
+        len_b = len(resp.data['slots'])
+        self.assertEqual(len_a, len_b)
 
         # Non-json format, malformed slots - dict
         with self.assertRaises(AssertionError):
             resp = self.client.patch(f'/{n}/', {'slots': {'bad': 'data'}})
 
     def test_detail_delete(self):
-        n = self.fdata['events'][0]
+        n = fdata['events'][0]
         resp = self.client.delete(f'/{n}/')
         self.assertEqual(resp.status_code, 204)
 
@@ -294,12 +331,11 @@ class EventViewTests(APITestCase):
 
 @tag('auth')
 class ViewAuthTests(APITestCase):
-    fixtures = ['users', 'schedul']
+    fixtures = fixture_files
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass() 
-        cls.fdata = map_fixtures(cls.fixtures)
 
     def setUp(self):
         print(self._testMethodName)
@@ -307,34 +343,54 @@ class ViewAuthTests(APITestCase):
     def loop_user_event_tests(self, method, path='', payload=None, 
         succ_code=200, fail_code=403):
         # Expect success for user in event or staff
-        for uidx in range(len(self.fdata['users'])):
-            uid = self.fdata['users'][uidx]
-            uevts = self.fdata['uevents'][uidx]
+        for uidx in range(len(fdata['users'])):
+            uid = fdata['users'][uidx]
+            uevts = fdata['uevents'][uidx]
             user = User.objects.get(pk=uid)
             self.client.force_login(user)
-            for evt_id in self.fdata['events']:
+            for evt_id in fdata['events']:
                 resp = eval('self.client.' + method)(f'/{evt_id}/{path}',
                     payload, format='json')
-                is_staff = self.fdata['staff'][uidx]
+                is_staff = fdata['staff'][uidx]
                 #if user.is_active and evt_id in uevts or user.is_staff:
                 if user.is_active and evt_id in uevts or is_staff:
                     self.assertEqual(resp.status_code, succ_code)
                 else:
                     self.assertEqual(resp.status_code, fail_code)
 
+    @tag('todo', 'this')
+    def test_service_enlog_fail(self):
+        # todo
+        #  test pg only
+        # X: ServiceTests
+        from schedul import services, models
+        suser = User.objects.create(username='sup', is_staff=True)
+        self.client.force_login(suser)
+        evt_id = fdata['uevents'][0][0]
+        user_id = fdata['users'][0]
+        email = fdata['emails'][0]
+        event = models.Event.objects.get(pk=evt_id)
+        resp = self.client.get(f'/{evt_id}/')
+        #st()
+        services.enlog(event, email, 'UPDATE', gen.gen_slots([32]))
+        resp = self.client.get(f'/{evt_id}/log/')
+        #print(resp.data)
+        #st()
+        #self.assertTrue(False)
+
 
     def test_list_get_auth(self):
-        for uidx in range(len(self.fdata['users'])):
-            uid = self.fdata['users'][uidx]
-            uevts = self.fdata['uevents'][uidx]
+        for uidx in range(len(fdata['users'])):
+            uid = fdata['users'][uidx]
+            uevts = fdata['uevents'][uidx]
             user = User.objects.get(pk=uid)
             self.client.force_login(user)
             resp = self.client.get('/', format='json')
-            is_staff = self.fdata['staff'][uidx]
+            is_staff = fdata['staff'][uidx]
             if user.is_active:
                 if is_staff:
                     # All events
-                    self.assertEqual(len(resp.data), len(self.fdata['events']))
+                    self.assertEqual(len(resp.data), len(fdata['events']))
                 else:
                     # User events
                     self.assertEqual(len(resp.data), len(uevts))
@@ -343,13 +399,13 @@ class ViewAuthTests(APITestCase):
 
     def test_list_post_auth(self):
         # Any active user can post
-        for uidx in range(len(self.fdata['users'])):
-            uid = self.fdata['users'][uidx]
+        for uidx in range(len(fdata['users'])):
+            uid = fdata['users'][uidx]
             user = User.objects.get(pk=uid)
             self.client.force_login(user)
             payload = {
-                'parties': get_parties(0, len(self.fdata['emails'])),
-                'slots': get_slots(0, len(self.fdata['slots']))
+                'parties': get_parties(0, len(fdata['emails'])),
+                'slots': get_slots(0, len(fdata['slots']))
             }
             resp = self.client.post('/', payload, format='json')
             if user.is_active: 
@@ -368,25 +424,25 @@ class ViewAuthTests(APITestCase):
     def test_detail_delete_auth_fail(self):
         # todo- refactor a bit
         failu = []
-        for eidx, eid in enumerate(self.fdata['events']):
+        for eidx, eid in enumerate(fdata['events']):
             # Non-event-party non-staff active users
-            u1 = [uu for u, uu in enumerate(self.fdata['users'])
-                if uu not in self.fdata['eventp'][eidx]
-                    and not self.fdata['staff'][u]
-                    and self.fdata['active'][u]
+            u1 = [uu for u, uu in enumerate(fdata['users'])
+                if uu not in fdata['eventp'][eidx]
+                    and not fdata['staff'][u]
+                    and fdata['active'][u]
             ]
             # Inactive users
-            u2 = [uu for u, uu in enumerate(self.fdata['users'])
-                if not self.fdata['active'][u]
+            u2 = [uu for u, uu in enumerate(fdata['users'])
+                if not fdata['active'][u]
             ]
             # In party, non-staff users
-            u3 = [uu for u, uu in enumerate(self.fdata['users'])
-                if uu in self.fdata['eventp'][eidx]
-                    and not self.fdata['staff'][u]
+            u3 = [uu for u, uu in enumerate(fdata['users'])
+                if uu in fdata['eventp'][eidx]
+                    and not fdata['staff'][u]
             ]
             failu.append([u1, u2, u3])
         for idx, failers in enumerate(failu):
-            evt_id = self.fdata['events'][idx]
+            evt_id = fdata['events'][idx]
             for uid in failers[0]:
                 user = User.objects.get(pk=uid)
                 #print(user.__dict__)
@@ -402,6 +458,7 @@ class ViewAuthTests(APITestCase):
             for uid in failers[2]:
                 user = User.objects.get(pk=uid)
                 #print(user.__dict__)
+                #st()
                 self.client.force_login(user)
                 resp = self.client.delete(f'/{evt_id}/')
                 self.assertEqual(resp.status_code, 403)
@@ -410,16 +467,16 @@ class ViewAuthTests(APITestCase):
     def test_notify_post_auth(self):
         suser = User.objects.create(username='sup', is_staff=True)
         mail_count = 0
-        for uidx in range(len(self.fdata['users'])):
-            uid = self.fdata['users'][uidx]
-            uevts = self.fdata['uevents'][uidx]
+        for uidx in range(len(fdata['users'])):
+            uid = fdata['users'][uidx]
+            uevts = fdata['uevents'][uidx]
             user = User.objects.get(pk=uid)
             
-            for evt_id in self.fdata['events']:
-                evt_idx = self.fdata['events'].index(evt_id)
-                ur_id = self.fdata['eventp'][evt_idx][0]
-                ur_idx = self.fdata['users'].index(ur_id)
-                u_eml = self.fdata['emails'][ur_idx]
+            for evt_id in fdata['events']:
+                evt_idx = fdata['events'].index(evt_id)
+                ur_id = fdata['eventp'][evt_idx][0]
+                ur_idx = fdata['users'].index(ur_id)
+                u_eml = fdata['emails'][ur_idx]
 
                 self.client.force_login(suser)
                 resp = self.client.get(f'/{evt_id}/')
@@ -428,7 +485,7 @@ class ViewAuthTests(APITestCase):
                 resp = self.client.post(f'/{evt_id}/notify/', {'parties':
                     [u_eml], 'slots': resp.data['slots'], 'sender': u_eml},
                     format='json') 
-                is_staff = self.fdata['staff'][uidx]
+                is_staff = fdata['staff'][uidx]
 
                 if user.is_active and evt_id in uevts or is_staff:
                     mail_count += 1
@@ -453,7 +510,8 @@ class ViewAuthTests(APITestCase):
     def test_list_post_emailtoken_fail(self):
         ue = 'nonesuch@localhost'
         evt_id, user, tok = setup_emailtoken(self, ue)
-        resp = self.client.post(f'/?et={tok}', {'parties': [], 'slots': []})
+        resp = self.client.post(f'/?et={tok}', {
+            'parties': get_parties(), 'slots': []})
         self.assertEqual(resp.status_code, 403)
 
     def test_detail_get_emailtoken(self):
@@ -517,7 +575,7 @@ class ViewAuthTests(APITestCase):
         # todo-
         ue = 'nonesuch@localhost'
         tok_evt_id, tok_user, tok = setup_emailtoken(self, ue)
-        nevt_id = self.fdata['events'][0]
+        nevt_id = fdata['events'][0]
         resp = self.client.patch(f'/{nevt_id}/?et={tok}', {'slots': []},
             format='json')
         self.assertEqual(resp.status_code, 403)
@@ -525,8 +583,8 @@ class ViewAuthTests(APITestCase):
     @tag('todo-')
     def test_detail_patch_emailtoken_logupdate(self):
         # todo-
-        evt_id = self.fdata['uevents'][0][0]
-        user_id = self.fdata['users'][0]
+        evt_id = fdata['uevents'][0][0]
+        user_id = fdata['users'][0]
         tok = EmailToken.objects.create(event_id=evt_id, user_id=user_id).key
         log_a = fetch_log(self, evt_id)
         resp = self.client.patch(f'/{evt_id}/?et={tok}', {'slots': []},
@@ -558,7 +616,7 @@ class ViewAuthTests(APITestCase):
             'sender': ue}, format='json') 
         self.assertEqual(resp_noti_t.status_code, 403)
         
-        nevt_id = self.fdata['events'][0]
+        nevt_id = fdata['events'][0]
 
         # Token/event mismatch
         resp_noti_n = self.client.post(f'/{nevt_id}/notify/?et={tok}',
@@ -569,7 +627,7 @@ class ViewAuthTests(APITestCase):
     @tag('todo-')
     def test_notify_post_emailtoken_lognotify(self):
         # todo-
-        ue = self.fdata['emails'][0]
+        ue = fdata['emails'][0]
         evt_id, user, tok = setup_emailtoken(self, ue)
 
         resp_get = self.client.get(f'/{evt_id}/?et={tok}')
@@ -590,15 +648,21 @@ class ViewAuthTests(APITestCase):
     def test_loggedinuser_emailtoken_ignored(self):
         # todo-
         # setup tok user 0, login user, get?tok, check log..
-        evt_id = self.fdata['uevents'][0][0]
-        user_id = self.fdata['users'][0]
+        evt_id = fdata['uevents'][0][0]
+        user_id = fdata['users'][0]
         tok = EmailToken.objects.create(event_id=evt_id, user_id=user_id).key
         user = User.objects.get(pk=user_id)
         self.client.force_login(user)
         resp = self.client.get(f'/{evt_id}/?et={tok}')
-        #st()
         resp_log = self.client.get(f'/{evt_id}/log/')
         self.assertNotIn('token', resp_log.data['entries'][-1]['data'])
+        
+    @tag('todo')
+    def test_loggedinuser_emailtoken_mismatch(self):
+        # todo
+        # in out  anon user staff  basic token
+        #self.assertTrue(False)
+        pass
     
     def test_log_get_emailtoken(self):
         ue = 'nonesuch@localhost'
@@ -607,22 +671,22 @@ class ViewAuthTests(APITestCase):
         self.assertEqual(resp.status_code, 200)
 
     def test_log_get_emailtoken_fail(self):
-        user_id = self.fdata['users'][0]
+        user_id = fdata['users'][0]
         user = User.objects.get(pk=user_id)
-        evt_id = self.fdata['uevents'][0][0]
+        evt_id = fdata['uevents'][0][0]
         tok = EmailToken.objects.create(event_id=evt_id, user_id=user_id).key
 
         # X: implies fixture requrement
-        evt_id = self.fdata['uevents'][0][1]
+        evt_id = fdata['uevents'][0][1]
         resp = self.client.get(f'/{evt_id}/log/?et={tok}')
         self.assertEqual(resp.status_code, 403)
 
     @tag('todo-')
     def test_emailtoken_expired(self):
         # todo- double check this
-        user_id = self.fdata['users'][0]
+        user_id = fdata['users'][0]
         user = User.objects.get(pk=user_id)
-        evt_id = self.fdata['uevents'][0][0]
+        evt_id = fdata['uevents'][0][0]
         tok = EmailToken.objects.create(
             event_id=evt_id, user_id=user_id, 
             expires=timezone.now() - timedelta(days=5)
@@ -637,12 +701,11 @@ class ViewAuthTests(APITestCase):
 
 @tag('dispatch')
 class DispatchViewTests(APITestCase):
-    fixtures = ['users', 'schedul']
+    fixtures = fixture_files
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass() 
-        cls.fdata = map_fixtures(cls.fixtures)
         cls.suser = User.objects.create(username='sup', is_staff=True)
         cls.suser.set_password('p')
         cls.suser.save()
@@ -653,13 +716,13 @@ class DispatchViewTests(APITestCase):
 
 
     def test_notify_get_fail(self):
-        n = self.fdata['events'][0]
+        n = fdata['events'][0]
         resp = self.client.get(f'/{n}/notify/')
         self.assertEqual(resp.status_code, 405)
 
     def test_notify_post(self):
-        evt_id = self.fdata['uevents'][0][0]
-        user_id = self.fdata['users'][0]
+        evt_id = fdata['uevents'][0][0]
+        user_id = fdata['users'][0]
         user = User.objects.get(pk=user_id)
         u_eml = user.email
         resp = self.client.get(f'/{evt_id}/')
@@ -668,22 +731,22 @@ class DispatchViewTests(APITestCase):
         self.assertEqual(resp.status_code, 202)
         self.assertEqual(len(mail.outbox), 1)
 
-    @tag('this')
+    #@tag('this')
     def test_notify_post_fail(self):
         users = []
         evt_ids = []
-        user_ids = self.fdata['users']
+        user_ids = fdata['users']
         for uidx, uid in enumerate(user_ids):
-            email = self.fdata['emails'][uidx]
+            email = fdata['emails'][uidx]
             # X: ? use fixture - assumes covering pattern -- as above, coupling
             resp = self.client.post('/', {'parties': [email],
-                'slots': get_slots(0, len(self.fdata['slots']))},
+                'slots': get_slots(0, len(fdata['slots']))},
                 format='json')
             evt_ids.append(resp.data['id'])
             evt_id = resp.data['id']
             slots = resp.data['slots']
             uidx_next = (uidx + 1) % len(user_ids)
-            email_next = self.fdata['emails'][uidx_next]
+            email_next = fdata['emails'][uidx_next]
 
             # Sender not in event
             resp = self.client.post(f'/{evt_id}/notify/', {'parties': 
@@ -723,12 +786,12 @@ class DispatchViewTests(APITestCase):
 
 
     def test_log_get(self):
-        n = self.fdata['events'][0]
+        n = fdata['events'][0]
         resp = self.client.get(f'/{n}/log/')
         self.assertEqual(resp.status_code, 200)
 
     def test_log_get_fail(self):
-        n = len(self.fdata['events']) + 1
+        n = len(fdata['events']) + 1
         resp = self.client.get(f'/{n}/log/')
         self.assertEqual(resp.status_code, 404)
 
@@ -737,8 +800,8 @@ class DispatchViewTests(APITestCase):
 
     def test_list_post_logupdate(self):
         resp = self.client.post('/', {
-            'parties': get_parties(0, len(self.fdata['emails'])),
-            'slots': get_slots(0, len(self.fdata['slots']))
+            'parties': get_parties(0, len(fdata['emails'])),
+            'slots': get_slots(0, len(fdata['slots']))
         }, format='json')
         n = resp.data['id']
         resp = self.client.get(f'/{n}/log/')
@@ -746,7 +809,7 @@ class DispatchViewTests(APITestCase):
         self.assertEqual(resp.data['entries'][-1]['occurrence'], 'UPDATE')
 
     def test_detail_get_logviewed(self):
-        n = self.fdata['events'][0]
+        n = fdata['events'][0]
         resp = self.client.get(f'/{n}/log/')
         len_a = len(resp.data['entries'])
         resp = self.client.get(f'/{n}/')
@@ -758,7 +821,7 @@ class DispatchViewTests(APITestCase):
     @tag('todo-')
     def test_detail_get_logviewed_fail(self):
         # todo-
-        n = self.fdata['events'][0]
+        n = fdata['events'][0]
         resp = self.client.get(f'/{n}/log/')
         len_a = len(resp.data['entries'])
         # Fail, redirect
@@ -768,20 +831,20 @@ class DispatchViewTests(APITestCase):
         self.assertEqual(len_a, len_b)
 
     def test_detail_patch_logupdate(self):
-        n = self.fdata['events'][0]
+        n = fdata['events'][0]
         resp = self.client.get(f'/{n}/log/')
         len_a = len(resp.data['entries'])
         resp = self.client.patch(f'/{n}/', {
-            'slots': get_slots(0, len(self.fdata['slots']))
+            'slots': get_slots(0, len(fdata['slots']))
         }, format='json')
         resp = self.client.get(f'/{n}/log/')
         self.assertEqual(len(resp.data['entries']), len_a + 1)
         self.assertEqual(resp.data['entries'][-1]['occurrence'], 'UPDATE')
 
-    @tag('todo-')
+    @tag('this', 'todo-')
     def test_detail_patch_logupdate_fail(self):
         # todo-
-        n = self.fdata['events'][0]
+        n = fdata['events'][0]
         resp = self.client.get(f'/{n}/log/')
         len_a = len(resp.data['entries'])
         # Fail, no payload
@@ -791,8 +854,8 @@ class DispatchViewTests(APITestCase):
         self.assertEqual(len_a, len_b)
 
     def test_notify_post_lognotify(self):
-        evt_id = self.fdata['uevents'][0][0]
-        user_id = self.fdata['users'][0]
+        evt_id = fdata['uevents'][0][0]
+        user_id = fdata['users'][0]
         user = User.objects.get(pk=user_id)
         u_eml = user.email
         resp_get = self.client.get(f'/{evt_id}/')
@@ -811,7 +874,7 @@ class DispatchViewTests(APITestCase):
     @tag('todo-')
     def test_notify_post_lognotify_fail(self):
         # todo-
-        n = self.fdata['events'][0]
+        n = fdata['events'][0]
         resp = self.client.get(f'/{n}/log/')
         len_a = len(resp.data['entries'])
         # Fail, no payload
@@ -823,14 +886,13 @@ class DispatchViewTests(APITestCase):
 
 #@skip
 @tag('queries')
-@override_settings(DEBUG=True)
+@override_settings(DEBUG=True) # enable connection.queries
 class ViewQueryTests(APITestCase):
-    fixtures = ['users', 'schedul']
+    fixtures = fixture_files
 
     @classmethod
     def setUpTestData(cls):
         print(len(connection.queries))
-        cls.fdata = map_fixtures(cls.fixtures)
         cls.suser = User.objects.create(username='sup', is_staff=True)
         cls.suser.set_password('p')
         cls.suser.save()
@@ -854,8 +916,8 @@ class ViewQueryTests(APITestCase):
         self.assertEqual(len(connection.queries), expect)
 
     def test_list_post(self):
-        expect = 6
-        resp = self.client.post('/', {'parties': [], 'slots': []},
+        expect = 8
+        resp = self.client.post('/', {'parties': get_parties(), 'slots': []},
             format='json')
         print(len(connection.queries), resp.status_code)
         self.assertEqual(len(connection.queries), expect)
@@ -883,11 +945,12 @@ class ViewQueryTests(APITestCase):
     def test_notify_post(self):
         #st()
         expect = 17
-        resp = self.client.post('/', {'parties': [], 'slots': []},
+        expect = 21
+        resp = self.client.post('/', {'parties': get_parties(), 'slots': []},
             format='json')
-        evt_id = self.fdata['uevents'][0][0]
-        user_id = self.fdata['users'][0]
-        u_eml = self.fdata['emails'][0]
+        evt_id = fdata['uevents'][0][0]
+        user_id = fdata['users'][0]
+        u_eml = fdata['emails'][0]
         resp = self.client.get(f'/{evt_id}/')
         print(len(connection.queries), resp.status_code)
         reset_queries()

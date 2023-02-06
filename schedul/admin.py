@@ -31,9 +31,8 @@ class TimeSpanInline(admin.TabularInline):
 class EmailTokenInline(admin.TabularInline):
 #class EmailTokenInline(admin.StackedInline):
     model = EmailToken
-    readonly_fields = ('key', 'user', 'expires')
+    readonly_fields = ('key', 'expires')
     extra = 0
-
 
 class DispatchLogInline(admin.TabularInline):
     model = DispatchLogEntry

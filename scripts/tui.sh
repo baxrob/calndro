@@ -16,9 +16,10 @@ prompt() {
     case $1 in
     menu) printf "  l   c   d[n]  p[n]  n[n]  g[n]  ?   q\n> " ;;
 
-    create_parties) printf "create: enter party emails>\n" ;;
+    create_title) printf "create: enter event tile or blank to generate>\n" ;;
+    create_parties) printf "enter party emails>\n" ;;
     create_slots)
-    printf "enter slots as YYYY-MM-DDThh:mm:ss[+-mm:ss/Z] hh:mm:ss"
+    printf "enter slots as YYYY-MM-DDThh:mm:ss[+-hh:mm/Z] hh:mm:ss"
     printf ", followed by blank>\n"
     ;;
     create_slots_nop) ;;
@@ -49,11 +50,12 @@ req() {
     detail) http --print=b -a $user:$pass $host:$port/$2/ ;;
     log) http --print=b -a $user:$pass $host:$port/$2/log/ ;;
     create)
-    http --print=b -a $user:$pass $host:$port/ parties:="$2" slots:="$3"
+    http --print=b -a $user:$pass $host:$port/ parties:="$2" slots:="$3" \
+        title="$4"
     ;;
     patch) http --print=b -a $user:$pass PATCH $host:$port/$2/ slots:="$3" ;;
     notify)
-    http --print=b -a $user:$pass $host:$port/$2/notify \
+    http --print=b -a $user:$pass POST $host:$port/$2/notify/ \
         parties:="$3" slots:="$4"
     ;;
     esac
@@ -70,7 +72,7 @@ create() {
         printf("{\"begin\": \"%s\", \"duration\": \"%s\"},", $1, $2)
     }')
     slist=$(echo $slist | sed 's/,*$/]/')
-    req create "$plist" "$slist"
+    req create "$plist" "$slist" "$3"
 }
 
 nlist() {
@@ -103,7 +105,7 @@ while cmd=$(bash -c 'read -er cmd; echo $cmd'); do
     menu)
         case "$cmd" in
         l) req list ;;
-        c) pcode=create_parties ;;
+        c) pcode=create_title ;;
         d[0-9]*) req detail ${cmd#d} ;;
         p[0-9]*) evtnum=${cmd#p}; pcode=patch ;;
         n[0-9]*) evtnum=${cmd#n}; pcode=notify ;;
@@ -123,13 +125,14 @@ while cmd=$(bash -c 'read -er cmd; echo $cmd'); do
         *) printf "\nhuh? $cmd\n" ;; #pcode=menu ;;
         esac
     ;;
+    create_title) ctitle="$cmd"; pcode=create_parties ;;
     create_parties) cparties="$cmd"; pcode=create_slots ;;
     create_slots|create_slots_nop)
     if [ -n "$cmd" ]; then
         cslots="${cslots#\\n}\n$cmd"
         pcode=create_slots_nop
     else
-        create "$cparties" "$cslots"
+        create "$cparties" "$cslots" "$ctitle"
         pcode=menu
     fi
     ;;

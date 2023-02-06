@@ -4,7 +4,9 @@ from django.conf import settings
 from django.contrib.auth import login, get_user_model
 from django.core.mail import send_mail
 
-from rest_framework.exceptions import ValidationError
+#from rest_framework.exceptions import ValidationError
+from rest_framework.serializers import ValidationError
+#from django.core.exceptions import ValidationError
 
 from schedul.models import EmailToken
 from schedul.serializers import DispatchLogEntrySerializer
@@ -24,20 +26,17 @@ def notify(event, sender_email, recip_email):
         event.title)
     from_email = sender_email
     recipient_list = [recip_email]
-    #print('ff', from_email)
-    #print('PRESEND', message)
-    #return
-    send_mail(subject, message, from_email, recipient_list) 
+    send_mail(subject, message, from_email, recipient_list,
+        fail_silently=False) 
 
 def token_login(request, event):
     key = request.GET.get('et')
     try:
         et = EmailToken.objects.get(pk=key)
         now = timezone.now()
-        # X: custom err on expired ?
-        if request.user != et.user and et.event == event:# and now < et.expires:
+        if request.user != et.user and et.event == event:
             if now >= et.expires:
-                raise ValidationError(['Token Expired'])
+                raise ValidationError(['Token Expired', et.expires])
             login(request, et.user) 
             return et
         else:
@@ -50,7 +49,11 @@ def enlog(event, effector, occurrence, slots, data={}):
     serializer = DispatchLogEntrySerializer(data={'event': event,
         'effector': effector, 'occurrence': occurrence, 'slots': slots,
         'data': data})
-    if serializer.is_valid():
+    # X: ha, serializer just has to_repr/internal, no validation
+    #    all input to model is string field - using varchar in sqlite
+    #    can test max_len with psql/docker-stage
+    # X: resolve/document strategy around this case, and test?
+    if serializer.is_valid(raise_exception=True):
         entry = serializer.save()
         return serializer.data
     else:

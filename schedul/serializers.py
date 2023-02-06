@@ -16,13 +16,7 @@ class UserSerializer(serializers.Serializer):
         return data['email']
 
     def to_internal_value(self, data):
-        #print('TIV', data)
-        dd = super().to_internal_value(dict(email=data))
-        #import ipdb; ipdb.set_trace()
-        return dd['email']
-        #return data['email']
         return data
-        #return dict(email=data)
 
 
 class TimeSpanSerializer(serializers.ModelSerializer):
@@ -33,32 +27,28 @@ class TimeSpanSerializer(serializers.ModelSerializer):
 
 
 class EventSerializer(serializers.HyperlinkedModelSerializer):
-    parties = UserSerializer(many=True)
-    slots = TimeSpanSerializer(many=True)
+    parties = UserSerializer(many=True, allow_empty=False)
+    # 30 <= logentry.slots char len / slot len = 2048 / 65 
+    slots = TimeSpanSerializer(many=True, max_length=30)
     log_url = serializers.HyperlinkedIdentityField(
         view_name='dispatch-log')
     notify_url = serializers.HyperlinkedIdentityField(
         view_name='event-notify')
 
-    # X: ???
-    list_url = serializers.HyperlinkedRelatedField(view_name='event-list',
-        read_only=True)
-
     class Meta:
         model = Event
         fields = ['id', 'url', 'log_url', 'title', 'parties', 'slots', 
-            'notify_url', 'list_url']
+            'notify_url']
         read_only_fields = ['parties']
 
     def create(self, validated_data):
-        if 'title' in validated_data and len(validated_data['title']):
-            event = Event.objects.create(title=validated_data['title'])
+        if 'title' in validated_data and len(validated_data.get('title')):
+            event = Event.objects.create(title=validated_data.get('title'))
         else:
             event = Event.objects.create()
         for party in validated_data.get('parties'):
-            party_obj = User.objects.get_or_create(email=party)
-            user = party_obj[0]
-            if party_obj[1]: # Created
+            user, created = User.objects.get_or_create(email=party)
+            if created:
                 user.username = user.email
                 user.is_active = False
                 user.save()
@@ -68,14 +58,32 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
         return event
 
     def update(self, instance, validated_data):
+        if not validated_data:
+            raise serializers.ValidationError(['No update data'])
         if 'title' in validated_data:
-            instance.title = validated_data['title']
+            instance.title = validated_data.get('title')
             instance.save()
+        #if 'slots' not in validated_data:
+        #    raise serializers.ValidationError(
+        #        {'slots': ['This field is required']})
+        import ipdb; ipdb.set_trace()
+        if 'slots' in validated_data:
+            slots_remain = []
+            for slot in validated_data.get('slots'):
+                try:
+                    found = instance.slots.get(**slot)
+                    slots_remain.append(found.id)
+                except TimeSpan.DoesNotExist:
+                    slot['event_id'] = instance.id
+                    obj = TimeSpan.objects.create(**slot)
+                    instance.slots.add(obj)
+                    slots_remain.append(obj.id)
+            for slot in instance.slots.all():
+                if slot.id not in slots_remain:
+                    slot.delete()
+        '''
         slots_remain = []
-        if 'slots' not in validated_data:
-            raise serializers.ValidationError(
-                {'slots': ['This field is required']})
-        for slot in validated_data['slots']:
+        for slot in validated_data.get('slots'):
             try:
                 found = instance.slots.get(**slot)
                 slots_remain.append(found.id)
@@ -87,6 +95,7 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
         for slot in instance.slots.all():
             if slot.id not in slots_remain:
                 slot.delete()
+        '''
         return instance
          
 
@@ -120,11 +129,10 @@ class EventNotifySerializer(serializers.Serializer):
                 if party_obj not in event.parties.all():
                     invalid_emails.append(event_party)
             except User.DoesNotExist:
-                # X: Non-esixtent user reports only absence from event 
+                # X: Non-existent user reports only absence from event 
                 invalid_emails.append(event_party)
         if len(invalid_emails):
             errors['parties'] = ['Not in event: ' + ' '.join(invalid_emails)]
-            #[f'Not in event: {e}' for e in invalid_emails]}
         event_slots = event.slots.all()
         valid_slots = 0
         for slot in data['slots']:
@@ -135,7 +143,7 @@ class EventNotifySerializer(serializers.Serializer):
                 pass
         if len(event_slots) != valid_slots:
             errors['slots'] = ['Mismatch with event'] 
-        if len(errors) > 0:
+        if any(errors):
             raise serializers.ValidationError(errors)
         return data 
 
@@ -163,9 +171,6 @@ class DispatchLogEntrySerializer(serializers.ModelSerializer):
 
 
 class DispatchLogSerializer(serializers.Serializer):
-    # X: ?
-    #event = serializers.HyperlinkedIdentityField(view_name='event-detail')
-    #event_url = serializers.HyperlinkedRelatedField(read_only=True,
     event = serializers.HyperlinkedRelatedField(read_only=True,
         view_name='event-detail')
     parties = UserSerializer(many=True)
