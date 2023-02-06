@@ -1,13 +1,15 @@
 
 ### Scenario
 
+
+
 [ with [httpie](https://httpie.io), [jq](https://stedolan.github.io/jq/) ]
 
 ```
-you:
+# You:
 
 
-- instantiate a coordination proposal
+# - Instantiate a coordination proposal - with date-time strings per ISO 8601
 
 evt_id=$(http -a $user:$pwd POST :8000/ \
     parties:='["you@here.net", "they@thar.net", "them@whar.net"]' \
@@ -17,7 +19,7 @@ evt_id=$(http -a $user:$pwd POST :8000/ \
     | jq .id)
 
 
-- notify other parties
+# - Notify other parties
 
 http -a $user:$pwd POST :8000/$evt_id/notify/ \
     parties:='["they@thar.net", "them@whar.net"]' \
@@ -27,20 +29,20 @@ http -a $user:$pwd POST :8000/$evt_id/notify/ \
 
 
 
-they:
+# They:
 
 
-- receive message including link with temporary access token
+# - Receive message including link with temporary access token
 
 http://$host:8000/$evt_id/?et=1fe36bfa6f2f2567b5f7ea5a06e1e2202ad57ea7
 
 
-- view proposed event times
+# - View proposed event times
 
 http GET :8000/$evt_id/ et=1fe36bfa6f2f2567b5f7ea5a06e1e2202ad57ea7
 
 
-- update with suitable selection
+# - Update with suitable selection - time slots can only be attenuated
 
 http PATCH :8000/$evt_id/ \
     slots:='[{"begin": "2022-11-01T01:11:22.02", "duration": "00:10"},
@@ -48,7 +50,7 @@ http PATCH :8000/$evt_id/ \
     et=1fe36bfa6f2f2567b5f7ea5a06e1e2202ad57ea7
 
 
-- notify other parties
+# - Notify other parties (note microsecond syntax and timezone shift)
 
 http POST :8000/$evt_id/notify/ \
     parties:='["you@here.net", "them@whar.net"]' \
@@ -58,15 +60,27 @@ http POST :8000/$evt_id/notify/ \
 
 
 
-later:
+# Later:
 
 
-- everyone can enjoy logs of the process
+# - Interested parties can view logs of the process
 
 http GET :8000/$evt_id/log/
 
 
-- and gaze at the API
+# - and write clients to the API
 
 http GET :8000/openapi
+
+# - requesting and using a DRF Session auth token
+
+http POST :8000/api-token-auth/ username=$user password=$pwd
+
+#   {"token": "48fc19e55a884b24e77913542a9822917a9c167a"}   
+
+http GET :8000 Authorization:'Token 48fc19e55a884b24e77913542a9822917a9c167a'
+
+# - Session auth is also enabled
+
 ```
+

@@ -1,8 +1,8 @@
 top
 scenario
 run
-tui
 api
+tui
 tests
 arch
 future
