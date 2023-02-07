@@ -66,7 +66,7 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
         #if 'slots' not in validated_data:
         #    raise serializers.ValidationError(
         #        {'slots': ['This field is required']})
-        import ipdb; ipdb.set_trace()
+        #import ipdb; ipdb.set_trace()
         if 'slots' in validated_data:
             slots_remain = []
             for slot in validated_data.get('slots'):
