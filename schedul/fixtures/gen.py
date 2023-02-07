@@ -4,15 +4,19 @@
 An crufty inconvenient fixture generator interface
 '''
 import datetime
-import zoneinfo
 import calendar
 import random
 import json
 
+from sys import version_info
+if version_info.minor < 8:
+    from backports import zoneinfo
+else:
+    import zoneinfo
+
 from calendar import monthrange
 from random import choice, randrange
 from datetime import datetime as dt
-from zoneinfo import ZoneInfo
 
 import os
 dbg = os.environ.get('GEN_DBG', False)
