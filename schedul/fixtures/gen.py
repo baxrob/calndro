@@ -9,7 +9,7 @@ import random
 import json
 
 from sys import version_info
-if version_info.minor < 8:
+if version_info.minor < 9:
     from backports import zoneinfo
 else:
     import zoneinfo
