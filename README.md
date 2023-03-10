@@ -116,7 +116,7 @@ http://$host:8000/$evt_id/?et=1fe36bfa6f2f2567b5f7ea5a06e1e2202ad57ea7
 http GET :8000/$evt_id/ et=1fe36bfa6f2f2567b5f7ea5a06e1e2202ad57ea7
 
 
-# - Update with suitable selection - time slots can only be attenuated
+# - Update with suitable selection
 
 http PATCH :8000/$evt_id/ \
     slots:='[{"begin": "2022-11-01T01:11:22.02", "duration": "00:10"},
@@ -165,7 +165,7 @@ http GET :8000 Authorization:'Token 48fc19e55a884b24e77913542a9822917a9c167a'
 [ with Python version >=3.8 ]
 
 
-To install and run in one "line"
+To install and run in "one line"
 ```
 python3 -m venv venv \
     && . venv/bin/activate \
@@ -202,6 +202,15 @@ HOST_PORT=8005 docker-compose up
 _
 - [pg, ngx]
 
+<!--
+[up down logs exec / $file= $sys=ubu|alp %cmd[exec]]
+-->
+
+```
+```
+
+#### Fixtures
+
 ```
 ./manage.py loaddata users schedul
 
@@ -214,15 +223,6 @@ docker exec -it caldcs ./manage.py loaddata users schedul
 
 ob zo ub : p
 
-<!--
-[up down logs exec / $file= $sys=ubu|alp %cmd[exec]]
--->
-
-
-#### Fixtures
-
-```
-```
 
 See [schedul/fixtures/gen.py](schedul/fixtures/gen.py)
 
@@ -302,11 +302,9 @@ EMAIL_SSL_CERTFILE
 
 #### Admin
 
-
-
-
 There is a full Django admin at
-```$host/admin```
+```$host/admin/```
+
 
 <img src="_m/admin_scaps/entries.png" width="250"> <img src="_m/admin_scaps/entries_1.png" width="250"> <img src="_m/admin_scaps/events.png" width="250"> <img src="_m/admin_scaps/events_1a.png" width="250"> <img src="_m/admin_scaps/events_1b.png" width="250"> <img src="_m/admin_scaps/events_1c.png" width="250">
 
@@ -413,7 +411,7 @@ q quit
 > c
 create: enter party emails>
 bobo@frofro.info
-enter slots as YYYY-MM-DDThh:mm:ss[+-hh:mm/Z] hh:mm:ss, followed by blank>
+enter slots as YYYY-MM-DDThh[:mm:ss+-hh:mm/Z] hh[:mm:ss], followed by blank>
 2029-01-01T11:29 01:01
 {
     "id": 4,
@@ -435,13 +433,13 @@ enter slots as YYYY-MM-DDThh:mm:ss[+-hh:mm/Z] hh:mm:ss, followed by blank>
 
   l   c   d[n]  p[n]  n[n]  g[n]  ?   q
 
-> c
-
-- awkward time entry .. rfc#..
+>
 
 ```
 
 <!--
+
+- awkward time entry .. rfc#..
 ```
 %[??tuieg]
 ```
@@ -528,15 +526,15 @@ config/wsgi.py               4      4     0%
 schedul/__init__.py          0      0   100%
 schedul/admin.py            52      5    90%
 schedul/apps.py              4      0   100%
-schedul/models.py           57     22    61%
+schedul/models.py           57      1    98%
 schedul/permissions.py       6      0   100%
-schedul/serializers.py     123     22    82%
-schedul/services.py         39      8    79%
-schedul/tests.py           597    136    77%
+schedul/serializers.py     122      0   100%
+schedul/services.py         39      1    97%
+schedul/tests.py           597      6    99%
 schedul/urls.py              3      0   100%
-schedul/views.py            88      3    97%
+schedul/views.py            88      0   100%
 --------------------------------------------
-TOTAL                     1031    206    80%
+TOTAL                     1030     23    98%
 
 https://github.com/nedbat/coveragepy
 ```
@@ -774,6 +772,7 @@ apifuz
 
 ```
 .
+├── botched_readme_draft.md
 ├── compose
 │   ├── hist_x23
 │   ├── local
@@ -804,14 +803,6 @@ apifuz
 │   ├── admin.py
 │   ├── apps.py
 │   ├── __init__.py
-│   ├── migrations_0
-│   │   ├── 0001_initial.py
-│   │   ├── 0002_alter_timespan_options.py
-│   │   ├── 0003_event_title.py
-│   │   ├── 0004_auto_20220204_1734.py
-│   │   ├── 0005_emailtoken.py
-│   │   ├── 0006_alter_emailtoken_expires.py
-│   │   └── __init__.py
 │   ├── models.py
 │   ├── permissions.py
 │   ├── serializers.py
@@ -819,49 +810,14 @@ apifuz
 │   ├── tests.py
 │   ├── urls.py
 │   └── views.py
-├── scripts
-│   ├── init_pg.sh
-│   ├── list_tests.sh
-│   ├── reset.sh
-│   ├── stew.sh
-│   ├── stitch_readme.sh
-│   ├── tui.sh
-│   └── watch_readme.sh
-└── venv_
-    ├── bin
-    │   ├── activate
-    │   ├── activate.csh
-    │   ├── activate.fish
-    │   ├── Activate.ps1
-    │   ├── coverage3
-    │   ├── coverage-3.9
-    │   ├── django-admin
-    │   ├── django-admin.py
-    │   ├── http
-    │   ├── httpie
-    │   ├── https
-    │   ├── ipdb3
-    │   ├── iptest
-    │   ├── iptest3
-    │   ├── ipython
-    │   ├── ipython3
-    │   ├── normalizer
-    │   ├── pip
-    │   ├── pip3
-    │   ├── pip3.10
-    │   ├── pip3.9
-    │   ├── pygmentize
-    │   ├── python -> /home/ob/.pyenv/versions/3.9.7/bin/python
-    │   ├── python3 -> python
-    │   ├── python3.9 -> python
-    │   └── sqlformat
-    ├── include
-    ├── lib64 -> lib
-    ├── pyvenv.cfg
-    └── share
-        └── man
-            └── man1
-                └── ipython.1.gz
+└── scripts
+    ├── init_pg.sh
+    ├── list_tests.sh
+    ├── reset.sh
+    ├── stew.sh
+    ├── stitch_readme.sh
+    ├── tui.sh
+    └── watch_readme.sh
 
 ```
 
@@ -870,14 +826,14 @@ apifuz
 ```
 Language                     files          blank        comment           code
 -------------------------------------------------------------------------------
-Python                          18            495            224           1792
-Markdown                        10            389              0           1158
+Python                          18            490            228           1794
+Markdown                        10            444              0           1308
 JSON                             3              0              0            349
-YAML                             5             10             19            326
-Bourne Shell                     7             61             50            297
+YAML                             5             10             18            326
+Bourne Shell                     7             61             50            301
 Dockerfile                       2              8             17             23
 -------------------------------------------------------------------------------
-SUM:                            45            963            310           3945
+SUM:                            45           1013            313           4101
 -------------------------------------------------------------------------------
 
 https://github.com/AlDanial/cloc
@@ -888,7 +844,7 @@ https://github.com/AlDanial/cloc
 970	schedul/tests.py
 180	schedul/serializers.py
 135	schedul/views.py
-107	schedul/fixtures/gen.py
+111	schedul/fixtures/gen.py
 84	schedul/models.py
 82	schedul/admin.py
 60	schedul/services.py
