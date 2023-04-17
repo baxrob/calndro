@@ -575,11 +575,11 @@ schedul/models.py           57      1    98%
 schedul/permissions.py       6      0   100%
 schedul/serializers.py     122      0   100%
 schedul/services.py         39      1    97%
-schedul/tests.py           597    132    78%
+schedul/tests.py           597      6    99%
 schedul/urls.py              3      0   100%
 schedul/views.py            88      0   100%
 --------------------------------------------
-TOTAL                     1030    149    86%
+TOTAL                     1030     23    98%
 
 https://github.com/nedbat/coveragepy
 ```
@@ -924,13 +924,13 @@ apifuz
 Language                     files          blank        comment           code
 -------------------------------------------------------------------------------
 Python                          18            490            227           1794
-Markdown                        10            480              0           1329
+Markdown                        10            520              0           1390
 JSON                             3              0              0            349
 YAML                             5             10             18            326
 Bourne Shell                     7             62             50            302
 Dockerfile                       2              8             17             23
 -------------------------------------------------------------------------------
-SUM:                            45           1050            312           4123
+SUM:                            45           1090            312           4184
 -------------------------------------------------------------------------------
 
 https://github.com/AlDanial/cloc
