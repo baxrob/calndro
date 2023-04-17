@@ -14,9 +14,16 @@ Contents: [scenario](#scenario) | [install](#install) | [api](#interface) | [tui
 <br>
 
 This is a WIP POC. 
-It's in an interim state with some cruft.
 Briefly, its 
 intent is similar to the core function of Calendly, or [cal.com](https://github.com/calcom/cal.com).
+It's in an interim state with some cruft
+at the edges,
+but the 
+main structure and operation are
+relatively settled. 
+<!--
+an unneccessary experiment toward assurability
+-->
 
 In summary:
 > Invite registered or unregistered parties, narrow to agreement on a scheduled time span, send notification of updates, with <!--all--> actions logged
@@ -25,7 +32,7 @@ In summary:
 propose -> narrow -> agree : audit
 ```
 
-There's no graphical interface, but a [tui](#tui) [or cli?]. 
+There's no graphical interface, but a [tui](#tui). 
 The
 [api](#interface)
 is
@@ -52,13 +59,27 @@ and some
 [referential](#ref)
 material.
 
-First a scenario
-
+<!-- X: s/<blockquote><i> -->
+```
+Note: draft text is marked with '@draft' in <code> or <details> blocks below
+```
+<!--
+ [or cli?]
+, or comments 
 ```
 > Conventions used in this document:\n\n
 > \s\s some pre/code blocks connote provisional notes
 
+\n
+
+
 ```
+-->
+
+
+First a scenario
+
+
 
 <!--
 [scenario](#scenario)
@@ -174,8 +195,9 @@ python3 -m venv venv \
     && scripts/reset.sh \                       # @todo
     && ./manage.py runserver 0.0.0.0:8000
 ```
-
+<!--
 [note: ppa pyenv .. https://github.com/pyenv/pyenv]
+-->
 
 #### Docker
 
@@ -199,15 +221,15 @@ HOST_PORT=8005 docker-compose up
 - The default [compose.yaml](compose.yaml) creates or mounts the local db.sqlite3 and runs Django's dev server
 - The [compose-stage.yaml](compose-stage.yaml) config runs a posgresql service and gunicorn
 
-_
-- [pg, ngx]
 
 <!--
+_
+- [pg, ngx]
 [up down logs exec / $file= $sys=ubu|alp %cmd[exec]]
+```
+```
 -->
 
-```
-```
 
 #### Fixtures
 
@@ -218,10 +240,11 @@ _
 
 docker exec -it caldcs ./manage.py loaddata users schedul
 ```
-
+<!--
 - minimal ?
 
 ob zo ub : p
+-->
 
 
 See [schedul/fixtures/gen.py](schedul/fixtures/gen.py)
@@ -230,7 +253,10 @@ See [schedul/fixtures/gen.py](schedul/fixtures/gen.py)
 #### Envs
 
 [config/eg.env](config/eg.env) contains a variable reference
+
 ```
+@draft
+
 dj environ
 setting ENV_PATH
 ```
@@ -244,6 +270,10 @@ environ.Env.read_env(env.str(
 
 -->
 ```
+@draft
+variable reference / defaults
+__
+
 DJANGO_SECRET_KEY
 
 DJANGO_DEBUG
@@ -268,7 +298,9 @@ EMAIL_USE_LOCALTIME=False
 EMAIL_BACKEND=console filebased smtp locmem dummy 
 EMAIL_FILE_PATH=/tmp/cald-mail
 
-/cf
+__
+
+/cf : doc / use formats
 #EMAIL_SUBJECT_PREFIX='[calndro] '
 #EMAIL_USE_LOCALTIME=False
 #EMAIL_BACKEND=console filebased smtp locmem dummy 
@@ -284,7 +316,9 @@ EMAIL_FILE_PATH         #/tmp/cald-mail
 #EMAIL_BACKEND=console   #filebased smtp locmem dummy 
 #EMAIL_FILE_PATH         #/tmp/cald-mail
 
-\cf [grip? ghub? breaks on single backslash in code/pre/tilde-triple]
+\cf
+
+____
 
 EMAIL_HOST
 EMAIL_HOST_USER
@@ -297,7 +331,9 @@ EMAIL_SSL_CERTFILE
 
 [%eg.env]
 ```
-\
+<!--
+\cf [grip? ghub? breaks on single backslash in code/pre/tilde-triple]
+-->
 
 
 #### Admin
@@ -308,7 +344,7 @@ There is a full Django admin at
 
 <img src="_m/admin_scaps/entries.png" width="250"> <img src="_m/admin_scaps/entries_1.png" width="250"> <img src="_m/admin_scaps/events.png" width="250"> <img src="_m/admin_scaps/events_1a.png" width="250"> <img src="_m/admin_scaps/events_1b.png" width="250"> <img src="_m/admin_scaps/events_1c.png" width="250">
 
-<!-- ugh, .tf
+<!-- ugh
 <span style="display: inline-block;" align="center"><span style="display: block;">entries</span><img src="_m/admin_scaps/entries.png" width="250"></span> <img src="_m/admin_scaps/entries_1.png" width="250"> <img src="_m/admin_scaps/events.png" width="250"> <img src="_m/admin_scaps/events_1a.png" width="250"> <img src="_m/admin_scaps/events_1b.png" width="250"> <img src="_m/admin_scaps/events_1c.png" width="250">
 -->
 
@@ -350,12 +386,16 @@ or run
 or visit ```$host/openapi```
 
 ```
+@draft
+
 $path/ vs $path  dj/humyn vs api/machine
 ```
 
 ### TUI
 
-See [scripts/tui.sh](scripts/tui.sh)
+See [scripts/tui.sh](scripts/tui.sh) 
+
+``` @todo: notify/sender```
 
 #### Example
 
@@ -436,7 +476,6 @@ enter slots as YYYY-MM-DDThh[:mm:ss+-hh:mm/Z] hh[:mm:ss], followed by blank>
 >
 
 ```
-
 <!--
 
 - awkward time entry .. rfc#..
@@ -453,6 +492,10 @@ There are feature tests with branch coverage.
 - I don't like the number of utility functions
 - Some auth tests are excessive or redundant
 - I need to stipulate assumptions built into the fixture structure
+
+
+<details>
+<summary>@draft</summary>
 
 ```
 overly parameterized
@@ -474,11 +517,12 @@ list_tests.sh
 
 tooling : py dj drf
 ```
+</details>
 
 ```
 todos:
 -----
-check:
+verify:
 test_detail_delete_auth_fail
 test_detail_get_emailtoken_fail
 test_detail_get_emailtoken_logviewed
@@ -491,7 +535,7 @@ test_detail_get_logviewed_fail
 test_detail_patch_logupdate_fail
 test_notify_post_lognotify_fail
 
-write:
+finish:
 test_list_post_fail
 test_detail_patch_title_change
 test_detail_patch_fail
@@ -502,6 +546,7 @@ add:
 mail tests
 env tests
 docker tests
+tui tests
 
 refactor:
 fixture axiomatics
@@ -530,11 +575,11 @@ schedul/models.py           57      1    98%
 schedul/permissions.py       6      0   100%
 schedul/serializers.py     122      0   100%
 schedul/services.py         39      1    97%
-schedul/tests.py           597      6    99%
+schedul/tests.py           597    132    78%
 schedul/urls.py              3      0   100%
 schedul/views.py            88      0   100%
 --------------------------------------------
-TOTAL                     1030     23    98%
+TOTAL                     1030    149    86%
 
 https://github.com/nedbat/coveragepy
 ```
@@ -597,6 +642,10 @@ Expiration defaults to five days, or the value of EMAILTOKEN_EXPIRATION_DAYS set
 
 
 #### Design
+
+<details>
+<summary>@draft</summary>
+
 ```
 disinterleaving
 naming splay  splay:join
@@ -612,7 +661,13 @@ career:
 ...
 ```
 
+</details>
+
 ##### Cases
+
+<details>
+<summary>@draft</summary>
+
 ```
 groupings:
 - storage, close/delete net, confirm, update flow
@@ -638,12 +693,19 @@ sec contain
 wrkflow tooling
 
 ```
+
 - 
+
+</details>
 
 
 ##### Security
 
 The project aims to be small, coherent, and auditable.
+
+<details>
+<summary>@draft</summary>
+
 ```
 - no incentive, eml/dt and evt title only
 - disposability
@@ -659,10 +721,13 @@ recipient token
 staff super
 [mailhost]
 ```
+</details>
 
 ##### Mail / notifications
 
 ```
+@draft
+
 - sendmail, localnet
 - _ mailhog
 
@@ -680,7 +745,10 @@ req slots to match latest
 
 ##### Time
 
-...
+
+<details>
+<summary>@draft</summary>
+
 ```
 ISO 8601
 RFC 3339
@@ -689,11 +757,15 @@ https://stackoverflow.com/questions/522251/whats-the-difference-between-iso-8601
 
 CSP papers 1,2,3  hickey
 ```
-<!-- tba ftw -->
+
+</details>
+
 
 ##### Validation
 
 ```
+@draft
+
 post
 patch
 notify
@@ -709,6 +781,8 @@ logs      /id/log        get
 ##### Logs
 
 ```
+@draft
+
 event
 parties
 entries
@@ -722,16 +796,30 @@ entries
 
 ##### Documentation
 
-- [grip/fork] / rdmd
+- Using ```Grip``` to draft and review this file outside github: https://github.com/joeyespo/grip
 - @todo: docstrings
 
-<!-- @todo
+<!-- @draft
+break:
+- comments in backbackbackticks
+- see env section comment
+
+.. wait, breaking via script/mine or gh.md ?
+-->
+
+``` &lt; \n ```
+
+<!-- @draft
 ##### Extensibility
 -
 -
 -->
 
 ##### Motivations
+
+<details>
+<summary>@draft</summary>
+
 ```
 minima complexity
 
@@ -745,7 +833,15 @@ sh -> py underview
 
 network experiments
 ```
+
+</details>
+
+
 #### Process
+
+<details>
+<summary>@draft</summary>
+
 ```
 gluing together
 sense of flow
@@ -764,6 +860,8 @@ apifuz
 
 ```
 
+</details>
+
 
 
 #### Stats
@@ -772,7 +870,6 @@ apifuz
 
 ```
 .
-├── botched_readme_draft.md
 ├── compose
 │   ├── hist_x23
 │   ├── local
@@ -826,14 +923,14 @@ apifuz
 ```
 Language                     files          blank        comment           code
 -------------------------------------------------------------------------------
-Python                          18            490            228           1794
-Markdown                        10            444              0           1308
+Python                          18            490            227           1794
+Markdown                        10            480              0           1329
 JSON                             3              0              0            349
 YAML                             5             10             18            326
-Bourne Shell                     7             61             50            301
+Bourne Shell                     7             62             50            302
 Dockerfile                       2              8             17             23
 -------------------------------------------------------------------------------
-SUM:                            45           1013            313           4101
+SUM:                            45           1050            312           4123
 -------------------------------------------------------------------------------
 
 https://github.com/AlDanial/cloc
@@ -841,7 +938,7 @@ https://github.com/AlDanial/cloc
 
 ##### wc
 ```
-970	schedul/tests.py
+969	schedul/tests.py
 180	schedul/serializers.py
 135	schedul/views.py
 111	schedul/fixtures/gen.py
@@ -858,6 +955,8 @@ https://github.com/AlDanial/cloc
 ### Future considerations
 
 ```
+@draft
+
 - ghub tidy branch - 
 - tests - finish, rework, pytest
 
@@ -891,6 +990,8 @@ gql flask fastapi
 - [Django For Startups](https://alexkrupp.typepad.com/sensemaking/2021/06/django-for-startup-founders-a-better-software-architecture-for-saas-startups-and-consumer-apps.html) article by Alex Krupp 
 
 ```
+@draft
+
 pdfs _aux ../studi
 py dj drf
 ```
