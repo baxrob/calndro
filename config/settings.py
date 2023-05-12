@@ -15,6 +15,9 @@ environ.Env.read_env(env.str(
 ))
 
 # SECURITY WARNING: keep the secret key used in production secret!
+# python -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())'
+# tr -dc 'a-z0-9!@#$%^&*(-_=+)' < /dev/urandom | head -c50
+# base64 /dev/urandom | head -c50
 SECRET_KEY = env.str('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -23,7 +26,6 @@ DEBUG = env.bool('DJANGO_DEBUG', False)
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', [])
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -72,7 +74,6 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.{}'.format(
@@ -93,7 +94,6 @@ if DEBUG:
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -112,7 +112,6 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
@@ -126,7 +125,6 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
-
 STATIC_URL = '/static/'
 
 STATIC_ROOT = env.str('STATIC_ROOT', None)
@@ -134,7 +132,6 @@ STATIC_ROOT = env.str('STATIC_ROOT', None)
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
@@ -143,16 +140,19 @@ ADMINS = [x.split(':') for x in env.list('DJANGO_ADMINS')]
 DEBUG and print('admins:', 'env:', env.list('DJANGO_ADMINS'), 'dj:', ADMINS)
 
 DEFAULT_FROM_EMAIL = env.str('DJANGO_DEFAULT_FROM_EMAIL', 'admin@localhost')
+SERVER_EMAIL = env.str('DJANGO_SERVER_EMAIL', 'admin@localhost')
 
 EMAIL_SUBJECT_PREFIX = env.str('EMAIL_SUBJECT_PREFIX', '[calndro] ')
 EMAIL_USE_LOCALTIME = env.str('EMAIL_USE_LOCALTIME', False)
 
+# console filebased smtp locmem dummy 
 EMAIL_BACKEND = 'django.core.mail.backends.{}.EmailBackend'.format(
     env.str('EMAIL_BACKEND', 'console')
 )
 EMAIL_FILE_PATH = env.str('EMAIL_FILE_PATH', '/tmp/cald-mail')
 
 EMAIL_HOST = env.str('EMAIL_HOST', '')
+EMAIL_PORT = env.str('EMAIL_PORT', '')
 EMAIL_HOST_USER = env.str('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = env.str('EMAIL_HOST_PASSWORD', '')
 EMAIL_USE_TLS = env.str('EMAIL_USE_TLS', '')

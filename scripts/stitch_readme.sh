@@ -9,6 +9,8 @@ mapfilename=${mapfilename:-map}
 mappath="$partspath/$mapfilename"
 outpath=${outpath:-"$thispath/../README.md"}
 
+echo outpath $outpath
+
 [ $quiet -ne 0 ] || echo config: $thispath $basepath $partspath \
     $mapfilename $mappath $outpath
 
@@ -69,10 +71,10 @@ subs() {
     # X:
     checks="$(grep -n -B 1 todo- schedul/tests.py | grep test_ \
         | sed 's/^.*\(test_.*\)(.*/\1/')"
-    [ -n "$checks" ] && printf "check:\n%s\n" "$checks"
+    [ -n "$checks" ] && printf "verify:\n%s\n" "$checks"
     writes="$(grep -n -B 1 todo$ schedul/tests.py | grep test_ \
         | sed 's/^.*\(test_.*\)(.*/\1/')"
-    [ -n "$writes" ] && printf "\nwrite:\n%s\n" "$writes"
+    [ -n "$writes" ] && printf "\nfinish:\n%s\n" "$writes"
     ;;
     *) echo "%[??$1]" ;;
     esac

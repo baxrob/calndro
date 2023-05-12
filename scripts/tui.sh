@@ -12,6 +12,8 @@ sender=${sender:-$DEFAULT_SENDER}
 
 echo config: ${user:-_} ${pass:-_} ${host:-_} ${port:-_} $sender
 
+which jq > /dev/null || { echo jq required; exit 1 }
+
 prompt() {
     case $1 in
     menu) printf "  l   c   d[n]  p[n]  n[n]  g[n]  ?   q\n> " ;;
@@ -35,11 +37,16 @@ prompt() {
     nlist "$p"
     printf "notify: enter parties by number> "
     ;;
+    notify_parties)
+    ;;
+    notify_sender)
+    ;;
     
     *) printf "  [nop $1 $2\n]" ;;
     esac
 }
 
+# X:
 sess() {
     :
 }
@@ -95,10 +102,16 @@ evtnum=
 cparties=
 cslots=
 
+
+
+## Run loop ##
+
 pcode=menu
 
 prompt $pcode
 
+
+# X: posix but no readline 
 #while read cmd; do
 while cmd=$(bash -c 'read -er cmd; echo $cmd'); do
     case $pcode in
@@ -109,6 +122,7 @@ while cmd=$(bash -c 'read -er cmd; echo $cmd'); do
         d[0-9]*) req detail ${cmd#d} ;;
         p[0-9]*) evtnum=${cmd#p}; pcode=patch ;;
         n[0-9]*) evtnum=${cmd#n}; pcode=notify ;;
+        #n[0-9]*) evtnum=${cmd#n}; pcode=notify_sender ;;
         g[0-9]*) req log ${cmd#g} ;;
         '?')
         printf "l list events\n"
@@ -116,6 +130,7 @@ while cmd=$(bash -c 'read -er cmd; echo $cmd'); do
         printf "d[n] detail - view event number n\n"
         printf "p[n] patch time-spans for event n\n"
         printf "n[n] notify recipients for n\n"
+        #printf "n[n] notify recipients for n - prompts for sender\n"
         printf "g[n] log - view dispatch/update logs\n"
         printf "? help - this help\n"
         printf "q quit\n"
