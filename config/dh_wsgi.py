@@ -9,7 +9,7 @@ sys.path.append(cwd)
 sys.path.append(cwd + '/calndro')  #You must add your project here
 
 sys.path.insert(0,cwd+'/venv/bin')
-sys.path.insert(0,cwd+'/venv/lib/python3.8/site-packages')
+sys.path.insert(0,cwd+'/venv/lib/%pyver/site-packages')
 
 os.environ['DJANGO_SETTINGS_MODULE'] = "config.settings"
 from django.core.wsgi import get_wsgi_application

@@ -9,6 +9,8 @@ dbuser=bh_cald_0
 dbname=$dbuser
 
 env_path=../../.bh.env
+env_path=../config/.env
+env_path=
 fromemail="\\\"cald:admin\\\" <bh_admin@${domain}>"
 admins="${fromemail},rlb@blandhand.net"
 staticroot=../static
@@ -45,12 +47,13 @@ if [ -z "$staticroot" ]; then
     echo $staticroot
 fi
 
-key=$(tr -dc 'a-z0-9!@#$%^&*(-_=+)' < /dev/urandom | head -c50)
+key=\'$(tr -dc 'a-z0-9!@#$%^&*(-_=+)' < /dev/urandom | head -c50)\'
 
 #cat <<END >> "$env_path"
+#doc="$(
 cat <<END
 
-DJANG_SECRET_KEY=$key
+DJANGO_SECRET_KEY=$key
 
 ALLOWED_HOSTS=$domain,testserver
 
@@ -82,5 +85,37 @@ EMAIL_HOST_PASSWORD=$emailpw
 #EMAIL_SSL_CERTFILE=
 
 END
+#)"
+#if [ -n "$env_path" ]; then
+#    echo "$doc" >> "$env_path"
+#else
+#    echo "$doc"
+#fi
 
-# stage/entrypoint.sh:16:./manage.py collectstatic --noinput
+basedir="$(readlink -f ../../)"
+repodir="$(readlink -f ..)"
+webdir="$(readlink -f ../../public)"
+
+#git clone https://github.com/baxrob/calndro.git
+#cd $basedir
+##virtualenv venv_test
+#python3 -m venv venv_test
+#. venv_test/bin/activate
+#python -m pip install --upgrade pip
+#pip install -r "$repodir/dh_test.txt"
+#deactivate
+#cd $basedir
+# ...
+#cd $basedir
+#ln -s venv_test venv 
+
+#ln -s "$repodir/config/dh_wsgi.py" "$basedir/passenger_wsgi.py"
+#ln -s "$repodir/config/dh.htaccess" "$webdir/.htaccess"
+
+
+#cd "$repodir"
+#./manage.py collectstatic --noinput
+#./manage.py makemigrations
+#./manage.py migrate
+
+
