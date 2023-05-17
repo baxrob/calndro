@@ -11,9 +11,9 @@ dbname=$dbuser
 env_path=../../.bh.env
 env_path=../config/.env
 env_path=
-fromemail="\\\"cald:admin\\\" <bh_admin@${domain}>"
-admins="${fromemail},rlb@blandhand.net"
-staticroot=../static
+fromemail="\\\"cald[mailer]\\\" <mailer@${domain}>"
+admins="${fromemail},rlb <rlb+cald@blandhand.net>"
+staticroot=../public/static
 dbpw=
 emailpw=
 
@@ -68,7 +68,7 @@ DATABASE_HOST=$dbhost
 #DATABASE_PORT=
 
 DJANGO_ADMINS="$admins"
-DJANGO_SERVER_EMAIL="$freomemail"
+DJANGO_SERVER_EMAIL="$fromemail"
 DJANGO_DEFAULT_FROM_EMAIL="$fromemail"
 
 EMAIL_SUBJECT_PREFIX='[calndro] '
@@ -102,11 +102,15 @@ webdir="$(readlink -f ../../public)"
 #python3 -m venv venv_test
 #. venv_test/bin/activate
 #python -m pip install --upgrade pip
-#pip install -r "$repodir/dh_test.txt"
+#pip install -r "$repodir/requirements/dh_test.txt"
 #deactivate
-#cd $basedir
-# ...
-#cd $basedir
+#
+#python3 -m venv venv_base
+#. venv_base/bin/activate
+#python -m pip install --upgrade pip
+#pip install -r "$repodir/requirements/dh_base.txt"
+#deactivate
+
 #ln -s venv_test venv 
 
 #ln -s "$repodir/config/dh_wsgi.py" "$basedir/passenger_wsgi.py"
@@ -114,8 +118,8 @@ webdir="$(readlink -f ../../public)"
 
 
 #cd "$repodir"
-#./manage.py collectstatic --noinput
-#./manage.py makemigrations
+#./manage.py collectstatic
+##./manage.py makemigrations
 #./manage.py migrate
 
 

@@ -12,7 +12,7 @@ sender=${sender:-$DEFAULT_SENDER}
 
 echo config: ${user:-_} ${pass:-_} ${host:-_} ${port:-_} $sender
 
-which jq > /dev/null || { echo jq required; exit 1 }
+which jq > /dev/null || { echo jq required; exit 1; }
 
 prompt() {
     case $1 in

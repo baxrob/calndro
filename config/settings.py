@@ -1,6 +1,7 @@
 from pathlib import Path
 import os
 
+from email.utils import getaddresses, parseaddr
 import environ
 
 
@@ -136,7 +137,23 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # [name:address,...]
-ADMINS = [x.split(':') for x in env.list('DJANGO_ADMINS')]
+#ADMINS = [x.split(':') for x in env.list('DJANGO_ADMINS')]
+
+
+from email.utils import getaddresses
+
+# DJANGO_ADMINS=Alice Judge <alice@cyb.org>,blake@cyb.org
+#ADMINS = getaddresses([env('DJANGO_ADMINS')])
+
+# another option is to use parseaddr from email.utils
+
+# DJANGO_ADMINS="Blake <blake@cyb.org>, Alice Judge <alice@cyb.org>"
+from email.utils import parseaddr
+
+#ADMINS = tuple(parseaddr(email) for email in env.list('DJANGO_ADMINS'))
+
+#ADMINS = getaddresses([env('DJANGO_ADMINS')])
+ADMINS = getaddresses(env.list('DJANGO_ADMINS'))
 DEBUG and print('admins:', 'env:', env.list('DJANGO_ADMINS'), 'dj:', ADMINS)
 
 DEFAULT_FROM_EMAIL = env.str('DJANGO_DEFAULT_FROM_EMAIL', 'admin@localhost')

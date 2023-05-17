@@ -17,7 +17,7 @@ from django.db import connection, reset_queries
 from rest_framework.test import APITestCase
 
 from schedul.models import EmailToken
-from schedul.fixtures import gen
+from schedul.fixtures import gen_sched
 
 User = get_user_model()
 
@@ -29,7 +29,7 @@ if 'DJTEST_QUIET' in os.environ:
     def print(*args, **kwargs):
         pass
 
-fixture_files = ['users', 'schedul']
+fixture_files = ['users_dev', 'schedul']
 
 def map_fixtures(fixtures):
     #
@@ -37,6 +37,8 @@ def map_fixtures(fixtures):
     fdata = {}
     for f in fixtures:
         fpath = bpath / (f + '.json')
+        # 
+        f = 'users' if 'users' in f else 'schedul' if 'schedul' in f else f
         with open(fpath) as fd:
             fdata[f] = json.loads(fd.read())
     ev = ([x['pk'] for x in fdata['schedul']
@@ -165,12 +167,12 @@ class EventViewTests(APITestCase):
         }, format='json')
         self.assertEqual(resp.status_code, 400)
 
-        # todo
+        # todo-
         # Over maximum slots
         from django.conf import settings
         resp = self.client.post('/', {
             'parties': get_parties(),
-            'slots': gen.gen_slots([31])
+            'slots': gen_sched.gen_slots([31])
         }, format='json')
         self.assertEqual(resp.status_code, 400)
 
@@ -358,6 +360,7 @@ class ViewAuthTests(APITestCase):
                 else:
                     self.assertEqual(resp.status_code, fail_code)
 
+    @override_settings(DEBUG=True) # enable connection.queries
     @tag('todo', 'this')
     def test_service_enlog_fail(self):
         # todo
@@ -372,8 +375,18 @@ class ViewAuthTests(APITestCase):
         event = models.Event.objects.get(pk=evt_id)
         resp = self.client.get(f'/{evt_id}/')
         #st()
-        services.enlog(event, email, 'UPDATE', gen.gen_slots([32]))
-        resp = self.client.get(f'/{evt_id}/log/')
+        services.enlog(event, email, 'UPDATE', gen_sched.gen_slots([32]))
+
+        # todo
+        from django.conf import settings
+        print(settings.DATABASES['default']['ENGINE'])
+        print(connection.vendor)
+        #st()
+        # X: mysql case (no strict mode)
+        if 'mysql' in settings.DATABASES['default']['ENGINE']:
+            with self.assertRaises(json.decoder.JSONDecodeError):
+                resp = self.client.get(f'/{evt_id}/log/')
+
         #print(resp.data)
         #st()
         #self.assertTrue(False)
@@ -892,6 +905,7 @@ class ViewQueryTests(APITestCase):
 
     @classmethod
     def setUpTestData(cls):
+        #st()
         print(len(connection.queries))
         cls.suser = User.objects.create(username='sup', is_staff=True)
         cls.suser.set_password('p')

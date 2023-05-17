@@ -1,8 +1,30 @@
-#! /usr/bin/env python3
+#!/usr/bin/env python3
 
 '''
-An crufty inconvenient fixture generator interface
+A crufty inconvenient fixture generator interface
+
+# Print sets of timespans
+# 
+gen_sched.py [count1 count2 ...]
+
+# Print local dev fixtures - fixed set
+# fixtures include event/s, timespan, and dispatchlogentries of creation
+# ..effector
+gen_sched.py fixt
+
+# Print schedul fixtures for emails, in combinations of subsequence-count
+# gen_sched.py a@b c@d e@f g@h 2 3 4
+# - prints all two-party, three-party, and four-party sub-permutations of emails
+gen_sched.py email [email ...] subsequence-count [subseq-count ...]
+
+
+# Tests
+./gen_sched.py a@b c@d e@f g@h 2 3 4  | less
+./gen_sched.py fixt  | less
+./gen_sched.py 6 9 5  | less
+
 '''
+
 import datetime
 import calendar
 import random
@@ -14,15 +36,15 @@ if version_info.minor < 9:
 else:
     import zoneinfo
 
-from calendar import monthrange
-from random import choice, randrange
-from datetime import datetime as dt
+#from calendar import monthrange
+#from datetime import datetime as dt
+from itertools import combinations
+from random import choice
 
 import os
 dbg = os.environ.get('GEN_DBG', False)
 
-# X: config? how? ? break out tests/ package, or submodule in schedul ?
-usr_eml = ['ob@localhost', 'zo@localhost', 'ub@localhost']
+dev_eml = ['ob@localhost', 'zo@localhost', 'ub@localhost']
 
 dt_fmt = '%Y-%m-%dT%H:%M:%S.%f%z'
 
@@ -65,7 +87,8 @@ def obj_slot(slot):
             minutes=dur_dt.minute, seconds=dur_dt.second)
     }
 
-def gen_fixtures(evt_users=[[1,2],[1,3],[2,3]], evt_slots=[3,4,5]):
+def gen_fixtures(evt_users=[[1,2],[1,3],[2,3]], evt_slots=[3,4,5], 
+    usr_eml=None):
     slot_count = 0
     fixt = []
     for idx, uu in enumerate(evt_users):
@@ -84,15 +107,14 @@ def gen_fixtures(evt_users=[[1,2],[1,3],[2,3]], evt_slots=[3,4,5]):
             slot_items.append(slot_item)
         slot_count += jdx + 1
         json_slots = json.dumps(slots)
+        #print(uu, usr_eml)
         dlog_item = {'model': 'schedul.dispatchlogentry', 'pk': evt_id,
             'fields': {'event': evt_id, 'when': dt_now, 'occurrence': 'UPDATE',
-                'effector': usr_eml[uu[0]], 'slots': json_slots,
+                'effector': usr_eml[uu[0] - 1], 'slots': json_slots,
                 'data': {'opened': 'created'}}}
         fixt.extend([evt_item, dlog_item, *slot_items])
     return fixt
 
-def print_fixtures():
-    print(json.dumps(gen_fixtures(), indent=4))
 
 if __name__ == '__main__':
     import sys
@@ -100,11 +122,31 @@ if __name__ == '__main__':
     arglen = len(sys.argv)
     if arglen > 1:
         if sys.argv[1] == 'fixt':
-            print_fixtures()
-            exit()
-        for i in range(1, arglen):
-            s = gen_slots([int(sys.argv[i])])
-            print(json.dumps(s))
+            print(json.dumps(gen_fixtures(usr_eml=dev_eml), indent=4))
+        elif not sys.argv[1].isdigit():
+            idx = 1
+            emails = []
+            nums = []
+            while idx < len(sys.argv) and not sys.argv[idx].isdigit():
+                emails.append(sys.argv[idx])
+                idx += 1
+            while idx < len(sys.argv):
+                nums.append(int(sys.argv[idx]))
+                idx += 1
+
+            usr_count = len(emails)
+            usr_ids = range(1, usr_count + 1)
+            nums = list(usr_ids) if len(nums) == 0 else nums
+            evt_users = []
+            for n in nums:
+                evt_users.extend(combinations(usr_ids, n))
+            evt_slots = [3] * len(evt_users)
+            dbg and print(emails, evt_users, list(evt_slots))
+            print(json.dumps(gen_fixtures(evt_users, evt_slots, emails)))
+        else:
+            for i in range(1, arglen):
+                s = gen_slots([int(sys.argv[i])])
+                print(json.dumps(s))
     else:
         s = gen_slots()
         print(json.dumps(s))
