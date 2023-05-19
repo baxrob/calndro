@@ -72,7 +72,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 DATABASES = {
@@ -172,9 +171,9 @@ EMAIL_HOST = env.str('EMAIL_HOST', '')
 EMAIL_PORT = env.str('EMAIL_PORT', '')
 EMAIL_HOST_USER = env.str('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = env.str('EMAIL_HOST_PASSWORD', '')
-EMAIL_USE_TLS = env.str('EMAIL_USE_TLS', '')
-EMAIL_USE_SSL = env.str('EMAIL_USE_SSL', '')
-EMAIL_TIMEOUT = env.str('EMAIL_TIMEOUT', '')
+EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', False)
+EMAIL_USE_SSL = env.bool('EMAIL_USE_SSL', False)
+EMAIL_TIMEOUT = env.int('EMAIL_TIMEOUT', 0)
 
 EMAIL_SSL_KEYFILE = env.str('EMAIL_SSL_KEYFILE', '')
 EMAIL_SSL_CERTFILE = env.str('EMAIL_SSL_CERTFILE', '')
