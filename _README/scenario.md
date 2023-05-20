@@ -42,7 +42,7 @@ http://$host:8000/$evt_id/?et=1fe36bfa6f2f2567b5f7ea5a06e1e2202ad57ea7
 http GET :8000/$evt_id/ et=1fe36bfa6f2f2567b5f7ea5a06e1e2202ad57ea7
 
 
-# - Update with suitable selection - time slots can only be attenuated
+# - Update with suitable selection
 
 http PATCH :8000/$evt_id/ \
     slots:='[{"begin": "2022-11-01T01:11:22.02", "duration": "00:10"},

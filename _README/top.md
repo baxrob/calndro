@@ -14,9 +14,16 @@ Contents: [scenario](#scenario) | [install](#install) | [api](#interface) | [tui
 <br>
 
 This is a WIP POC. 
-It's in an interim state with some cruft.
 Briefly, its 
 intent is similar to the core function of Calendly, or [cal.com](https://github.com/calcom/cal.com).
+It's in an interim state with some cruft
+at the edges,
+but the 
+main structure and operation are
+relatively settled. 
+<!--
+an unneccessary experiment toward assurability
+-->
 
 In summary:
 > Invite registered or unregistered parties, narrow to agreement on a scheduled time span, send notification of updates, with <!--all--> actions logged
@@ -25,7 +32,7 @@ In summary:
 propose -> narrow -> agree : audit
 ```
 
-There's no graphical interface, but a [tui](#tui) [or cli?]. 
+There's no graphical interface, but a [tui](#tui). 
 The
 [api](#interface)
 is
@@ -52,13 +59,26 @@ and some
 [referential](#ref)
 material.
 
-First a scenario
-
+<!-- X: s/<blockquote><i> -->
+```
+Note: draft text is marked with '@draft' in <code> or <details> blocks below
+```
+<!--
+ [or cli?]
+, or comments 
 ```
 > Conventions used in this document:\\n\\n
 > \s\s some pre/code blocks connote provisional notes
 
+\\n
+\n
 ```
+-->
+
+
+First a scenario
+
+
 
 <!--
 [scenario](#scenario)

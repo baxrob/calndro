@@ -8,6 +8,10 @@ There are feature tests with branch coverage.
 - Some auth tests are excessive or redundant
 - I need to stipulate assumptions built into the fixture structure
 
+
+<details>
+<summary>@draft</summary>
+
 ```
 overly parameterized
 
@@ -28,6 +32,7 @@ list_tests.sh
 
 tooling : py dj drf
 ```
+</details>
 
 ```
 todos:
@@ -38,6 +43,7 @@ add:
 mail tests
 env tests
 docker tests
+tui tests
 
 refactor:
 fixture axiomatics

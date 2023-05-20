@@ -54,6 +54,10 @@ Expiration defaults to five days, or the value of EMAILTOKEN_EXPIRATION_DAYS set
 
 
 #### Design
+
+<details>
+<summary>@draft</summary>
+
 ```
 disinterleaving
 naming splay  splay:join
@@ -69,7 +73,13 @@ career:
 ...
 ```
 
+</details>
+
 ##### Cases
+
+<details>
+<summary>@draft</summary>
+
 ```
 groupings:
 - storage, close/delete net, confirm, update flow
@@ -95,12 +105,19 @@ sec contain
 wrkflow tooling
 
 ```
+
 - 
+
+</details>
 
 
 ##### Security
 
 The project aims to be small, coherent, and auditable.
+
+<details>
+<summary>@draft</summary>
+
 ```
 - no incentive, eml/dt and evt title only
 - disposability
@@ -116,10 +133,13 @@ recipient token
 staff super
 [mailhost]
 ```
+</details>
 
 ##### Mail / notifications
 
 ```
+@draft
+
 - sendmail, localnet
 - _ mailhog
 
@@ -137,7 +157,10 @@ req slots to match latest
 
 ##### Time
 
-...
+
+<details>
+<summary>@draft</summary>
+
 ```
 ISO 8601
 RFC 3339
@@ -146,11 +169,15 @@ https://stackoverflow.com/questions/522251/whats-the-difference-between-iso-8601
 
 CSP papers 1,2,3  hickey
 ```
-<!-- tba ftw -->
+
+</details>
+
 
 ##### Validation
 
 ```
+@draft
+
 post
 patch
 notify
@@ -166,6 +193,8 @@ logs      /id/log        get
 ##### Logs
 
 ```
+@draft
+
 event
 parties
 entries
@@ -179,16 +208,30 @@ entries
 
 ##### Documentation
 
-- [grip/fork] / rdmd
+- Using ```Grip``` to draft and review this file outside github: https://github.com/joeyespo/grip
 - @todo: docstrings
 
-<!-- @todo
+<!-- @draft
+break:
+- comments in backbackbackticks
+- see env section comment
+
+.. wait, breaking via script/mine or gh.md ?
+-->
+
+``` &lt; \\n ```
+
+<!-- @draft
 ##### Extensibility
 -
 -
 -->
 
 ##### Motivations
+
+<details>
+<summary>@draft</summary>
+
 ```
 minima complexity
 
@@ -202,7 +245,15 @@ sh -> py underview
 
 network experiments
 ```
+
+</details>
+
+
 #### Process
+
+<details>
+<summary>@draft</summary>
+
 ```
 gluing together
 sense of flow
@@ -220,6 +271,8 @@ grip
 apifuz
 
 ```
+
+</details>
 
 
 

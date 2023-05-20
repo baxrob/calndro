@@ -1,7 +1,9 @@
 
 ### TUI
 
-See [scripts/tui.sh](scripts/tui.sh)
+See [scripts/tui.sh](scripts/tui.sh) 
+
+``` @todo: notify/sender```
 
 #### Example
 
@@ -57,7 +59,7 @@ q quit
 > c
 create: enter party emails>
 bobo@frofro.info
-enter slots as YYYY-MM-DDThh:mm:ss[+-hh:mm/Z] hh:mm:ss, followed by blank>
+enter slots as YYYY-MM-DDThh[:mm:ss+-hh:mm/Z] hh[:mm:ss], followed by blank>
 2029-01-01T11:29 01:01
 {
     "id": 4,
@@ -79,13 +81,12 @@ enter slots as YYYY-MM-DDThh:mm:ss[+-hh:mm/Z] hh:mm:ss, followed by blank>
 
   l   c   d[n]  p[n]  n[n]  g[n]  ?   q
 
-> c
-
-- awkward time entry .. rfc#..
+>
 
 ```
-
 <!--
+
+- awkward time entry .. rfc#..
 ```
 %[tuieg]
 ```

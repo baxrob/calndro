@@ -35,6 +35,8 @@ or run
 or visit ```$host/openapi```
 
 ```
+@draft
+
 $path/ vs $path  dj/humyn vs api/machine
 ```
 
