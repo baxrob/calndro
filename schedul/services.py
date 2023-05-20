@@ -15,17 +15,21 @@ from schedul.serializers import DispatchLogEntrySerializer
 User = get_user_model()
 
 
-def notify(event, sender_email, recip_email):
+def notify(event, sender_email, recip_email, url_root):
     recipient = User.objects.get(email=recip_email)
     token = EmailToken.objects.create(event=event, user=recipient)
+
     url_base = event.get_absolute_url()
-    url = '%s?et=%s' % (url_base, token.key)
+    url = '%s%s?et=%s' % (url_root, url_base, token.key)
     msg = 'expires %s' % token.expires
     message = '%s\n%s' %(url, msg)
     subject = "%s'%s' updated" % (settings.EMAIL_SUBJECT_PREFIX,
         event.title)
+
     from_email = sender_email
     recipient_list = [recip_email]
+
+    # X: EmailMessage .. Reply-To:
     send_mail(subject, message, from_email, recipient_list,
         fail_silently=False) 
 

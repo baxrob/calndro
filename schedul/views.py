@@ -1,6 +1,7 @@
 import json
 
 from django.shortcuts import get_object_or_404
+from django.conf import settings
 
 from rest_framework.views import APIView
 from rest_framework.generics import GenericAPIView
@@ -103,17 +104,32 @@ class EventNotify(APIView):
         token = services.token_login(self.request, event)
         self.check_object_permissions(self.request, event)
 
-        event.sender = request.user
+        # X: use a template param ?
+        #import ipdb; ipdb.set_trace()
+        rM = request.META
+        #print(rM['wsgi.url_scheme'], rM['HTTP_HOST'], rM['REMOTE_ADDR'])
+        url = "%s://%s" % (rM['wsgi.url_scheme'], rM['HTTP_HOST'])
+
+        # X: 
+        #event.sender = request.user
         serializer = EventNotifySerializer(event, data=request.data,
             context={'request': request})
         
         if serializer.is_valid():
+            data = serializer.validated_data
+
+            # X: or pass request to services.notify ?
+            event.sender = (data['sender'] if 'sender' in data
+                else request.user if request.user.is_active
+                else settings.DEFAULT_FROM_EMAIL)
+
             for recip_email in serializer.validated_data['parties']:
-                services.notify(event, request.user.email, recip_email)
+                services.notify(event, request.user.email, recip_email, url)
                 log_data = {"token": token.key} if token else {}
                 log_data['recipient'] = recip_email
                 services.enlog(event, request.user, 'NOTIFY',
                     serializer.data['slots'], log_data)
+            
             return Response(serializer.data,
                 status=status.HTTP_202_ACCEPTED)
         return Response(serializer.errors,

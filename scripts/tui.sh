@@ -6,9 +6,10 @@ port=${port:-}
 print=${print:-b}
 
 user=${user:-}
-pass=${pass-} # declare as empty to prompt
+pass=${pass-}   # declare as empty to prompt
 session=${session:-}
 token=${token:-}
+
 
 auth=
 if [ -n "$token" ]; then
@@ -30,6 +31,8 @@ showauth=$(echo $auth | sed 's/:[^ ]*/:***/')
 printf "config:\n  auth: $showauth\n  addr: $host:$port\n  print: $print\n"
 
 which jq > /dev/null || { echo jq required; exit 1; }
+which http > /dev/null || { echo httpie required; exit 1; }
+
 
 prompt() {
     case $1 in
@@ -59,7 +62,8 @@ prompt() {
         printf "enter sender by number or blank for [1]> "
     fi
     ;;
-    
+
+    #    
     *) printf "  [nop $1 $2\n]" ;;
     esac
 }
@@ -81,7 +85,7 @@ req() {
     if [ -n "$4" ]; then
         hcmd="$hcmd title="$4""
     fi
-    echo $($hcmd)
+    echo $($hcmd) | jq .
     #http --print=b -a $user:$pass $host:$port/ parties:="$2" \
     #    slots:="$3" "$titledecl"
        # title="$4"
@@ -95,15 +99,15 @@ req() {
     #http --print=b -a $user:$pass POST $host:$port/$2/notify/ \
     #    parties:="$3" slots:="$4" sender=$5
     echo http --print=$print $auth POST $host:$port/$2/notify/ \
-        parties:="$3" slots:="$4" sender=$5
+        parties:="$3" slots:="$4" #sender=$5
     http --print=$print $auth POST $host:$port/$2/notify/ \
-        parties:="$3" slots:="$4" sender=$5
+        parties:="$3" slots:="$4" #sender=$5
     ;;
     esac
 }
 
 create() {
-    plist='[' # quoted for vim syntax highlighting
+    plist='['   # quoted for vim syntax highlighting
     for eml in $1; do
         plist="$plist\"$eml\","
     done
@@ -132,6 +136,10 @@ listn() {
     echo $2 | jq -cM [.$list]
 }
 
+
+cmdcache=
+respcache=
+
 evtnum=
 cparties=
 cslots=
@@ -148,6 +156,7 @@ prompt $pcode
 
 # X: posix but no readline 
 #while read cmd; do
+
 while cmd=$(bash -c 'read -er cmd; echo $cmd'); do
     case $pcode in
     menu)
@@ -171,13 +180,14 @@ while cmd=$(bash -c 'read -er cmd; echo $cmd'); do
         printf "q quit\n"
         ;;
         q) exit 0 ;;
-        # X:
+        # X: ? why do we get throught to here
         *) printf "\nhuh? $cmd\n" ;; #pcode=menu ;;
         esac
     ;;
     create_title) ctitle="$cmd"; pcode=create_parties ;;
     create_parties) cparties="$cmd"; pcode=create_slots ;;
     create_slots|create_slots_nop)
+    # X:
     if [ -n "$cmd" ]; then
         cslots="${cslots#\\n}\n$cmd"
         pcode=create_slots_nop
@@ -195,12 +205,12 @@ while cmd=$(bash -c 'read -er cmd; echo $cmd'); do
     req patch $evtnum "$s"
     pcode=menu
     ;;
-    notify)
-    parties=$(listn "$cmd" "$(req detail $evtnum | jq -c .parties)")
-    slots=$(req detail $evtnum | jq -c .slots)
-    req notify $evtnum "$parties" "$slots"
-    pcode=menu
-    ;;
+    #notify)
+    #parties=$(listn "$cmd" "$(req detail $evtnum | jq -c .parties)")
+    #slots=$(req detail $evtnum | jq -c .slots)
+    #req notify $evtnum "$parties" "$slots"
+    #pcode=menu
+    #;;
     notify_*)
     if [ ${pcode#*_} = parties ]; then
         nparties=$(listn "$cmd" "$(req detail $evtnum | jq -c .parties)")

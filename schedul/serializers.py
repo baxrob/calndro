@@ -100,7 +100,7 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
          
 
 class EventNotifySerializer(serializers.Serializer):
-    sender = UserSerializer()
+    sender = UserSerializer(required=False)
     parties = UserSerializer(many=True)
     slots = TimeSpanSerializer(many=True)
     log_url = serializers.HyperlinkedIdentityField(
@@ -114,14 +114,21 @@ class EventNotifySerializer(serializers.Serializer):
         event = self.instance
         invalid_sender = False
         errors = {}
+
+        # X: 
         try:
             sender_obj = User.objects.get(email=data['sender'])
-            if sender_obj not in event.parties.all():
+            if (sender_obj not in event.parties.all() 
+                and not sender_obj.is_staff):
                 invalid_sender = True
+        except KeyError:
+            # Allow empty sender
+            pass
         except User.DoesNotExist:
             invalid_sender = True
         if invalid_sender:
             errors['sender'] = ['Not in event: ' + data['sender']]
+
         invalid_emails = []
         for event_party in data['parties']:
             try: 

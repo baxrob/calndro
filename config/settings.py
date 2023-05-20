@@ -153,7 +153,8 @@ from email.utils import parseaddr
 
 #ADMINS = getaddresses([env('DJANGO_ADMINS')])
 ADMINS = getaddresses(env.list('DJANGO_ADMINS'))
-DEBUG and print('admins:', 'env:', env.list('DJANGO_ADMINS'), 'dj:', ADMINS)
+if DEBUG:
+    print('admins:', 'env:', env.list('DJANGO_ADMINS'), 'dj:', ADMINS)
 
 DEFAULT_FROM_EMAIL = env.str('DJANGO_DEFAULT_FROM_EMAIL', 'admin@localhost')
 SERVER_EMAIL = env.str('DJANGO_SERVER_EMAIL', 'admin@localhost')
@@ -173,7 +174,7 @@ EMAIL_HOST_USER = env.str('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = env.str('EMAIL_HOST_PASSWORD', '')
 EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', False)
 EMAIL_USE_SSL = env.bool('EMAIL_USE_SSL', False)
-EMAIL_TIMEOUT = env.int('EMAIL_TIMEOUT', 0)
+EMAIL_TIMEOUT = env.int('EMAIL_TIMEOUT', 5)
 
 EMAIL_SSL_KEYFILE = env.str('EMAIL_SSL_KEYFILE', '')
 EMAIL_SSL_CERTFILE = env.str('EMAIL_SSL_CERTFILE', '')
