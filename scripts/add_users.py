@@ -8,7 +8,7 @@ from django.contrib.auth import get_user_model
 
 #import ipdb; ipdb.set_trace()
 scriptdir = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(scripdir + '/..')
+sys.path.append(scriptdir + '/..')
 os.environ['DJANGO_SETTINGS_MODULE'] = "config.settings"
 django.setup()
 
