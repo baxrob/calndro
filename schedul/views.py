@@ -108,7 +108,8 @@ class EventNotify(APIView):
         #import ipdb; ipdb.set_trace()
         rM = request.META
         #print(rM['wsgi.url_scheme'], rM['HTTP_HOST'], rM['REMOTE_ADDR'])
-        url = "%s://%s" % (rM['wsgi.url_scheme'], rM['HTTP_HOST'])
+        import socket
+        url = "%s://%s" % (rM['wsgi.url_scheme'], socket.gethostname()) 
 
         # X: 
         #event.sender = request.user
@@ -121,7 +122,17 @@ class EventNotify(APIView):
             # X: or pass request to services.notify ?
             event.sender = (data['sender'] if 'sender' in data
                 else request.user if request.user.is_active
-                else settings.DEFAULT_FROM_EMAIL)
+                else {'email': settings.DEFAULT_FROM_EMAIL})
+            
+            if 'sender' in data:
+                event.sender = {'email': data['sender']}
+            elif request.user.is_active:
+                event.sender = request.user
+            else:
+                event.sender = {'email': settings.DEFAULT_FROM_EMAIL}
+
+            #print('uuu', event.sender, request.user, data['sender'], settings.DEFAULT_FROM_EMAIL)
+            #event.sender = request.user
 
             for recip_email in serializer.validated_data['parties']:
                 services.notify(event, request.user.email, recip_email, url)
