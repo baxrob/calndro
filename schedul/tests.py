@@ -742,6 +742,8 @@ class DispatchViewTests(APITestCase):
         resp = self.client.post(f'/{evt_id}/notify/', {'parties': [u_eml],
             'slots': resp.data['slots'], 'sender': u_eml}, format='json') 
         self.assertEqual(resp.status_code, 202)
+        print(mail.outbox[0].subject)
+        print(mail.outbox[0].body)
         self.assertEqual(len(mail.outbox), 1)
 
     #@tag('this')

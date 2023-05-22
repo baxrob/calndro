@@ -15,7 +15,7 @@ from schedul.serializers import DispatchLogEntrySerializer
 User = get_user_model()
 
 
-def notify(event, sender_email, recip_email, url_root):
+def notify(event, sender_email, recip_email, url_root, is_invite):
     recipient = User.objects.get(email=recip_email)
     token = EmailToken.objects.create(event=event, user=recipient)
 

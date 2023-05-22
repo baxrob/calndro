@@ -104,13 +104,6 @@ class EventNotify(APIView):
         token = services.token_login(self.request, event)
         self.check_object_permissions(self.request, event)
 
-        # X: use a template param ?
-        #import ipdb; ipdb.set_trace()
-        rM = request.META
-        #print(rM['wsgi.url_scheme'], rM['HTTP_HOST'], rM['REMOTE_ADDR'])
-        import socket
-        url = "%s://%s" % (rM['wsgi.url_scheme'], socket.gethostname()) 
-
         # X: 
         #event.sender = request.user
         serializer = EventNotifySerializer(event, data=request.data,
@@ -119,11 +112,6 @@ class EventNotify(APIView):
         if serializer.is_valid():
             data = serializer.validated_data
 
-            # X: or pass request to services.notify ?
-            event.sender = (data['sender'] if 'sender' in data
-                else request.user if request.user.is_active
-                else {'email': settings.DEFAULT_FROM_EMAIL})
-            
             if 'sender' in data:
                 event.sender = {'email': data['sender']}
             elif request.user.is_active:
@@ -131,13 +119,29 @@ class EventNotify(APIView):
             else:
                 event.sender = {'email': settings.DEFAULT_FROM_EMAIL}
 
+            scheme = request.META['wsgi.url_scheme']
+            domain = settings.HOST_DOMAIN 
+            domain = request.META['SERVER_NAME'] 
+            url = "%s://%s" % (scheme, domain)
+            port = request.META['SERVER_PORT']
+            if port:
+                url = "%s:%s" % (url, port)
+            is_invite = False
+            #
+            #is_invite = data['invitation']
+
+            # X: 
             #print('uuu', event.sender, request.user, data['sender'], settings.DEFAULT_FROM_EMAIL)
             #event.sender = request.user
 
             for recip_email in serializer.validated_data['parties']:
-                services.notify(event, request.user.email, recip_email, url)
+
+                services.notify(event, request.user.email, recip_email, 
+                    url, is_invite)
                 log_data = {"token": token.key} if token else {}
                 log_data['recipient'] = recip_email
+                #
+                #log_data['sender'] = event.sender.email
                 services.enlog(event, request.user, 'NOTIFY',
                     serializer.data['slots'], log_data)
             

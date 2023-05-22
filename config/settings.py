@@ -26,6 +26,8 @@ DEBUG = env.bool('DJANGO_DEBUG', False)
 
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', [])
 
+HOST_DOMAIN = env.str('HOST_DOMAIN', '')
+
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -135,29 +137,16 @@ STATIC_ROOT = env.str('STATIC_ROOT', None)
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-# [name:address,...]
-#ADMINS = [x.split(':') for x in env.list('DJANGO_ADMINS')]
-
-
-from email.utils import getaddresses
-
-# DJANGO_ADMINS=Alice Judge <alice@cyb.org>,blake@cyb.org
-#ADMINS = getaddresses([env('DJANGO_ADMINS')])
-
-# another option is to use parseaddr from email.utils
-
-# DJANGO_ADMINS="Blake <blake@cyb.org>, Alice Judge <alice@cyb.org>"
-from email.utils import parseaddr
-
-#ADMINS = tuple(parseaddr(email) for email in env.list('DJANGO_ADMINS'))
-
 #ADMINS = getaddresses([env('DJANGO_ADMINS')])
 ADMINS = getaddresses(env.list('DJANGO_ADMINS'))
+
+DEFAULT_FROM_EMAIL = parseaddr(
+    env.str('DJANGO_DEFAULT_FROM_EMAIL', 'admin@localhost'))
+SERVER_EMAIL = parseaddr(env.str('DJANGO_SERVER_EMAIL', 'admin@localhost'))
+
 if DEBUG:
     print('admins:', 'env:', env.list('DJANGO_ADMINS'), 'dj:', ADMINS)
-
-DEFAULT_FROM_EMAIL = env.str('DJANGO_DEFAULT_FROM_EMAIL', 'admin@localhost')
-SERVER_EMAIL = env.str('DJANGO_SERVER_EMAIL', 'admin@localhost')
+    print('from:', DEFAULT_FROM_EMAIL, 'server:', SERVER_EMAIL)
 
 EMAIL_SUBJECT_PREFIX = env.str('EMAIL_SUBJECT_PREFIX', '[calndro] ')
 EMAIL_USE_LOCALTIME = env.str('EMAIL_USE_LOCALTIME', False)
