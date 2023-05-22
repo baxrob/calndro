@@ -119,30 +119,28 @@ class EventNotify(APIView):
             else:
                 event.sender = {'email': settings.DEFAULT_FROM_EMAIL}
 
+            sender_email = (data['sender'] if 'sender' in data else
+                request.user.email if request.user.is_active else
+                settings.DEFAULT_FROM_EMAIL)
+
             scheme = request.META['wsgi.url_scheme']
+            # X: remove setting
             domain = settings.HOST_DOMAIN 
             domain = request.META['SERVER_NAME'] 
             url = "%s://%s" % (scheme, domain)
             port = request.META['SERVER_PORT']
             if port:
                 url = "%s:%s" % (url, port)
-            is_invite = False
-            #
-            #is_invite = data['invitation']
-
-            # X: 
-            #print('uuu', event.sender, request.user, data['sender'], settings.DEFAULT_FROM_EMAIL)
-            #event.sender = request.user
+            is_invite = data['invitation'] if 'invitation' in data else False
 
             for recip_email in serializer.validated_data['parties']:
 
-                services.notify(event, request.user.email, recip_email, 
+                services.notify(event, sender_email, recip_email, 
                     url, is_invite)
                 log_data = {"token": token.key} if token else {}
                 log_data['recipient'] = recip_email
-                #
-                #log_data['sender'] = event.sender.email
-                services.enlog(event, request.user, 'NOTIFY',
+                log_data['sender'] = sender_email
+                services.enlog(event, request.user.email, 'NOTIFY',
                     serializer.data['slots'], log_data)
             
             return Response(serializer.data,

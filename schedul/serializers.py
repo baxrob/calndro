@@ -103,6 +103,7 @@ class EventNotifySerializer(serializers.Serializer):
     sender = UserSerializer(required=False)
     parties = UserSerializer(many=True)
     slots = TimeSpanSerializer(many=True)
+    invitation = serializers.BooleanField(required=False)
     log_url = serializers.HyperlinkedIdentityField(
         view_name='dispatch-log')
     notify_url = serializers.HyperlinkedIdentityField(
@@ -116,18 +117,16 @@ class EventNotifySerializer(serializers.Serializer):
         errors = {}
 
         # X: 
-        try:
-            sender_obj = User.objects.get(email=data['sender'])
-            if (sender_obj not in event.parties.all() 
-                and not sender_obj.is_staff):
+        if 'sender' in data:
+            try:
+                sender_obj = User.objects.get(email=data['sender'])
+                if (sender_obj not in event.parties.all() 
+                    and not sender_obj.is_staff):
+                    invalid_sender = True
+            except User.DoesNotExist:
                 invalid_sender = True
-        except KeyError:
-            # Allow empty sender
-            pass
-        except User.DoesNotExist:
-            invalid_sender = True
-        if invalid_sender:
-            errors['sender'] = ['Not in event: ' + data['sender']]
+            if invalid_sender:
+                errors['sender'] = ['Not in event: ' + data['sender']]
 
         invalid_emails = []
         for event_party in data['parties']:
